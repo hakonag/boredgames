@@ -15,6 +15,16 @@ function loadGame(gameType) {
     const gameContainer = document.getElementById('game-container');
     const gameContent = document.getElementById('game-content');
     
+    // Clean up previous game (like Tetris controls)
+    if (window.tetrisGame && window.tetrisGame.removeControls) {
+        window.tetrisGame.removeControls();
+    }
+    
+    // Remove scroll lock
+    document.body.style.overflow = '';
+    document.body.style.position = '';
+    document.documentElement.style.overflow = '';
+    
     container.classList.add('hidden');
     gameContainer.classList.remove('hidden');
     
@@ -42,6 +52,16 @@ function loadGame(gameType) {
 }
 
 function goHome() {
+    // Clean up Tetris controls when leaving
+    if (window.tetrisGame && window.tetrisGame.removeControls) {
+        window.tetrisGame.removeControls();
+    }
+    
+    // Remove scroll lock
+    document.body.style.overflow = '';
+    document.body.style.position = '';
+    document.documentElement.style.overflow = '';
+    
     const container = document.querySelector('.container');
     const gameContainer = document.getElementById('game-container');
     
@@ -77,15 +97,43 @@ function initTetris() {
         </div>
     `;
     
+    // Lock scrolling when Tetris is active
+    document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.width = '100%';
+    document.documentElement.style.overflow = 'hidden';
+    
     const style = document.createElement('style');
     style.id = 'game-specific-styles';
     style.textContent = `
+        body {
+            overflow: hidden !important;
+            position: fixed !important;
+            width: 100% !important;
+        }
+        html {
+            overflow: hidden !important;
+        }
+        .game-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+            max-width: 100%;
+            margin: 0;
+            border-radius: 0;
+            padding: 20px;
+        }
         .tetris-game {
             display: flex;
             gap: 30px;
             justify-content: center;
             align-items: flex-start;
             flex-wrap: wrap;
+            max-width: 100%;
         }
         .tetris-board {
             display: flex;
@@ -132,6 +180,7 @@ function initTetris() {
     document.head.appendChild(style);
     
     tetrisGame = new TetrisGame();
+    window.tetrisGame = tetrisGame; // Store globally for cleanup
 }
 
 class TetrisGame {
@@ -163,7 +212,16 @@ class TetrisGame {
     }
     
     setupControls() {
-        document.addEventListener('keydown', (e) => {
+        this.keyHandler = (e) => {
+            // Prevent default for arrow keys and space when Tetris is active
+            if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', ' '].includes(e.key)) {
+                // Only prevent default if game is running (not paused and has a piece)
+                if (this.currentPiece && !this.isPaused) {
+                    e.preventDefault();
+                }
+            }
+            
+            // Only handle keys when game is active
             if (this.isPaused || !this.currentPiece) return;
             
             switch(e.key) {
@@ -180,11 +238,18 @@ class TetrisGame {
                     this.rotatePiece();
                     break;
                 case ' ':
-                    e.preventDefault();
                     this.hardDrop();
                     break;
             }
-        });
+        };
+        
+        document.addEventListener('keydown', this.keyHandler);
+    }
+    
+    removeControls() {
+        if (this.keyHandler) {
+            document.removeEventListener('keydown', this.keyHandler);
+        }
     }
     
     start() {
