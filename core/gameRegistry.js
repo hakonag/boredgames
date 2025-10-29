@@ -37,6 +37,24 @@ export const gameRegistry = [
         category: 'puzzle',
         initFunction: 'initTetris',
         enabled: true
+    },
+    {
+        id: 'roulette',
+        name: 'Roulette',
+        icon: '🎰',
+        description: 'Casinoklassiker',
+        category: 'casino',
+        initFunction: 'initRoulette',
+        enabled: false // Placeholder game
+    },
+    {
+        id: 'casino',
+        name: 'Casino',
+        icon: '🎲',
+        description: 'Casinospillsamling',
+        category: 'casino',
+        initFunction: 'initCasino',
+        enabled: false // Placeholder game
     }
 ];
 

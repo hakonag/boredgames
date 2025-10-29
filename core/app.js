@@ -14,13 +14,13 @@ function renderGameCards() {
     // Clear existing cards
     gamesGrid.innerHTML = '';
     
-    // Get enabled games from registry
-    const enabledGames = getEnabledGames();
+    // Get ALL games from registry (show all, even if not implemented yet)
+    const allGames = gameRegistry;
     
     // Create game cards dynamically
-    enabledGames.forEach(game => {
+    allGames.forEach(game => {
         const card = document.createElement('div');
-        card.className = 'game-card';
+        card.className = game.enabled ? 'game-card' : 'game-card coming-soon';
         card.setAttribute('data-game', game.id);
         card.innerHTML = `
             <div class="game-icon">${game.icon}</div>
@@ -28,9 +28,17 @@ function renderGameCards() {
             <p>${game.description}</p>
         `;
         
-        card.addEventListener('click', () => {
-            loadGame(game.id);
-        });
+        if (game.enabled) {
+            card.addEventListener('click', () => {
+                loadGame(game.id);
+            });
+        } else {
+            card.style.cursor = 'not-allowed';
+            card.addEventListener('click', () => {
+                // Show message that game is coming soon
+                alert(`🎮 ${game.name} kommer snart!`);
+            });
+        }
         
         gamesGrid.appendChild(card);
     });
