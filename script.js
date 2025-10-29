@@ -389,8 +389,8 @@ function initTetris() {
     tetrisGame = new TetrisGame();
     window.tetrisGame = tetrisGame; // Store globally for cleanup
     
-    // Load and display high scores
-    displayHighScores();
+    // Load and display high scores (async)
+    displayHighScores().catch(err => console.log('Error loading scores:', err));
 }
 
 class TetrisGame {
@@ -884,26 +884,130 @@ function pauseTetris() {
 }
 
 // ========== HIGH SCORE SYSTEM ==========
-function getHighScores() {
-    const scores = localStorage.getItem('tetrisHighScores');
-    return scores ? JSON.parse(scores) : [];
+// Using JSONBin.io for shared scores (free tier)
+// INSTRUKSJONER: Se SETUP_SCORES.md for hvordan du setter dette opp
+const SCORES_BIN_ID = '690215d8ae596e708f35a6f6'; // Bin ID fra JSONBin.io
+const JSONBIN_API_KEY = '$2a$10$1O0Z6MZSatbiabe61Zuhm.wyX.0PsnBCG/fF5aerdhynJnaQHkQgG'; // Master Key fra JSONBin.io
+
+async function getHighScores() {
+    try {
+        // Get local scores as fallback
+        const localScores = localStorage.getItem('tetrisHighScores');
+        const localScoresArray = localScores ? JSON.parse(localScores) : [];
+        
+        // Try to fetch from JSONBin if configured
+        if (JSONBIN_API_KEY && SCORES_BIN_ID && SCORES_BIN_ID !== 'tetris-high-scores') {
+            try {
+                const response = await fetch(`https://api.jsonbin.io/v3/b/${SCORES_BIN_ID}/latest`, {
+                    headers: {
+                        'X-Master-Key': JSONBIN_API_KEY
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    // Handle different response formats
+                    let remoteScores = [];
+                    
+                    if (Array.isArray(data.record)) {
+                        remoteScores = data.record;
+                    } else if (data.record && Array.isArray(data.record.scores)) {
+                        remoteScores = data.record.scores;
+                    } else if (data.record && typeof data.record === 'object') {
+                        // Try to extract array from object
+                        const keys = Object.keys(data.record);
+                        if (keys.length > 0 && Array.isArray(data.record[keys[0]])) {
+                            remoteScores = data.record[keys[0]];
+                        }
+                    }
+                    
+                    // Filter out any placeholder/example scores
+                    remoteScores = remoteScores.filter(s => 
+                        s && s.name && s.score !== undefined && 
+                        !(s.name === 'Eksempel' && s.score === 1000)
+                    );
+                    
+                    // Merge local and remote scores (avoid duplicates)
+                    const allScores = [...localScoresArray, ...remoteScores];
+                    const uniqueScores = [];
+                    const seen = new Set();
+                    
+                    allScores.forEach(score => {
+                        const key = `${score.name}-${score.score}-${score.date}`;
+                        if (!seen.has(key)) {
+                            seen.add(key);
+                            uniqueScores.push(score);
+                        }
+                    });
+                    
+                    uniqueScores.sort((a, b) => b.score - a.score);
+                    const top10 = uniqueScores.slice(0, 10);
+                    
+                    // Update localStorage with merged scores
+                    localStorage.setItem('tetrisHighScores', JSON.stringify(top10));
+                    
+                    return top10;
+                }
+            } catch (error) {
+                console.log('Could not fetch remote scores, using local:', error);
+            }
+        } else {
+            console.log('JSONBin not configured. Using local scores only.');
+        }
+        
+        // Fallback to localStorage
+        return localScoresArray;
+    } catch (error) {
+        console.error('Error getting high scores:', error);
+        const localScores = localStorage.getItem('tetrisHighScores');
+        return localScores ? JSON.parse(localScores) : [];
+    }
 }
 
-function saveHighScore(name, score) {
-    const scores = getHighScores();
-    scores.push({ name: name || 'Anonym', score: score, date: new Date().toISOString() });
-    scores.sort((a, b) => b.score - a.score);
-    const top10 = scores.slice(0, 10);
+async function saveHighScore(name, score) {
+    // Get current scores (both local and remote)
+    const currentScores = await getHighScores();
+    const newScore = { name: name || 'Anonym', score: score, date: new Date().toISOString() };
+    
+    // Add new score and sort
+    currentScores.push(newScore);
+    currentScores.sort((a, b) => b.score - a.score);
+    const top10 = currentScores.slice(0, 10);
+    
+    // Save to localStorage
     localStorage.setItem('tetrisHighScores', JSON.stringify(top10));
+    
+    // Try to save to JSONBin
+    if (JSONBIN_API_KEY && SCORES_BIN_ID && SCORES_BIN_ID !== 'tetris-high-scores') {
+        try {
+            const response = await fetch(`https://api.jsonbin.io/v3/b/${SCORES_BIN_ID}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Master-Key': JSONBIN_API_KEY
+                },
+                body: JSON.stringify(top10)
+            });
+            
+            if (response.ok) {
+                console.log('Score saved to cloud successfully!');
+            }
+        } catch (error) {
+            console.log('Could not save to remote, saved locally:', error);
+        }
+    } else {
+        console.log('JSONBin not configured. Scores saved locally only.');
+    }
+    
     displayHighScores();
     return top10;
 }
 
-function displayHighScores() {
+async function displayHighScores() {
     const scoresContainer = document.getElementById('tetris-high-scores');
     if (!scoresContainer) return;
     
-    const scores = getHighScores();
+    const scores = await getHighScores();
     
     if (scores.length === 0) {
         scoresContainer.innerHTML = '<p style="color: #999; font-size: 0.85rem;">Ingen scores ennå</p>';
