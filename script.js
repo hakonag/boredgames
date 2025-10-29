@@ -209,7 +209,7 @@ function initTetris() {
         }
         .tetris-game {
             display: flex;
-            gap: 15px;
+            gap: 10px;
             justify-content: center;
             align-items: flex-start;
             flex-wrap: wrap;
@@ -219,18 +219,20 @@ function initTetris() {
         .tetris-side-panel {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 10px;
+            flex-shrink: 0;
         }
         .preview-box {
             background: #f5f5f5;
             border-radius: 8px;
-            padding: 10px;
+            padding: 8px;
             text-align: center;
-            min-width: 140px;
+            min-width: 120px;
+            max-width: 120px;
         }
         .preview-box h4 {
-            margin: 0 0 10px 0;
-            font-size: 0.9rem;
+            margin: 0 0 8px 0;
+            font-size: 0.85rem;
             color: #667eea;
         }
         #hold-canvas, #next-canvas {
@@ -238,35 +240,41 @@ function initTetris() {
             border: 2px solid #333;
             border-radius: 5px;
             display: block;
+            width: 100%;
+            height: auto;
         }
         .tetris-board {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
+            flex-shrink: 0;
         }
         #tetris-canvas {
             border: 3px solid #333;
             background: #000;
             display: block;
+            max-width: 100%;
+            height: auto;
         }
         .tetris-info {
             text-align: center;
-            font-size: 1rem;
-            margin-top: 5px;
+            font-size: 0.9rem;
+            margin-top: 3px;
         }
         .tetris-info p {
-            margin: 3px 0;
+            margin: 2px 0;
         }
         .tetris-controls {
-            padding: 15px;
+            padding: 12px;
             background: #f5f5f5;
             border-radius: 10px;
-            min-width: 200px;
-            max-width: 220px;
+            min-width: 180px;
+            max-width: 180px;
             max-height: calc(100vh - 120px);
             overflow-y: hidden;
             overflow-x: hidden;
+            flex-shrink: 0;
         }
         .tetris-controls h3 {
             margin-bottom: 10px;
@@ -374,6 +382,10 @@ function initTetris() {
 class TetrisGame {
     constructor() {
         this.canvas = document.getElementById('tetris-canvas');
+        if (!this.canvas) {
+            console.error('Tetris canvas not found!');
+            return;
+        }
         this.ctx = this.canvas.getContext('2d');
         this.grid = Array(20).fill().map(() => Array(10).fill(0));
         this.currentPiece = null;
@@ -409,7 +421,11 @@ class TetrisGame {
         ];
         
         this.setupControls();
-        this.draw();
+        // Delay draw slightly to ensure canvas is ready
+        setTimeout(() => {
+            this.draw();
+            this.drawPreviews();
+        }, 10);
     }
     
     setupControls() {
@@ -810,9 +826,6 @@ class TetrisGame {
                 }
             }
         }
-        
-        // Update previews when drawing
-        this.drawPreviews();
     }
     
     gameOver() {
