@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bored Games - Spill når du kjeder deg</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>boredgames</h1>
+            <hr class="divider">
+            <p class="subtitle">Games to play when you are bored!</p>
+        </header>
+
+        <main class="games-grid">
+            <div class="game-card" data-game="solitaire">
+                <div class="game-icon">🃏</div>
+                <h2>Kabal</h2>
+                <p>Klassisk solitær</p>
+            </div>
+
+            <div class="game-card" data-game="yatzy">
+                <div class="game-icon">🎲</div>
+                <h2>Yatzy</h2>
+                <p>Terningklassiker</p>
+            </div>
+
+            <div class="game-card" data-game="ludo">
+                <div class="game-icon">🏁</div>
+                <h2>Ludo</h2>
+                <p>Brettspillklassiker</p>
+            </div>
+
+            <div class="game-card" data-game="tetris">
+                <div class="game-icon">🔲</div>
+                <h2>Tetris</h2>
+                <p>Puslespillklassiker</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- Game containers -->
+    <div id="game-container" class="game-container hidden">
+        <button class="back-button" onclick="goHome()">← Tilbake</button>
+        <div id="game-content"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
