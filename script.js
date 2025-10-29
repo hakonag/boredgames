@@ -167,14 +167,15 @@ function initTetris() {
             right: 0;
             bottom: 0;
             overflow: hidden !important;
-            max-width: 100%;
+            max-width: 100vw;
+            max-height: 100vh;
             margin: 0;
-            border-radius: 0;
-            padding: 10px;
+            padding: 5px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            box-sizing: border-box;
         }
         .game-container #game-content {
             position: relative;
@@ -184,134 +185,147 @@ function initTetris() {
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            max-width: 100%;
+            max-height: 100%;
+            overflow: hidden;
+            box-sizing: border-box;
         }
         .game-container h2 {
-            margin-top: 40px;
-            margin-bottom: 10px;
-            font-size: 1.8rem;
+            margin-top: 35px;
+            margin-bottom: 8px;
+            font-size: 1.5rem;
         }
         .back-button-tetris {
-            position: absolute;
-            top: 15px;
-            left: 15px;
+            position: fixed;
+            top: 10px;
+            left: 10px;
             background: #667eea;
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 8px 16px;
             border-radius: 8px;
-            font-size: 1rem;
+            font-size: 0.9rem;
             cursor: pointer;
             transition: background 0.3s ease;
-            z-index: 1000;
+            z-index: 10000;
         }
         .back-button-tetris:hover {
             background: #5568d3;
         }
         .tetris-game {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             justify-content: center;
             align-items: flex-start;
             flex-wrap: wrap;
             max-width: 100%;
             margin-top: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
         .tetris-side-panel {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
             flex-shrink: 0;
+            max-width: 130px;
         }
         .preview-box {
             background: #f5f5f5;
-            border-radius: 8px;
-            padding: 8px;
+            border-radius: 6px;
+            padding: 6px;
             text-align: center;
-            min-width: 120px;
+            width: 120px;
             max-width: 120px;
+            box-sizing: border-box;
         }
         .preview-box h4 {
-            margin: 0 0 8px 0;
-            font-size: 0.85rem;
+            margin: 0 0 6px 0;
+            font-size: 0.8rem;
             color: #667eea;
         }
         #hold-canvas, #next-canvas {
             background: #000;
             border: 2px solid #333;
-            border-radius: 5px;
+            border-radius: 4px;
             display: block;
             width: 100%;
             height: auto;
+            max-width: 100%;
         }
         .tetris-board {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 8px;
+            gap: 5px;
             flex-shrink: 0;
+            max-width: 100%;
         }
         #tetris-canvas {
             border: 3px solid #333;
             background: #000;
             display: block;
-            max-width: 100%;
+            max-width: min(300px, calc(100vw - 300px));
+            max-height: min(600px, calc(100vh - 100px));
+            width: auto;
             height: auto;
         }
         .tetris-info {
             text-align: center;
-            font-size: 0.9rem;
-            margin-top: 3px;
+            font-size: 0.85rem;
+            margin-top: 2px;
         }
         .tetris-info p {
-            margin: 2px 0;
+            margin: 1px 0;
         }
         .tetris-controls {
-            padding: 12px;
+            padding: 10px;
             background: #f5f5f5;
-            border-radius: 10px;
-            min-width: 180px;
-            max-width: 180px;
-            max-height: calc(100vh - 120px);
-            overflow-y: hidden;
+            border-radius: 8px;
+            width: 170px;
+            max-width: 170px;
+            max-height: calc(100vh - 100px);
+            overflow-y: auto;
             overflow-x: hidden;
             flex-shrink: 0;
+            box-sizing: border-box;
         }
         .tetris-controls h3 {
-            margin-bottom: 10px;
-            font-size: 1rem;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
         }
         .tetris-controls p {
-            margin: 5px 0;
-            font-size: 0.9rem;
+            margin: 4px 0;
+            font-size: 0.85rem;
         }
         .tetris-controls button {
             background: #667eea;
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-size: 0.95rem;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.9rem;
             cursor: pointer;
-            margin-top: 10px;
+            margin-top: 8px;
             width: 100%;
         }
         .tetris-controls button:hover {
             background: #5568d3;
         }
         .high-scores {
-            margin-top: 20px;
-            padding-top: 15px;
+            margin-top: 15px;
+            padding-top: 12px;
             border-top: 2px solid #ddd;
         }
         .high-scores h3 {
-            font-size: 1rem;
-            margin-bottom: 8px;
+            font-size: 0.95rem;
+            margin-bottom: 6px;
         }
         .score-entry {
             display: flex;
             justify-content: space-between;
-            padding: 3px 0;
-            font-size: 0.85rem;
+            padding: 2px 0;
+            font-size: 0.8rem;
         }
         .score-entry:first-child {
             font-weight: bold;
