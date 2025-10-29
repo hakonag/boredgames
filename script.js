@@ -1216,23 +1216,70 @@ function initSolitaire() {
             border: 2px solid #333;
             border-radius: 6px;
             position: absolute;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: grab;
             user-select: none;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             padding: 5px;
             box-sizing: border-box;
+            touch-action: none;
+            will-change: transform, left, top;
         }
-        .solitaire-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        .solitaire-card:active {
+            cursor: grabbing;
+        }
+        .solitaire-card.dragging {
+            opacity: 0.8;
+            transform: rotate(2deg);
+            z-index: 10000;
+            cursor: grabbing;
         }
         .solitaire-card.selected {
             border: 3px solid #ffd700;
             box-shadow: 0 0 15px rgba(255,215,0,0.8);
             z-index: 1000;
+        }
+        .pile-counter {
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            white-space: nowrap;
+        }
+        .stock-pile, .waste-pile {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            position: relative;
+        }
+        .card-stack {
+            position: relative;
+            width: 76px;
+            height: 108px;
+        }
+        .card-stack .stacked-card {
+            position: absolute;
+            width: 76px;
+            height: 108px;
+            border: 1px solid rgba(0,0,0,0.2);
+            border-radius: 6px;
+            background: rgba(255,255,255,0.95);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .card-stack-indicator {
+            position: absolute;
+            width: 76px;
+            height: 108px;
+            border: 2px dashed rgba(255,255,255,0.3);
+            border-radius: 6px;
+            pointer-events: none;
         }
         .solitaire-card.face-down {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -1270,6 +1317,15 @@ function initSolitaire() {
         }
         .tableau-pile {
             position: relative;
+            margin-bottom: 30px;
+        }
+        .drop-zone {
+            border: 2px dashed rgba(255,255,255,0.5);
+            background: rgba(255,255,255,0.1);
+        }
+        .drop-zone.drag-over {
+            border-color: #ffd700;
+            background: rgba(255,215,0,0.2);
         }
         .solitaire-controls {
             text-align: center;
@@ -1309,11 +1365,15 @@ class SolitaireGame {
         this.tableau = [[], [], [], [], [], [], []];
         this.selectedCard = null;
         this.selectedSource = null;
+        this.dragging = null;
+        this.dragOffset = { x: 0, y: 0 };
+        this.dragSequence = [];
         
         this.createDeck();
         this.shuffleDeck();
         this.deal();
         this.render();
+        this.setupDragAndDrop();
     }
     
     createDeck() {
@@ -1389,27 +1449,35 @@ class SolitaireGame {
             this.stock.forEach(c => c.faceUp = false);
             this.waste = [];
         } else {
-            const card = this.stock.pop();
-            card.faceUp = true;
-            this.waste.push(card);
+            // Draw three cards at a time
+            const cardsToDraw = Math.min(3, this.stock.length);
+            for (let i = 0; i < cardsToDraw; i++) {
+                const card = this.stock.pop();
+                card.faceUp = true;
+                this.waste.push(card);
+            }
         }
         this.render();
     }
     
     selectCard(card, source, index) {
-        if (this.selectedCard) {
-            this.selectedCard.element.classList.remove('selected');
-        }
-        
-        if (this.selectedCard && this.selectedCard.card === card && this.selectedCard.source === source) {
-            // Deselect
-            this.selectedCard = null;
-            this.selectedSource = null;
-        } else {
-            this.selectedCard = { card, source, index, element: null };
-            this.selectedSource = source;
-        }
-        this.render();
+        // Use requestAnimationFrame for smoother updates
+        requestAnimationFrame(() => {
+            if (this.selectedCard && this.selectedCard.element) {
+                this.selectedCard.element.classList.remove('selected');
+            }
+            
+            if (this.selectedCard && this.selectedCard.card === card && this.selectedCard.source === source) {
+                // Deselect
+                this.selectedCard = null;
+                this.selectedSource = null;
+                this.render();
+            } else {
+                this.selectedCard = { card, source, index, element: null };
+                this.selectedSource = source;
+                this.render();
+            }
+        });
     }
     
     moveCardTo(card, source, sourceIndex, targetSource, targetIndex) {
@@ -1483,7 +1551,8 @@ class SolitaireGame {
     
     removeCardFromSource(source, index, cardToRemove) {
         if (source === 'waste') {
-            if (this.waste.length > 0 && this.waste[this.waste.length - 1] === cardToRemove) {
+            // Only allow removing the topmost (last) card from waste
+            if (this.waste.length > 0 && this.waste[this.waste.length - 1] === cardToRemove && index === this.waste.length - 1) {
                 this.waste.pop();
                 return [cardToRemove];
             }
@@ -1537,47 +1606,119 @@ class SolitaireGame {
         }
     }
     
+    setupDragAndDrop() {
+        document.addEventListener('mousemove', (e) => this.handleDragMove(e));
+        document.addEventListener('mouseup', (e) => this.handleDragEnd(e));
+        document.addEventListener('touchmove', (e) => this.handleDragMove(e), { passive: false });
+        document.addEventListener('touchend', (e) => this.handleDragEnd(e));
+    }
+    
     render() {
         // Render stock
         const stockEl = document.getElementById('solitaire-stock');
         stockEl.innerHTML = '';
         stockEl.onclick = () => this.flipStock();
-        if (this.stock.length > 0) {
-            stockEl.innerHTML = '🃏';
+        stockEl.style.cursor = this.stock.length > 0 || this.waste.length > 0 ? 'pointer' : 'default';
+        
+        if (this.stock.length > 0 || this.waste.length > 0) {
+            const stackCount = this.stock.length + this.waste.length;
+            stockEl.innerHTML = `
+                <div style="display: flex; align-items: center; justify-content: center; width: 80px; height: 112px;">
+                    ${this.stock.length > 0 ? '🃏' : ''}
+                </div>
+                <span class="pile-counter">${stackCount}</span>
+            `;
             stockEl.style.display = 'flex';
             stockEl.style.alignItems = 'center';
             stockEl.style.justifyContent = 'center';
             stockEl.style.fontSize = '2rem';
+            stockEl.style.position = 'relative';
         }
         
-        // Render waste
+        // Render waste - show last 3 cards, but only top card is playable
         const wasteEl = document.getElementById('solitaire-waste');
         wasteEl.innerHTML = '';
         if (this.waste.length > 0) {
-            const card = this.waste[this.waste.length - 1];
-            const cardEl = this.createCardElement(card, 'waste', 0);
-            wasteEl.appendChild(cardEl);
+            // Show the last 3 cards (or all if less than 3)
+            const cardsToShow = Math.min(3, this.waste.length);
+            const startIndex = Math.max(0, this.waste.length - cardsToShow);
+            
+            for (let i = startIndex; i < this.waste.length; i++) {
+                const card = this.waste[i];
+                const cardEl = this.createCardElement(card, 'waste', i);
+                
+                // Only the topmost card (last in array) is interactive
+                if (i < this.waste.length - 1) {
+                    cardEl.style.pointerEvents = 'none';
+                    cardEl.style.opacity = '0.8';
+                    cardEl.style.cursor = 'default';
+                }
+                
+                // Stack cards visually with slight offset
+                const offset = (this.waste.length - 1 - i) * 3;
+                cardEl.style.left = `${offset}px`;
+                cardEl.style.zIndex = i;
+                
+                wasteEl.appendChild(cardEl);
+            }
+            
+            if (this.waste.length > 3) {
+                const counter = document.createElement('span');
+                counter.className = 'pile-counter';
+                counter.textContent = this.waste.length;
+                wasteEl.appendChild(counter);
+            }
         }
         
         // Render foundations
         for (let i = 0; i < 4; i++) {
             const foundationEl = document.getElementById(`foundation-${i}`);
             foundationEl.innerHTML = '';
+            foundationEl.className = 'foundation-pile';
             foundationEl.onclick = () => {
-                if (this.selectedCard && this.foundations[i].length === 0 && this.selectedCard.card.value === 0) {
-                    // Empty foundation and selected card is Ace
-                    this.moveCardTo(this.selectedCard.card, this.selectedCard.source, this.selectedCard.index, 'foundation', i);
-                } else if (this.selectedCard) {
-                    // Try to move selected card here
-                    if (this.canPlaceOnFoundation(this.selectedCard.card, i)) {
+                if (!this.dragging && this.selectedCard) {
+                    if (this.foundations[i].length === 0 && this.selectedCard.card.value === 0) {
+                        this.moveCardTo(this.selectedCard.card, this.selectedCard.source, this.selectedCard.index, 'foundation', i);
+                    } else if (this.canPlaceOnFoundation(this.selectedCard.card, i)) {
                         this.moveCardTo(this.selectedCard.card, this.selectedCard.source, this.selectedCard.index, 'foundation', i);
                     }
                 }
             };
+            foundationEl.ondragover = (e) => {
+                e.preventDefault();
+                if (this.dragging) {
+                    foundationEl.classList.add('drag-over');
+                }
+            };
+            foundationEl.ondragleave = () => {
+                foundationEl.classList.remove('drag-over');
+            };
+            foundationEl.ondrop = (e) => {
+                e.preventDefault();
+                foundationEl.classList.remove('drag-over');
+                if (this.dragging) {
+                    const { card, source, index } = this.dragging;
+                    if (this.foundations[i].length === 0 && card.value === 0) {
+                        this.moveCardTo(card, source, index, 'foundation', i);
+                    } else if (this.canPlaceOnFoundation(card, i)) {
+                        this.moveCardTo(card, source, index, 'foundation', i);
+                    }
+                    this.dragging = null;
+                    this.render();
+                }
+            };
+            
             if (this.foundations[i].length > 0) {
                 const card = this.foundations[i][this.foundations[i].length - 1];
                 const cardEl = this.createCardElement(card, 'foundation', i);
                 foundationEl.appendChild(cardEl);
+                
+                if (this.foundations[i].length > 1) {
+                    const counter = document.createElement('span');
+                    counter.className = 'pile-counter';
+                    counter.textContent = this.foundations[i].length;
+                    foundationEl.appendChild(counter);
+                }
             }
         }
         
@@ -1589,31 +1730,67 @@ class SolitaireGame {
             pileEl.className = 'tableau-pile';
             pileEl.id = `tableau-${col}`;
             
+            if (this.tableau[col].length === 0) {
+                pileEl.classList.add('drop-zone');
+            } else {
+                pileEl.classList.remove('drop-zone');
+            }
+            
             pileEl.onclick = (e) => {
                 // Click on empty pile area
-                if (e.target === pileEl && this.selectedCard) {
+                if (e.target === pileEl && !this.dragging && this.selectedCard) {
                     if (this.tableau[col].length === 0 && this.selectedCard.card.value === 12) {
-                        // Empty tableau and selected card is King
                         this.moveCardTo(this.selectedCard.card, this.selectedCard.source, this.selectedCard.index, 'tableau', col);
-                    } else if (this.selectedCard && this.tableau[col].length > 0) {
-                        // Try to move selected card here
+                    } else if (this.tableau[col].length > 0) {
                         if (this.canPlaceOnTableau(this.selectedCard.card, col)) {
                             this.moveCardTo(this.selectedCard.card, this.selectedCard.source, this.selectedCard.index, 'tableau', col);
                         }
                     }
                 }
             };
+            pileEl.ondragover = (e) => {
+                e.preventDefault();
+                if (this.dragging) {
+                    pileEl.classList.add('drag-over');
+                }
+            };
+            pileEl.ondragleave = () => {
+                pileEl.classList.remove('drag-over');
+            };
+            pileEl.ondrop = (e) => {
+                e.preventDefault();
+                pileEl.classList.remove('drag-over');
+                if (this.dragging) {
+                    const { card, source, index } = this.dragging;
+                    if (this.tableau[col].length === 0 && card.value === 12) {
+                        this.moveCardTo(card, source, index, 'tableau', col);
+                    } else if (this.canPlaceOnTableau(card, col)) {
+                        this.moveCardTo(card, source, index, 'tableau', col);
+                    }
+                    this.dragging = null;
+                    this.render();
+                }
+            };
             
-            this.tableau[col].forEach((card, index) => {
+            this.tableau[col].forEach((card, cardIndex) => {
                 const cardEl = this.createCardElement(card, 'tableau', col);
-                const offset = card.faceUp ? index * 25 : 0;
+                const offset = card.faceUp ? cardIndex * 25 : 0;
                 cardEl.style.top = `${offset}px`;
-                cardEl.style.zIndex = index;
+                cardEl.style.zIndex = cardIndex;
                 if (!card.faceUp) {
                     cardEl.style.opacity = '0.7';
                 }
                 pileEl.appendChild(cardEl);
             });
+            
+            // Show count if pile has many cards
+            if (this.tableau[col].length > 5) {
+                const counter = document.createElement('span');
+                counter.className = 'pile-counter';
+                counter.textContent = `${this.tableau[col].length} kort`;
+                counter.style.bottom = '-25px';
+                pileEl.appendChild(counter);
+            }
             
             tableauEl.appendChild(pileEl);
         }
@@ -1644,9 +1821,71 @@ class SolitaireGame {
             this.selectedCard.element = cardEl;
         }
         
+        // Drag & Drop functionality
+        if (card.faceUp) {
+            const startDrag = (e) => {
+                // Only allow dragging if this is the topmost card in waste
+                if (source === 'waste' && index !== this.waste.length - 1) {
+                    return; // Cannot drag non-top cards from waste
+                }
+                
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                
+                const rect = cardEl.getBoundingClientRect();
+                this.dragOffset.x = clientX - rect.left - rect.width / 2;
+                this.dragOffset.y = clientY - rect.top - rect.height / 2;
+                
+                // Get sequence of cards to move if from tableau
+                if (source === 'tableau') {
+                    const pile = this.tableau[index];
+                    const cardIndex = pile.indexOf(card);
+                    if (cardIndex !== -1) {
+                        this.dragSequence = pile.slice(cardIndex);
+                        // Verify sequence is valid
+                        for (let i = 1; i < this.dragSequence.length; i++) {
+                            if (!this.dragSequence[i].faceUp || 
+                                this.dragSequence[i-1].color === this.dragSequence[i].color ||
+                                this.dragSequence[i-1].value !== this.dragSequence[i].value + 1) {
+                                this.dragSequence = [card];
+                                break;
+                            }
+                        }
+                    } else {
+                        this.dragSequence = [card];
+                    }
+                } else {
+                    this.dragSequence = [card];
+                }
+                
+                this.dragging = { card, source, index };
+                cardEl.classList.add('dragging');
+                cardEl.style.position = 'fixed';
+                cardEl.style.pointerEvents = 'none';
+                
+                // Update position immediately
+                this.handleDragMove(e);
+            };
+            
+            cardEl.onmousedown = startDrag;
+            cardEl.ontouchstart = startDrag;
+        }
+        
         // Use closure to store click timer per card element
         let clickTimer = null;
         cardEl.onclick = (e) => {
+            // Only allow clicking if this is the topmost card in waste
+            if (source === 'waste' && index !== this.waste.length - 1) {
+                return; // Cannot click non-top cards from waste
+            }
+            
+            if (this.dragging) {
+                e.stopPropagation();
+                return;
+            }
             e.stopPropagation();
             
             if (!card.faceUp && source === 'tableau') {
@@ -1720,6 +1959,106 @@ class SolitaireGame {
         return cardEl;
     }
     
+    handleDragMove(e) {
+        if (!this.dragging) return;
+        
+        const cardEl = document.querySelector('.solitaire-card.dragging');
+        if (!cardEl) return;
+        
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        
+        cardEl.style.left = `${clientX - this.dragOffset.x}px`;
+        cardEl.style.top = `${clientY - this.dragOffset.y}px`;
+        
+        // Check which drop zone we're over
+        const elementBelow = document.elementFromPoint(clientX, clientY);
+        if (elementBelow) {
+            const dropZone = elementBelow.closest('.foundation-pile, .tableau-pile');
+            if (dropZone) {
+                dropZone.classList.add('drag-over');
+            }
+        }
+        
+        // Remove drag-over from other elements
+        document.querySelectorAll('.drag-over').forEach(el => {
+            if (el !== elementBelow?.closest('.foundation-pile, .tableau-pile')) {
+                el.classList.remove('drag-over');
+            }
+        });
+    }
+    
+    handleDragEnd(e) {
+        if (!this.dragging) return;
+        
+        const cardEl = document.querySelector('.solitaire-card.dragging');
+        if (!cardEl) {
+            this.dragging = null;
+            return;
+        }
+        
+        const clientX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+        const clientY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
+        
+        const elementBelow = document.elementFromPoint(clientX, clientY);
+        let dropZone = null;
+        let targetSource = null;
+        let targetIndex = null;
+        
+        if (elementBelow) {
+            const foundationEl = elementBelow.closest('.foundation-pile[id^="foundation-"]');
+            const tableauEl = elementBelow.closest('.tableau-pile[id^="tableau-"]');
+            
+            if (foundationEl) {
+                dropZone = foundationEl;
+                targetSource = 'foundation';
+                targetIndex = parseInt(foundationEl.id.split('-')[1]);
+            } else if (tableauEl) {
+                dropZone = tableauEl;
+                targetSource = 'tableau';
+                targetIndex = parseInt(tableauEl.id.split('-')[1]);
+            }
+        }
+        
+        // Remove all drag-over classes
+        document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+        
+        // Remove dragging class and restore card
+        cardEl.classList.remove('dragging');
+        cardEl.style.position = '';
+        cardEl.style.left = '';
+        cardEl.style.top = '';
+        cardEl.style.pointerEvents = '';
+        cardEl.style.transform = '';
+        
+        const { card, source, index } = this.dragging;
+        this.dragging = null;
+        
+        // Try to place card
+        if (dropZone && targetSource !== null && targetIndex !== null) {
+            if (targetSource === 'foundation') {
+                if (this.foundations[targetIndex].length === 0 && card.value === 0) {
+                    this.moveCardTo(card, source, index, 'foundation', targetIndex);
+                    return;
+                } else if (this.canPlaceOnFoundation(card, targetIndex)) {
+                    this.moveCardTo(card, source, index, 'foundation', targetIndex);
+                    return;
+                }
+            } else if (targetSource === 'tableau') {
+                if (this.tableau[targetIndex].length === 0 && card.value === 12) {
+                    this.moveCardTo(card, source, index, 'tableau', targetIndex);
+                    return;
+                } else if (this.canPlaceOnTableau(card, targetIndex)) {
+                    this.moveCardTo(card, source, index, 'tableau', targetIndex);
+                    return;
+                }
+            }
+        }
+        
+        // If placement failed, re-render to restore card position
+        this.render();
+    }
+    
     reset() {
         this.deck = [];
         this.stock = [];
@@ -1728,6 +2067,8 @@ class SolitaireGame {
         this.tableau = [[], [], [], [], [], [], []];
         this.selectedCard = null;
         this.selectedSource = null;
+        this.dragging = null;
+        this.dragSequence = [];
         
         this.createDeck();
         this.shuffleDeck();
