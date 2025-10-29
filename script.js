@@ -380,8 +380,16 @@ function initTetris() {
             cursor: pointer;
             margin: 5px;
         }
-        .score-modal-content button:hover {
+        .score-modal-content button:hover:not(:disabled) {
             background: #5568d3;
+        }
+        .score-modal-content button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        #save-status {
+            min-height: 20px;
         }
     `;
     document.head.appendChild(style);
@@ -977,7 +985,7 @@ async function saveHighScore(name, score) {
     // Save to localStorage
     localStorage.setItem('tetrisHighScores', JSON.stringify(top10));
     
-    // Try to save to JSONBin
+    // Try to save to JSONBin and wait for it to complete
     if (JSONBIN_API_KEY && SCORES_BIN_ID && SCORES_BIN_ID !== 'tetris-high-scores') {
         try {
             const response = await fetch(`https://api.jsonbin.io/v3/b/${SCORES_BIN_ID}`, {
@@ -989,17 +997,23 @@ async function saveHighScore(name, score) {
                 body: JSON.stringify(top10)
             });
             
-            if (response.ok) {
-                console.log('Score saved to cloud successfully!');
+            if (!response.ok) {
+                throw new Error(`Failed to save: ${response.status} ${response.statusText}`);
             }
+            
+            // Wait for response to ensure it's saved
+            await response.json();
+            console.log('Score saved to cloud successfully!');
         } catch (error) {
             console.log('Could not save to remote, saved locally:', error);
+            // Still continue - local save worked
         }
     } else {
         console.log('JSONBin not configured. Scores saved locally only.');
     }
     
-    displayHighScores();
+    // Update display and wait for it
+    await displayHighScores();
     return top10;
 }
 
@@ -1032,36 +1046,67 @@ function showScoreModal(score) {
             <p>Skriv inn navnet ditt:</p>
             <input type="text" id="score-name-input" maxlength="20" placeholder="Ditt navn" autofocus>
             <div>
-                <button onclick="submitScore(${score})">Lagre</button>
+                <button id="submit-score-btn" onclick="submitScore(${score})">Lagre</button>
                 <button onclick="skipScore()">Hopp over</button>
             </div>
+            <p id="save-status" style="margin-top: 10px; color: #666; font-size: 0.9rem;"></p>
         </div>
     `;
     
     document.body.appendChild(modal);
     
     const input = document.getElementById('score-name-input');
-    input.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            submitScore(score);
+    const submitBtn = document.getElementById('submit-score-btn');
+    
+    input.addEventListener('keypress', async (e) => {
+        if (e.key === 'Enter' && !submitBtn.disabled) {
+            await submitScore(score);
         }
     });
     
     input.focus();
 }
 
-function submitScore(score) {
+async function submitScore(score) {
     const input = document.getElementById('score-name-input');
+    const submitBtn = document.getElementById('submit-score-btn');
+    const status = document.getElementById('save-status');
+    
+    // Prevent multiple clicks
+    if (submitBtn.disabled) return;
+    
     const name = input ? input.value.trim() : '';
-    saveHighScore(name, score);
     
-    const modal = document.querySelector('.score-modal');
-    if (modal) modal.remove();
+    // Disable button and show loading
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Lagrer...';
+    status.textContent = 'Lagrer score...';
     
-    if (tetrisGame) {
+    try {
+        // Wait for save to complete
+        await saveHighScore(name, score);
+        
+        // Show success message
+        status.textContent = 'Score lagret!';
+        status.style.color = '#4caf50';
+        
+        // Remove modal after a brief delay
         setTimeout(() => {
-            tetrisGame.reset();
+            const modal = document.querySelector('.score-modal');
+            if (modal) modal.remove();
+            
+            if (tetrisGame) {
+                setTimeout(() => {
+                    tetrisGame.reset();
+                }, 100);
+            }
         }, 500);
+    } catch (error) {
+        console.error('Error saving score:', error);
+        status.textContent = 'Feil ved lagring. Prøv igjen.';
+        status.style.color = '#f44336';
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Lagre';
     }
 }
 
