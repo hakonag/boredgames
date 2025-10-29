@@ -44,17 +44,17 @@
 - Master Key kan også være under "Security" eller "Developer Settings"
 
 ## Steg 5: Oppdater koden
-1. Åpne `script.js` i prosjektmappen
-2. Finn linjene rundt linje 889-890:
+1. Åpne `core/highScores.js` i prosjektmappen
+2. Finn topp av filen hvor konstantene er definert:
    ```javascript
-   const SCORES_BIN_ID = 'tetris-high-scores'; // Endre denne
-   const JSONBIN_API_KEY = ''; // Legg inn din Master Key her
+   const SCORES_BIN_ID = '690215d8ae596e708f35a6f6'; // Endre denne med din Bin ID
+   const JSONBIN_API_KEY = '$2a$10$...'; // Legg inn din Master Key her
    ```
-3. Erstatt `'tetris-high-scores'` med din Bin ID (fra steg 3) - **med anførselstegn**:
+3. Erstatt `'690215d8ae596e708f35a6f6'` med din Bin ID (fra steg 3) - **med anførselstegn**:
    ```javascript
    const SCORES_BIN_ID = '675abc123def456789012345';
    ```
-4. Erstatt `''` med din Master Key (fra steg 4) - **med anførselstegn**:
+4. Erstatt hele Master Key strengen med din Master Key (fra steg 4) - **med anførselstegn**:
    ```javascript
    const JSONBIN_API_KEY = '$2a$10$din-master-key-her';
    ```

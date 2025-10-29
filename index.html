@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bored Games - Spill når du kjeder deg</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles/main.css">
 </head>
 <body>
     <div class="container">
@@ -16,29 +16,7 @@
         </header>
 
         <main class="games-grid">
-            <div class="game-card" data-game="solitaire">
-                <div class="game-icon">🃏</div>
-                <h2>Kabal</h2>
-                <p>Klassisk solitær</p>
-            </div>
-
-            <div class="game-card" data-game="yatzy">
-                <div class="game-icon">🎲</div>
-                <h2>Yatzy</h2>
-                <p>Terningklassiker</p>
-            </div>
-
-            <div class="game-card" data-game="ludo">
-                <div class="game-icon">🏁</div>
-                <h2>Ludo</h2>
-                <p>Brettspillklassiker</p>
-            </div>
-
-            <div class="game-card" data-game="tetris">
-                <div class="game-icon">🔲</div>
-                <h2>Tetris</h2>
-                <p>Puslespillklassiker</p>
-            </div>
+            <!-- Game cards will be dynamically generated from game registry -->
         </main>
     </div>
 
@@ -47,6 +25,6 @@
         <div id="game-content"></div>
     </div>
 
-    <script src="script.js"></script>
+    <script type="module" src="core/app.js"></script>
 </body>
 </html>
