@@ -66,7 +66,7 @@ export function init() {
             width: 100vw;
             height: 100vh;
             margin: 0;
-            padding: 2px;
+            padding: 0;
             overflow: hidden;
             display: flex;
             flex-direction: column;
@@ -74,20 +74,21 @@ export function init() {
         }
         .solitaire-board {
             background: #0d7a3d;
-            border-radius: 8px;
-            padding: 8px;
+            border-radius: 6px;
+            padding: 6px;
             flex: 1;
             overflow: hidden;
             display: flex;
             flex-direction: column;
             min-height: 0;
+            margin: 2px;
         }
         .solitaire-top-row {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             flex-shrink: 0;
-            height: 80px;
+            height: 70px;
         }
         .stock-area {
             display: flex;
@@ -238,17 +239,17 @@ export function init() {
         }
         .tableau-area {
             display: flex;
-            gap: 4px;
+            gap: 3px;
             flex: 1;
             overflow: hidden;
             min-height: 0;
-            margin-top: 8px;
+            margin-top: 6px;
         }
         .tableau-pile {
             position: relative;
             flex: 1;
             min-width: 0;
-            height: 150px;
+            height: 120px;
             overflow: hidden;
         }
         .drop-zone {
@@ -261,32 +262,35 @@ export function init() {
         }
         .solitaire-controls {
             text-align: center;
-            margin-top: 5px;
+            margin-top: 3px;
             flex-shrink: 0;
-            height: 60px;
+            height: 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
         .game-stats {
             display: flex;
             justify-content: center;
-            gap: 15px;
-            margin-bottom: 5px;
+            gap: 10px;
+            margin-bottom: 3px;
         }
         .stat-item {
             display: flex;
             flex-direction: column;
             align-items: center;
             background: rgba(255,255,255,0.1);
-            padding: 5px 8px;
-            border-radius: 6px;
-            min-width: 60px;
+            padding: 3px 6px;
+            border-radius: 4px;
+            min-width: 50px;
         }
         .stat-label {
-            font-size: 0.7rem;
+            font-size: 0.6rem;
             color: rgba(255,255,255,0.8);
-            margin-bottom: 2px;
+            margin-bottom: 1px;
         }
         .stat-item span:last-child {
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             font-weight: bold;
             color: white;
         }
@@ -294,19 +298,19 @@ export function init() {
             background: #667eea;
             color: white;
             border: none;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 0.8rem;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
             cursor: pointer;
-            margin: 0 3px;
+            margin: 0 2px;
         }
         .solitaire-controls button:hover {
             background: #5568d3;
         }
         #solitaire-status {
-            margin-top: 3px;
+            margin-top: 2px;
             color: #333;
-            font-size: 0.8rem;
+            font-size: 0.7rem;
         }
         .high-scores {
             position: fixed;
@@ -1025,7 +1029,7 @@ class SolitaireGame {
                 const cardEl = this.createCardElement(card, 'tableau', col);
                 
                 // Stack all cards with offset, but face-down cards have smaller offset
-                const offset = card.faceUp ? cardIndex * 15 : cardIndex * 8;
+                const offset = card.faceUp ? cardIndex * 12 : cardIndex * 6;
                 cardEl.style.top = `${offset}px`;
                 cardEl.style.zIndex = cardIndex;
                 
@@ -1119,8 +1123,9 @@ class SolitaireGame {
                 cardEl.style.transform = 'rotate(2deg)';
                 cardEl.style.transition = 'none';
                 
-                // Update position immediately
-                this.handleDragMove(e);
+                // Set initial position to follow mouse exactly
+                cardEl.style.left = `${clientX - this.dragOffset.x}px`;
+                cardEl.style.top = `${clientY - this.dragOffset.y}px`;
             };
             
             cardEl.onmousedown = startDrag;
