@@ -51,32 +51,36 @@ export function init() {
         window.removeEventListener('touchmove', window.tetrisScrollPrevent.touchmove);
         window.tetrisScrollPrevent = null;
     }
-    document.body.style.overflow = '';
-    document.body.style.position = '';
-    document.body.style.width = '';
-    document.body.style.height = '';
-    document.documentElement.style.overflow = '';
+    
+    // Lock scrolling for Solitaire
+    document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.width = '100%';
+    document.body.style.height = '100%';
+    document.documentElement.style.overflow = 'hidden';
     
     const style = document.createElement('style');
     style.id = 'game-specific-styles';
     style.textContent = `
         .solitaire-game {
-            max-width: 100vw;
-            margin: 0 auto;
-            padding: 10px;
+            width: 100vw;
             height: 100vh;
+            margin: 0;
+            padding: 5px;
             overflow: hidden;
             display: flex;
             flex-direction: column;
+            box-sizing: border-box;
         }
         .solitaire-board {
             background: #0d7a3d;
-            border-radius: 15px;
-            padding: 15px;
+            border-radius: 10px;
+            padding: 10px;
             flex: 1;
             overflow: hidden;
             display: flex;
             flex-direction: column;
+            min-height: 0;
         }
         .solitaire-top-row {
             display: flex;
@@ -231,16 +235,17 @@ export function init() {
         }
         .tableau-area {
             display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
+            gap: 6px;
             flex: 1;
             overflow: hidden;
+            min-height: 0;
         }
         .tableau-pile {
             position: relative;
-            margin-bottom: 15px;
             flex: 1;
             min-width: 0;
+            height: 200px;
+            overflow: hidden;
         }
         .drop-zone {
             border: 2px dashed rgba(255,255,255,0.5);
@@ -804,11 +809,31 @@ class SolitaireGame {
     }
     
     setupDragAndDrop() {
-        // Use capture phase for better event handling
-        document.addEventListener('mousemove', (e) => this.handleDragMove(e), { passive: false });
+        // Prevent scrolling during drag
+        const preventScroll = (e) => {
+            if (this.dragging) {
+                e.preventDefault();
+            }
+        };
+        
+        document.addEventListener('mousemove', (e) => {
+            this.handleDragMove(e);
+            if (this.dragging) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+        
         document.addEventListener('mouseup', (e) => this.handleDragEnd(e), { passive: false });
-        document.addEventListener('touchmove', (e) => this.handleDragMove(e), { passive: false });
+        document.addEventListener('touchmove', (e) => {
+            this.handleDragMove(e);
+            if (this.dragging) {
+                e.preventDefault();
+            }
+        }, { passive: false });
         document.addEventListener('touchend', (e) => this.handleDragEnd(e), { passive: false });
+        
+        // Prevent wheel scrolling during drag
+        document.addEventListener('wheel', preventScroll, { passive: false });
     }
     
     render() {
@@ -995,7 +1020,7 @@ class SolitaireGame {
                 const cardEl = this.createCardElement(card, 'tableau', col);
                 
                 // Stack all cards with offset, but face-down cards have smaller offset
-                const offset = card.faceUp ? cardIndex * 25 : cardIndex * 15;
+                const offset = card.faceUp ? cardIndex * 20 : cardIndex * 12;
                 cardEl.style.top = `${offset}px`;
                 cardEl.style.zIndex = cardIndex;
                 
@@ -1087,6 +1112,7 @@ class SolitaireGame {
                 cardEl.style.pointerEvents = 'none';
                 cardEl.style.zIndex = '10000';
                 cardEl.style.transform = 'rotate(2deg)';
+                cardEl.style.transition = 'none';
                 
                 // Update position immediately
                 this.handleDragMove(e);
@@ -1188,6 +1214,7 @@ class SolitaireGame {
         if (!cardEl) return;
         
         e.preventDefault();
+        e.stopPropagation();
         
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
         const clientY = e.touches ? e.touches[0].clientY : e.clientY;
@@ -1225,6 +1252,7 @@ class SolitaireGame {
         }
         
         e.preventDefault();
+        e.stopPropagation();
         
         const clientX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
         const clientY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
@@ -1260,6 +1288,7 @@ class SolitaireGame {
         cardEl.style.pointerEvents = '';
         cardEl.style.transform = '';
         cardEl.style.zIndex = '';
+        cardEl.style.transition = '';
         
         const { card, source, index } = this.dragging;
         this.dragging = null;
