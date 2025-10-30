@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tetris - BoredGames</title>
+    <link rel="icon" href="../../favicon.ico">
+    <link rel="stylesheet" href="../../styles/main.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <!-- Minimal shell to satisfy loader expectations -->
+    <div class="container hidden"></div>
+    <div id="game-container" class="game-container">
+        <div id="game-content"></div>
+    </div>
+
+    <script type="module">
+        import { loadGame } from '../../core/gameLoader.js';
+        // Ensure deep-link param reflects game
+        try {
+            const url = new URL(window.location.href);
+            url.searchParams.set('game', 'tetris');
+            window.history.replaceState({ gameId: 'tetris' }, '', url);
+        } catch {}
+        loadGame('tetris');
+    </script>
+</body>
+</html>
+
