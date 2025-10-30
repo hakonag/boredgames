@@ -66,7 +66,7 @@ export function init() {
             width: 100vw;
             height: 100vh;
             margin: 0;
-            padding: 5px;
+            padding: 2px;
             overflow: hidden;
             display: flex;
             flex-direction: column;
@@ -74,8 +74,8 @@ export function init() {
         }
         .solitaire-board {
             background: #0d7a3d;
-            border-radius: 10px;
-            padding: 10px;
+            border-radius: 8px;
+            padding: 8px;
             flex: 1;
             overflow: hidden;
             display: flex;
@@ -85,16 +85,19 @@ export function init() {
         .solitaire-top-row {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 15px;
+            margin-bottom: 8px;
             flex-shrink: 0;
+            height: 80px;
         }
         .stock-area {
             display: flex;
-            gap: 10px;
+            gap: 8px;
+            flex: 1;
         }
         .foundation-area {
             display: flex;
-            gap: 10px;
+            gap: 8px;
+            flex: 1;
         }
         .stock-pile, .waste-pile, .foundation-pile, .tableau-pile {
             width: 80px;
@@ -235,16 +238,17 @@ export function init() {
         }
         .tableau-area {
             display: flex;
-            gap: 6px;
+            gap: 4px;
             flex: 1;
             overflow: hidden;
             min-height: 0;
+            margin-top: 8px;
         }
         .tableau-pile {
             position: relative;
             flex: 1;
             min-width: 0;
-            height: 200px;
+            height: 150px;
             overflow: hidden;
         }
         .drop-zone {
@@ -257,31 +261,32 @@ export function init() {
         }
         .solitaire-controls {
             text-align: center;
-            margin-top: 10px;
+            margin-top: 5px;
             flex-shrink: 0;
+            height: 60px;
         }
         .game-stats {
             display: flex;
             justify-content: center;
-            gap: 20px;
-            margin-bottom: 10px;
+            gap: 15px;
+            margin-bottom: 5px;
         }
         .stat-item {
             display: flex;
             flex-direction: column;
             align-items: center;
             background: rgba(255,255,255,0.1);
-            padding: 8px 12px;
-            border-radius: 8px;
-            min-width: 70px;
+            padding: 5px 8px;
+            border-radius: 6px;
+            min-width: 60px;
         }
         .stat-label {
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             color: rgba(255,255,255,0.8);
-            margin-bottom: 3px;
+            margin-bottom: 2px;
         }
         .stat-item span:last-child {
-            font-size: 1rem;
+            font-size: 0.9rem;
             font-weight: bold;
             color: white;
         }
@@ -289,19 +294,19 @@ export function init() {
             background: #667eea;
             color: white;
             border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-size: 0.9rem;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
             cursor: pointer;
-            margin: 0 5px;
+            margin: 0 3px;
         }
         .solitaire-controls button:hover {
             background: #5568d3;
         }
         #solitaire-status {
-            margin-top: 5px;
+            margin-top: 3px;
             color: #333;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
         }
         .high-scores {
             position: fixed;
@@ -854,8 +859,8 @@ class SolitaireGame {
                 const cardEl = document.createElement('div');
                 cardEl.className = 'stock-card';
                 cardEl.innerHTML = '🃏';
-                cardEl.style.left = `${i * 2}px`;
-                cardEl.style.top = `${i * 2}px`;
+                cardEl.style.left = `${i * 1}px`;
+                cardEl.style.top = `${i * 1}px`;
                 cardEl.style.zIndex = i;
                 cardEl.style.opacity = 1 - (i * 0.1);
                 stockVisual.appendChild(cardEl);
@@ -891,7 +896,7 @@ class SolitaireGame {
                 }
                 
                 // Stack cards visually with offset
-                const offset = (this.waste.length - 1 - i) * 2;
+                const offset = (this.waste.length - 1 - i) * 1;
                 cardEl.style.left = `${offset}px`;
                 cardEl.style.top = `${offset}px`;
                 cardEl.style.zIndex = i;
@@ -955,7 +960,7 @@ class SolitaireGame {
                     }
                     
                     // Stack cards with slight offset
-                    const offset = (this.foundations[i].length - 1 - j) * 2;
+                    const offset = (this.foundations[i].length - 1 - j) * 1;
                     cardEl.style.left = `${offset}px`;
                     cardEl.style.top = `${offset}px`;
                     cardEl.style.zIndex = j;
@@ -1020,7 +1025,7 @@ class SolitaireGame {
                 const cardEl = this.createCardElement(card, 'tableau', col);
                 
                 // Stack all cards with offset, but face-down cards have smaller offset
-                const offset = card.faceUp ? cardIndex * 20 : cardIndex * 12;
+                const offset = card.faceUp ? cardIndex * 15 : cardIndex * 8;
                 cardEl.style.top = `${offset}px`;
                 cardEl.style.zIndex = cardIndex;
                 
@@ -1220,11 +1225,17 @@ class SolitaireGame {
         const clientY = e.touches ? e.touches[0].clientY : e.clientY;
         
         // Position card to follow mouse precisely
-        cardEl.style.left = `${clientX - this.dragOffset.x}px`;
-        cardEl.style.top = `${clientY - this.dragOffset.y}px`;
+        const newLeft = clientX - this.dragOffset.x;
+        const newTop = clientY - this.dragOffset.y;
+        cardEl.style.left = `${newLeft}px`;
+        cardEl.style.top = `${newTop}px`;
         
-        // Check which drop zone we're over
-        const elementBelow = document.elementFromPoint(clientX, clientY);
+        // Check which drop zone we're over using the card's center position
+        const cardRect = cardEl.getBoundingClientRect();
+        const cardCenterX = cardRect.left + cardRect.width / 2;
+        const cardCenterY = cardRect.top + cardRect.height / 2;
+        
+        const elementBelow = document.elementFromPoint(cardCenterX, cardCenterY);
         if (elementBelow) {
             const dropZone = elementBelow.closest('.foundation-pile, .tableau-pile');
             if (dropZone) {
@@ -1257,7 +1268,12 @@ class SolitaireGame {
         const clientX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
         const clientY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
         
-        const elementBelow = document.elementFromPoint(clientX, clientY);
+        // Use card center position for drop detection
+        const cardRect = cardEl.getBoundingClientRect();
+        const cardCenterX = cardRect.left + cardRect.width / 2;
+        const cardCenterY = cardRect.top + cardRect.height / 2;
+        
+        const elementBelow = document.elementFromPoint(cardCenterX, cardCenterY);
         let dropZone = null;
         let targetSource = null;
         let targetIndex = null;
