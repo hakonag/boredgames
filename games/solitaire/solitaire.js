@@ -24,6 +24,16 @@ export function init() {
                 <div class="tableau-area" id="solitaire-tableau"></div>
             </div>
             <div class="solitaire-controls">
+                <div class="game-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Trekk:</span>
+                        <span id="move-count">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Tid:</span>
+                        <span id="game-timer">00:00</span>
+                    </div>
+                </div>
                 <button onclick="window.resetSolitaire()">Nytt spill</button>
                 <p id="solitaire-status"></p>
             </div>
@@ -131,11 +141,9 @@ export function init() {
             white-space: nowrap;
         }
         .stock-pile, .waste-pile {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
             position: relative;
+            width: 80px;
+            height: 112px;
         }
         .card-stack {
             position: relative;
@@ -150,6 +158,26 @@ export function init() {
             border-radius: 6px;
             background: rgba(255,255,255,0.95);
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .stock-visual {
+            position: relative;
+            width: 76px;
+            height: 108px;
+            margin: 2px;
+        }
+        .stock-card {
+            position: absolute;
+            width: 76px;
+            height: 108px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         .card-stack-indicator {
             position: absolute;
@@ -209,6 +237,31 @@ export function init() {
             text-align: center;
             margin-top: 20px;
         }
+        .game-stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 15px;
+        }
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: rgba(255,255,255,0.1);
+            padding: 10px 15px;
+            border-radius: 8px;
+            min-width: 80px;
+        }
+        .stat-label {
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 5px;
+        }
+        .stat-item span:last-child {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: white;
+        }
         .solitaire-controls button {
             background: #667eea;
             color: white;
@@ -234,6 +287,10 @@ export function init() {
 }
 
 export function cleanup() {
+    if (solitaireGame && solitaireGame.gameTimer) {
+        clearInterval(solitaireGame.gameTimer);
+        solitaireGame.gameTimer = null;
+    }
     solitaireGame = null;
     window.resetSolitaire = null;
 }
@@ -258,12 +315,16 @@ class SolitaireGame {
         this.dragging = null;
         this.dragOffset = { x: 0, y: 0 };
         this.dragSequence = [];
+        this.moveCount = 0;
+        this.gameStartTime = null;
+        this.gameTimer = null;
         
         this.createDeck();
         this.shuffleDeck();
         this.deal();
         this.render();
         this.setupDragAndDrop();
+        this.startTimer();
     }
     
     createDeck() {
@@ -339,7 +400,7 @@ class SolitaireGame {
             this.stock.forEach(c => c.faceUp = false);
             this.waste = [];
         } else {
-            // Draw three cards at a time
+            // Draw three cards at a time - these will "cover" any existing waste cards
             const cardsToDraw = Math.min(3, this.stock.length);
             for (let i = 0; i < cardsToDraw; i++) {
                 const card = this.stock.pop();
@@ -347,6 +408,7 @@ class SolitaireGame {
                 this.waste.push(card);
             }
         }
+        this.incrementMoveCount();
         this.render();
     }
     
@@ -412,6 +474,7 @@ class SolitaireGame {
         this.flipTopCard(source, sourceIndex);
         this.selectedCard = null;
         this.selectedSource = null;
+        this.incrementMoveCount();
         this.render();
         return true;
     }
@@ -493,7 +556,127 @@ class SolitaireGame {
         
         if (allComplete) {
             document.getElementById('solitaire-status').textContent = '🎉 Gratulerer! Du vant!';
+            return;
         }
+        
+        // Check for autocomplete condition
+        if (this.canAutocomplete()) {
+            this.startAutocomplete();
+        }
+    }
+    
+    canAutocomplete() {
+        // Check if all cards on tableau are face up
+        for (let col = 0; col < 7; col++) {
+            for (let card of this.tableau[col]) {
+                if (!card.faceUp) {
+                    return false;
+                }
+            }
+        }
+        
+        // Check if stock and waste are empty
+        if (this.stock.length > 0 || this.waste.length > 0) {
+            return false;
+        }
+        
+        // Check if there are any playable cards on tableau
+        for (let col = 0; col < 7; col++) {
+            if (this.tableau[col].length > 0) {
+                const topCard = this.tableau[col][this.tableau[col].length - 1];
+                // Check if this card can be moved to foundation
+                for (let i = 0; i < 4; i++) {
+                    if (this.canPlaceOnFoundation(topCard, i)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        
+        return false;
+    }
+    
+    async startAutocomplete() {
+        document.getElementById('solitaire-status').textContent = '🤖 Autocomplete...';
+        
+        let movesMade = true;
+        while (movesMade) {
+            movesMade = false;
+            
+            // Try to move cards from tableau to foundation
+            for (let col = 0; col < 7; col++) {
+                if (this.tableau[col].length > 0) {
+                    const topCard = this.tableau[col][this.tableau[col].length - 1];
+                    
+                    // Find a foundation where this card can be placed
+                    for (let i = 0; i < 4; i++) {
+                        if (this.canPlaceOnFoundation(topCard, i)) {
+                            // Move the card with visual animation
+                            await this.animateCardMove(topCard, 'tableau', col, 'foundation', i);
+                            movesMade = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            // Small delay between moves for visual effect
+            if (movesMade) {
+                await this.delay(300);
+            }
+        }
+        
+        // Check if game is now complete
+        this.checkWin();
+    }
+    
+    async animateCardMove(card, source, sourceIndex, targetSource, targetIndex) {
+        // Create a visual copy of the card for animation
+        const originalCard = document.querySelector(`[data-card-id="${card.suit}-${card.value}"]`);
+        if (!originalCard) return;
+        
+        const animatedCard = originalCard.cloneNode(true);
+        animatedCard.style.position = 'fixed';
+        animatedCard.style.zIndex = '10000';
+        animatedCard.style.pointerEvents = 'none';
+        animatedCard.style.transition = 'all 0.5s ease-in-out';
+        
+        const rect = originalCard.getBoundingClientRect();
+        animatedCard.style.left = `${rect.left}px`;
+        animatedCard.style.top = `${rect.top}px`;
+        
+        document.body.appendChild(animatedCard);
+        
+        // Move the card in the game logic
+        this.moveCardTo(card, source, sourceIndex, targetSource, targetIndex);
+        
+        // Wait for the target position to be available
+        await this.delay(100);
+        
+        // Find the target position
+        let targetElement;
+        if (targetSource === 'foundation') {
+            targetElement = document.getElementById(`foundation-${targetIndex}`);
+        } else if (targetSource === 'tableau') {
+            targetElement = document.getElementById(`tableau-${targetIndex}`);
+        }
+        
+        if (targetElement) {
+            const targetRect = targetElement.getBoundingClientRect();
+            animatedCard.style.left = `${targetRect.left}px`;
+            animatedCard.style.top = `${targetRect.top}px`;
+        }
+        
+        // Remove the animated card after animation
+        setTimeout(() => {
+            if (animatedCard.parentNode) {
+                animatedCard.parentNode.removeChild(animatedCard);
+            }
+        }, 500);
+    }
+    
+    delay(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
     }
     
     setupDragAndDrop() {
@@ -510,26 +693,40 @@ class SolitaireGame {
         stockEl.onclick = () => this.flipStock();
         stockEl.style.cursor = this.stock.length > 0 || this.waste.length > 0 ? 'pointer' : 'default';
         
-        if (this.stock.length > 0 || this.waste.length > 0) {
-            const stackCount = this.stock.length + this.waste.length;
-            stockEl.innerHTML = `
-                <div style="display: flex; align-items: center; justify-content: center; width: 80px; height: 112px;">
-                    ${this.stock.length > 0 ? '🃏' : ''}
-                </div>
-                <span class="pile-counter">${stackCount}</span>
-            `;
-            stockEl.style.display = 'flex';
-            stockEl.style.alignItems = 'center';
-            stockEl.style.justifyContent = 'center';
-            stockEl.style.fontSize = '2rem';
-            stockEl.style.position = 'relative';
+        if (this.stock.length > 0) {
+            // Show visual stack of remaining stock cards
+            const stockVisual = document.createElement('div');
+            stockVisual.className = 'stock-visual';
+            
+            // Show up to 5 cards in the stack
+            const cardsToShow = Math.min(5, this.stock.length);
+            for (let i = 0; i < cardsToShow; i++) {
+                const cardEl = document.createElement('div');
+                cardEl.className = 'stock-card';
+                cardEl.innerHTML = '🃏';
+                cardEl.style.left = `${i * 2}px`;
+                cardEl.style.top = `${i * 2}px`;
+                cardEl.style.zIndex = i;
+                cardEl.style.opacity = 1 - (i * 0.1);
+                stockVisual.appendChild(cardEl);
+            }
+            
+            stockEl.appendChild(stockVisual);
+        } else if (this.waste.length > 0) {
+            // Show empty stock when only waste remains
+            const emptyStock = document.createElement('div');
+            emptyStock.className = 'stock-card';
+            emptyStock.innerHTML = '';
+            emptyStock.style.background = 'rgba(255,255,255,0.1)';
+            emptyStock.style.border = '2px dashed rgba(255,255,255,0.3)';
+            stockEl.appendChild(emptyStock);
         }
         
-        // Render waste - show last 3 cards, but only top card is playable
+        // Render waste - show only the last 3 cards (current draw)
         const wasteEl = document.getElementById('solitaire-waste');
         wasteEl.innerHTML = '';
         if (this.waste.length > 0) {
-            // Show the last 3 cards (or all if less than 3)
+            // Show only the last 3 cards (the current draw)
             const cardsToShow = Math.min(3, this.waste.length);
             const startIndex = Math.max(0, this.waste.length - cardsToShow);
             
@@ -540,23 +737,17 @@ class SolitaireGame {
                 // Only the topmost card (last in array) is interactive
                 if (i < this.waste.length - 1) {
                     cardEl.style.pointerEvents = 'none';
-                    cardEl.style.opacity = '0.8';
                     cardEl.style.cursor = 'default';
                 }
                 
-                // Stack cards visually with slight offset
-                const offset = (this.waste.length - 1 - i) * 3;
+                // Stack cards visually with offset
+                const offset = (this.waste.length - 1 - i) * 2;
                 cardEl.style.left = `${offset}px`;
+                cardEl.style.top = `${offset}px`;
                 cardEl.style.zIndex = i;
+                cardEl.style.opacity = 1 - (i * 0.05);
                 
                 wasteEl.appendChild(cardEl);
-            }
-            
-            if (this.waste.length > 3) {
-                const counter = document.createElement('span');
-                counter.className = 'pile-counter';
-                counter.textContent = this.waste.length;
-                wasteEl.appendChild(counter);
             }
         }
         
@@ -599,15 +790,28 @@ class SolitaireGame {
             };
             
             if (this.foundations[i].length > 0) {
-                const card = this.foundations[i][this.foundations[i].length - 1];
-                const cardEl = this.createCardElement(card, 'foundation', i);
-                foundationEl.appendChild(cardEl);
+                // Show visual stack of foundation cards
+                const cardsToShow = Math.min(3, this.foundations[i].length);
+                const startIndex = Math.max(0, this.foundations[i].length - cardsToShow);
                 
-                if (this.foundations[i].length > 1) {
-                    const counter = document.createElement('span');
-                    counter.className = 'pile-counter';
-                    counter.textContent = this.foundations[i].length;
-                    foundationEl.appendChild(counter);
+                for (let j = startIndex; j < this.foundations[i].length; j++) {
+                    const card = this.foundations[i][j];
+                    const cardEl = this.createCardElement(card, 'foundation', i);
+                    
+                    // Only top card is interactive
+                    if (j < this.foundations[i].length - 1) {
+                        cardEl.style.pointerEvents = 'none';
+                        cardEl.style.cursor = 'default';
+                    }
+                    
+                    // Stack cards with slight offset
+                    const offset = (this.foundations[i].length - 1 - j) * 2;
+                    cardEl.style.left = `${offset}px`;
+                    cardEl.style.top = `${offset}px`;
+                    cardEl.style.zIndex = j;
+                    cardEl.style.opacity = 1 - (j * 0.05);
+                    
+                    foundationEl.appendChild(cardEl);
                 }
             }
         }
@@ -664,23 +868,22 @@ class SolitaireGame {
             
             this.tableau[col].forEach((card, cardIndex) => {
                 const cardEl = this.createCardElement(card, 'tableau', col);
-                const offset = card.faceUp ? cardIndex * 25 : 0;
+                
+                // Stack all cards with offset, but face-down cards have smaller offset
+                const offset = card.faceUp ? cardIndex * 25 : cardIndex * 15;
                 cardEl.style.top = `${offset}px`;
                 cardEl.style.zIndex = cardIndex;
+                
                 if (!card.faceUp) {
-                    cardEl.style.opacity = '0.7';
+                    cardEl.style.opacity = '0.8';
+                    // Make face-down cards slightly smaller to show the stack better
+                    cardEl.style.transform = 'scale(0.95)';
                 }
+                
                 pileEl.appendChild(cardEl);
             });
             
-            // Show count if pile has many cards
-            if (this.tableau[col].length > 5) {
-                const counter = document.createElement('span');
-                counter.className = 'pile-counter';
-                counter.textContent = `${this.tableau[col].length} kort`;
-                counter.style.bottom = '-25px';
-                pileEl.appendChild(counter);
-            }
+            // No counter needed - cards are visually stacked
             
             tableauEl.appendChild(pileEl);
         }
@@ -689,6 +892,7 @@ class SolitaireGame {
     createCardElement(card, source, index) {
         const cardEl = document.createElement('div');
         cardEl.className = `solitaire-card ${card.color}`;
+        cardEl.setAttribute('data-card-id', `${card.suit}-${card.value}`);
         
         if (!card.faceUp) {
             cardEl.classList.add('face-down');
@@ -726,8 +930,9 @@ class SolitaireGame {
                 const clientY = e.touches ? e.touches[0].clientY : e.clientY;
                 
                 const rect = cardEl.getBoundingClientRect();
-                this.dragOffset.x = clientX - rect.left - rect.width / 2;
-                this.dragOffset.y = clientY - rect.top - rect.height / 2;
+                // Calculate offset from mouse to card center for smooth following
+                this.dragOffset.x = clientX - rect.left;
+                this.dragOffset.y = clientY - rect.top;
                 
                 // Get sequence of cards to move if from tableau
                 if (source === 'tableau') {
@@ -755,6 +960,8 @@ class SolitaireGame {
                 cardEl.classList.add('dragging');
                 cardEl.style.position = 'fixed';
                 cardEl.style.pointerEvents = 'none';
+                cardEl.style.zIndex = '10000';
+                cardEl.style.transform = 'rotate(2deg)';
                 
                 // Update position immediately
                 this.handleDragMove(e);
@@ -858,6 +1065,7 @@ class SolitaireGame {
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
         const clientY = e.touches ? e.touches[0].clientY : e.clientY;
         
+        // Position card directly under mouse cursor
         cardEl.style.left = `${clientX - this.dragOffset.x}px`;
         cardEl.style.top = `${clientY - this.dragOffset.y}px`;
         
@@ -920,6 +1128,7 @@ class SolitaireGame {
         cardEl.style.top = '';
         cardEl.style.pointerEvents = '';
         cardEl.style.transform = '';
+        cardEl.style.zIndex = '';
         
         const { card, source, index } = this.dragging;
         this.dragging = null;
@@ -949,6 +1158,34 @@ class SolitaireGame {
         this.render();
     }
     
+    startTimer() {
+        this.gameStartTime = Date.now();
+        this.gameTimer = setInterval(() => {
+            this.updateTimer();
+        }, 1000);
+    }
+    
+    updateTimer() {
+        if (!this.gameStartTime) return;
+        
+        const elapsed = Math.floor((Date.now() - this.gameStartTime) / 1000);
+        const minutes = Math.floor(elapsed / 60);
+        const seconds = elapsed % 60;
+        
+        const timerElement = document.getElementById('game-timer');
+        if (timerElement) {
+            timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+    }
+    
+    incrementMoveCount() {
+        this.moveCount++;
+        const moveCountElement = document.getElementById('move-count');
+        if (moveCountElement) {
+            moveCountElement.textContent = this.moveCount;
+        }
+    }
+    
     reset() {
         this.deck = [];
         this.stock = [];
@@ -959,11 +1196,19 @@ class SolitaireGame {
         this.selectedSource = null;
         this.dragging = null;
         this.dragSequence = [];
+        this.moveCount = 0;
+        this.gameStartTime = null;
+        
+        if (this.gameTimer) {
+            clearInterval(this.gameTimer);
+            this.gameTimer = null;
+        }
         
         this.createDeck();
         this.shuffleDeck();
         this.deal();
         this.render();
+        this.startTimer();
         document.getElementById('solitaire-status').textContent = '';
     }
 }
