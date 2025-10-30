@@ -73,6 +73,24 @@ export const gameRegistry = [
         category: 'casino',
         initFunction: 'initCasino',
         enabled: true
+    },
+    {
+        id: 'tennis',
+        name: 'Tennis',
+        icon: '🎾',
+        description: '2-spiller klassisk tennis',
+        category: 'sports',
+        initFunction: 'initTennis',
+        enabled: true
+    },
+    {
+        id: 'spaceinvader',
+        name: 'Space Invader',
+        icon: '👾',
+        description: 'Klassisk space shooter',
+        category: 'arcade',
+        initFunction: 'initSpaceInvader',
+        enabled: true
     }
 ];
 
