@@ -635,10 +635,8 @@ export function init() {
     
     // Add restart function
     window.restartTetris = () => {
-        if (tetrisGame) {
-            tetrisGame.reset();
-            tetrisGame.start();
-        }
+        // Hard reset to deep link (clears runtime state and caches via full reload)
+        window.location.href = 'https://hakonag.github.io/boredgames/?game=tetris';
     };
     
     // Fullscreen toggle
@@ -755,9 +753,9 @@ class TetrisGame {
                 return;
             }
             
-            // Handle restart (R)
+            // Handle restart (R) → hard reload to deep link
             if (e.key === 'r' || e.key === 'R') {
-                this.reset();
+                window.location.href = 'https://hakonag.github.io/boredgames/?game=tetris';
                 return;
             }
             
@@ -767,6 +765,14 @@ class TetrisGame {
                     this.start();
                 } else {
                     this.pause();
+                }
+                return;
+            }
+            
+            // Handle start (S) when not started yet
+            if (e.key === 's' || e.key === 'S') {
+                if (!this.currentPiece) {
+                    this.start();
                 }
                 return;
             }

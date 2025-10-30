@@ -15,6 +15,38 @@ body {
     color: #333;
 }
 
+/* Loading overlays */
+.loader-overlay {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at 30% 20%, #f8f9fa, #e9ecef);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20000;
+  transition: opacity 300ms ease;
+}
+.loader-overlay.hidden { display: none; }
+.loader-content { text-align: center; }
+.loader-logo { font-size: 3rem; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.1)); animation: float 2s ease-in-out infinite; }
+.loader-title { margin-top: 12px; font-weight: 800; letter-spacing: 1px; font-size: 1.4rem; color: #212529; }
+.loader-sub { margin-top: 8px; color: #6c757d; font-size: 0.95rem; }
+.loader-bar { margin-top: 16px; width: 260px; height: 10px; border: 2px solid #343a40; border-radius: 999px; overflow: hidden; background: #fff; display: inline-block; }
+.loader-bar span { display: block; height: 100%; width: 40%; background: linear-gradient(90deg, #51cf66, #339af0); animation: loadbar 1.3s ease-in-out infinite; }
+@keyframes loadbar { 0% { transform: translateX(-100%);} 50% { transform: translateX(20%);} 100% { transform: translateX(160%);} }
+@keyframes float { 0%,100% { transform: translateY(0);} 50% { transform: translateY(-6px);} }
+
+/* Game-specific loader content (injected) */
+.game-loader-inner { text-align: center; }
+.game-loader-title { margin-top: 10px; font-weight: 800; color: #212529; letter-spacing: 1px; }
+.game-loader-sub { color: #6c757d; margin-top: 6px; }
+.game-loader-anim { margin-top: 14px; display: inline-grid; grid-template-columns: repeat(4, 14px); gap: 4px; }
+.game-block { width: 14px; height: 14px; background: #4dabf7; box-shadow: 0 1px 0 rgba(0,0,0,0.15) inset; animation: blink 1s infinite alternate; }
+.game-block:nth-child(2) { animation-delay: .1s; }
+.game-block:nth-child(3) { animation-delay: .2s; }
+.game-block:nth-child(4) { animation-delay: .3s; }
+@keyframes blink { from { opacity: .5; } to { opacity: 1; } }
+
 .container {
     max-width: 1200px;
     margin: 0 auto;

@@ -5,10 +5,19 @@ import { loadGame } from './gameLoader.js';
 // Initialize homepage with games from registry
 document.addEventListener('DOMContentLoaded', () => {
     const gameFromUrl = getGameFromUrl();
+    showGlobalLoader();
     if (gameFromUrl) {
-        loadGame(gameFromUrl);
+        // defer slightly to show loader transition
+        setTimeout(() => {
+            hideGlobalLoader();
+            loadGame(gameFromUrl);
+        }, 600);
     } else {
-        renderGameCards();
+        // Simulate quick intro loading then render grid
+        setTimeout(() => {
+            renderGameCards();
+            hideGlobalLoader();
+        }, 700);
     }
 });
 
@@ -28,6 +37,15 @@ function getGameFromUrl() {
     // Allow /<id>
     if (last && last !== 'index.html' && last !== 'boredgames') return last;
     return null;
+}
+
+function showGlobalLoader() {
+    const el = document.getElementById('global-loader');
+    if (el) el.classList.remove('hidden');
+}
+function hideGlobalLoader() {
+    const el = document.getElementById('global-loader');
+    if (el) el.classList.add('hidden');
 }
 
 function renderGameCards() {
