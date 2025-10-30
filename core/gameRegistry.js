@@ -12,6 +12,15 @@ export const gameRegistry = [
         enabled: true
     },
     {
+        id: 'snake',
+        name: 'Snake',
+        icon: '🐍',
+        description: 'Spis, voks, unngå deg selv',
+        category: 'arcade',
+        initFunction: 'initSnake',
+        enabled: true
+    },
+    {
         id: 'minesweeper',
         name: 'Minesweeper',
         icon: '💣',
