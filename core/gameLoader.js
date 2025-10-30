@@ -125,6 +125,17 @@ function showGameLoader(gameId) {
         gameId === 'pacman' ? '#ffff00' :
         gameId === 'flappybird' ? '#ffd700' :
         gameId === 'sudoku' ? '#495057' :
+        gameId === 'arkanoid' ? '#ef4444' :
+        gameId === 'checkers' ? '#dc3545' :
+        gameId === 'chess' ? '#000000' :
+        gameId === 'pinball' ? '#1a1a1a' :
+        gameId === 'tictactoe' ? '#6c757d' :
+        gameId === 'mahjong' ? '#8b4513' :
+        gameId === 'crossword' ? '#495057' :
+        gameId === 'memory' ? '#0d6efd' :
+        gameId === 'reversi' ? '#228b22' :
+        gameId === 'whackamole' ? '#8b4513' :
+        gameId === 'dino' ? '#ffffff' :
         '#339af0'
     );
     const blocks = gameId === 'tetris' ? 8 : 6;

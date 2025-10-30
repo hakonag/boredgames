@@ -130,7 +130,7 @@ export async function saveHighScore(gameId, name, score) {
     return top30;
 }
 
-export function displayHighScores(containerId, gameId, limit = 10) {
+export function displayHighScores(containerId, gameId, limit = 30) {
     const scoresContainer = document.getElementById(containerId);
     if (!scoresContainer) return Promise.resolve();
     
@@ -217,10 +217,20 @@ export function showScoreModal(gameId, score, onSubmit, onSkip) {
     const input = document.getElementById('score-name-input');
     const submitBtn = document.getElementById('submit-score-btn');
     
+    // Prevent game shortcuts from triggering when typing in the input
+    input.addEventListener('keydown', (e) => {
+        e.stopPropagation();
+    });
+    
     input.addEventListener('keypress', async (e) => {
+        e.stopPropagation();
         if (e.key === 'Enter' && !submitBtn.disabled) {
             await window.currentScoreSubmit(score);
         }
+    });
+    
+    input.addEventListener('keyup', (e) => {
+        e.stopPropagation();
     });
     
     input.focus();

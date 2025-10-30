@@ -154,6 +154,105 @@ export const gameRegistry = [
         category: 'puzzle',
         initFunction: 'initSudoku',
         enabled: true
+    },
+    {
+        id: 'arkanoid',
+        name: 'Arkanoid',
+        icon: '🎮',
+        description: 'Klassisk arkanoid',
+        category: 'arcade',
+        initFunction: 'initArkanoid',
+        enabled: true
+    },
+    {
+        id: 'checkers',
+        name: 'Checkers',
+        icon: '🔴',
+        description: 'Klassisk dam',
+        category: 'strategy',
+        initFunction: 'initCheckers',
+        enabled: true
+    },
+    {
+        id: 'chess',
+        name: 'Chess',
+        icon: '♔',
+        description: 'Klassisk sjakk',
+        category: 'strategy',
+        initFunction: 'initChess',
+        enabled: true
+    },
+    {
+        id: 'pinball',
+        name: 'Pinball',
+        icon: '🎱',
+        description: 'Klassisk pinball',
+        category: 'arcade',
+        initFunction: 'initPinball',
+        enabled: true
+    },
+    {
+        id: 'tictactoe',
+        name: 'Tic-Tac-Toe',
+        icon: '❌',
+        description: 'Tre på rad',
+        category: 'strategy',
+        initFunction: 'initTictactoe',
+        enabled: true
+    },
+    {
+        id: 'mahjong',
+        name: 'Mahjong',
+        icon: '🀄',
+        description: 'Mahjong solitaire',
+        category: 'puzzle',
+        initFunction: 'initMahjong',
+        enabled: true
+    },
+    {
+        id: 'crossword',
+        name: 'Crossword',
+        icon: '📝',
+        description: 'Kryssord',
+        category: 'puzzle',
+        initFunction: 'initCrossword',
+        enabled: true
+    },
+    {
+        id: 'memory',
+        name: 'Memory',
+        icon: '🧠',
+        description: 'Minne-spill',
+        category: 'puzzle',
+        initFunction: 'initMemory',
+        enabled: true
+    },
+    {
+        id: 'reversi',
+        name: 'Reversi',
+        icon: '⚫',
+        description: 'Klassisk reversi',
+        category: 'strategy',
+        initFunction: 'initReversi',
+        enabled: true
+    },
+    {
+        id: 'whackamole',
+        name: 'Whack-a-Mole',
+        icon: '🦫',
+        description: 'Slå muldvarp',
+        category: 'arcade',
+        initFunction: 'initWhackamole',
+        enabled: true
+    },
+    {
+        id: 'dino',
+        name: 'Dino',
+        icon: '🦕',
+        description: 'Chrome dino jump',
+        category: 'arcade',
+        initFunction: 'initDino',
+        enabled: true
     }
 ];
 

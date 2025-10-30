@@ -1,6 +1,6 @@
-// Breakout Game Module
+// Pinball Game Module
 
-let breakoutGame = null;
+let pinballGame = null;
 
 export function init() {
     const gameContent = document.getElementById('game-content');
@@ -8,31 +8,31 @@ export function init() {
         <button class="back-button-tetris" onclick="window.location.href='https://hakonag.github.io/boredgames/'">
             <i data-lucide="house"></i> Tilbake
         </button>
-        <div class="breakout-wrap">
-            <div class="breakout-main">
-                <div class="breakout-header">
-                    <h1>Breakout</h1>
-                    <div class="breakout-stats">
+        <div class="pinball-wrap">
+            <div class="pinball-main">
+                <div class="pinball-header">
+                    <h1>Pinball</h1>
+                    <div class="pinball-stats">
                         <div class="stat-box">
                             <div class="stat-label">Score</div>
-                            <div class="stat-value" id="score-breakout">0</div>
+                            <div class="stat-value" id="score-pinball">0</div>
                         </div>
                         <div class="stat-box">
                             <div class="stat-label">Liv</div>
-                            <div class="stat-value" id="lives-breakout">3</div>
+                            <div class="stat-value" id="lives-pinball">3</div>
                         </div>
                     </div>
                 </div>
-                <div class="breakout-game-area">
-                    <canvas id="breakout-canvas" width="600" height="600"></canvas>
+                <div class="pinball-game-area">
+                    <canvas id="pinball-canvas" width="500" height="700"></canvas>
                 </div>
-                <div class="breakout-controls">
-                    <p class="breakout-instructions">Bruk piltastene eller mus for å styre</p>
-                    <div class="breakout-buttons">
-                        <button onclick="window.startBreakout()" id="breakout-start" class="btn-primary">
+                <div class="pinball-controls">
+                    <p class="pinball-instructions">Piltastene: ← → for å styre | Space: Launcher</p>
+                    <div class="pinball-buttons">
+                        <button onclick="window.startPinball()" id="pinball-start" class="btn-primary">
                             <i data-lucide="play"></i> Start
                         </button>
-                        <button onclick="window.resetBreakout()" class="btn-secondary">
+                        <button onclick="window.resetPinball()" class="btn-secondary">
                             <i data-lucide="refresh-cw"></i> Reset
                         </button>
                     </div>
@@ -51,133 +51,107 @@ export function init() {
     };
     window.addEventListener('wheel', preventScroll, { passive: false });
     window.addEventListener('touchmove', preventScroll, { passive: false });
-    window.breakoutScrollPrevent = { wheel: preventScroll, touchmove: preventScroll };
+    window.pinballScrollPrevent = { wheel: preventScroll, touchmove: preventScroll };
     
-    breakoutGame = new BreakoutGame();
-    window.breakoutGame = breakoutGame;
-    window.startBreakout = () => breakoutGame.start();
-    window.resetBreakout = () => breakoutGame.reset();
+    pinballGame = new PinballGame();
+    window.pinballGame = pinballGame;
+    window.startPinball = () => pinballGame.start();
+    window.resetPinball = () => pinballGame.reset();
 }
 
 export function cleanup() {
-    if (breakoutGame) {
-        breakoutGame.removeControls();
-        breakoutGame = null;
+    if (pinballGame) {
+        pinballGame.removeControls();
+        pinballGame = null;
     }
     // Remove scroll prevention
-    if (window.breakoutScrollPrevent) {
-        window.removeEventListener('wheel', window.breakoutScrollPrevent.wheel);
-        window.removeEventListener('touchmove', window.breakoutScrollPrevent.touchmove);
-        delete window.breakoutScrollPrevent;
+    if (window.pinballScrollPrevent) {
+        window.removeEventListener('wheel', window.pinballScrollPrevent.wheel);
+        window.removeEventListener('touchmove', window.pinballScrollPrevent.touchmove);
+        delete window.pinballScrollPrevent;
     }
-    const styleEl = document.getElementById('breakout-style');
+    const styleEl = document.getElementById('pinball-style');
     if (styleEl) styleEl.remove();
 }
 
-class BreakoutGame {
+class PinballGame {
     constructor() {
-        this.canvas = document.getElementById('breakout-canvas');
+        this.canvas = document.getElementById('pinball-canvas');
         this.ctx = this.canvas.getContext('2d');
         this.width = this.canvas.width;
         this.height = this.canvas.height;
         
-        this.paddle = { x: this.width/2 - 60, y: this.height - 30, width: 120, height: 15, speed: 8 };
-        this.ball = { x: this.width/2, y: this.height - 60, radius: 10, dx: 4, dy: -4 };
-        this.bricks = [];
+        this.ball = { x: this.width/2, y: this.height - 80, radius: 10, dx: 0, dy: 0 };
+        this.flippers = [
+            { x: this.width/2 - 50, y: this.height - 60, width: 80, height: 10, angle: -0.5 },
+            { x: this.width/2 + 50, y: this.height - 60, width: 80, height: 10, angle: 0.5 }
+        ];
+        this.bumpers = [
+            { x: 150, y: 200, radius: 30 },
+            { x: 350, y: 200, radius: 30 },
+            { x: 250, y: 300, radius: 30 }
+        ];
         this.score = 0;
         this.lives = 3;
         this.isRunning = false;
         this.animationFrame = null;
         
-        this.initBricks();
         this.setupControls();
         this.draw();
-    }
-
-    initBricks() {
-        const rows = 5;
-        const cols = 10;
-        const brickWidth = 55;
-        const brickHeight = 25;
-        const padding = 5;
-        const offsetTop = 50;
-        const offsetLeft = (this.width - (cols * (brickWidth + padding) - padding)) / 2;
-        
-        const colors = ['#ef4444', '#f59e0b', '#eab308', '#22c55e', '#3b82f6'];
-        
-        this.bricks = [];
-        for (let r = 0; r < rows; r++) {
-            for (let c = 0; c < cols; c++) {
-                this.bricks.push({
-                    x: offsetLeft + c * (brickWidth + padding),
-                    y: offsetTop + r * (brickHeight + padding),
-                    width: brickWidth,
-                    height: brickHeight,
-                    color: colors[r],
-                    visible: true
-                });
-            }
-        }
     }
 
     setupControls() {
         this.keys = {};
         this.keyHandler = (e) => {
-            // Don't process shortcuts if user is typing in an input field
-            const activeElement = document.activeElement;
-            if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
-                return;
-            }
-            
-            // Handle restart (R)
-            if ((e.key === 'r' || e.key === 'R') && e.type === 'keydown') {
-                window.location.href = 'https://hakonag.github.io/boredgames/?game=breakout';
-                return;
-            }
-            
-            if (['ArrowLeft', 'ArrowRight'].includes(e.key)) {
+            if (['ArrowLeft', 'ArrowRight', ' '].includes(e.key)) {
                 e.preventDefault();
                 this.keys[e.key] = e.type === 'keydown';
+                if (e.key === ' ' && e.type === 'keydown') {
+                    this.launchBall();
+                }
             }
         };
         document.addEventListener('keydown', this.keyHandler);
         document.addEventListener('keyup', this.keyHandler);
-        
-        this.mouseHandler = (e) => {
-            const rect = this.canvas.getBoundingClientRect();
-            this.paddle.x = e.clientX - rect.left - this.paddle.width/2;
-            this.paddle.x = Math.max(0, Math.min(this.width - this.paddle.width, this.paddle.x));
-        };
-        this.canvas.addEventListener('mousemove', this.mouseHandler);
     }
 
     removeControls() {
         document.removeEventListener('keydown', this.keyHandler);
         document.removeEventListener('keyup', this.keyHandler);
-        this.canvas.removeEventListener('mousemove', this.mouseHandler);
+    }
+
+    launchBall() {
+        if (!this.isRunning) return;
+        if (this.ball.y > this.height - 100) {
+            this.ball.dy = -15;
+            this.ball.dx = (Math.random() - 0.5) * 4;
+        }
     }
 
     start() {
         if (!this.isRunning) {
             this.isRunning = true;
-            document.getElementById('breakout-start').style.display = 'none';
+            document.getElementById('pinball-start').style.display = 'none';
+            this.ball.x = this.width/2;
+            this.ball.y = this.height - 80;
+            this.ball.dx = 0;
+            this.ball.dy = 0;
             this.gameLoop();
         }
     }
 
     reset() {
+        if (this.animationFrame) {
+            cancelAnimationFrame(this.animationFrame);
+            this.animationFrame = null;
+        }
         this.isRunning = false;
-        this.paddle.x = this.width/2 - 60;
-        this.ball.x = this.width/2;
-        this.ball.y = this.height - 60;
-        this.ball.dx = 4;
-        this.ball.dy = -4;
+        this.ball = { x: this.width/2, y: this.height - 80, radius: 10, dx: 0, dy: 0 };
         this.score = 0;
         this.lives = 3;
-        this.initBricks();
-        document.getElementById('score-breakout').textContent = '0';
-        document.getElementById('lives-breakout').textContent = '3';
-        document.getElementById('breakout-start').style.display = 'inline-flex';
+        document.getElementById('score-pinball').textContent = '0';
+        document.getElementById('lives-pinball').textContent = '3';
+        document.getElementById('pinball-start').style.display = 'inline-flex';
         this.draw();
     }
 
@@ -191,97 +165,132 @@ class BreakoutGame {
     }
 
     update() {
-        // Move paddle
-        if (this.keys['ArrowLeft']) this.paddle.x -= this.paddle.speed;
-        if (this.keys['ArrowRight']) this.paddle.x += this.paddle.speed;
-        this.paddle.x = Math.max(0, Math.min(this.width - this.paddle.width, this.paddle.x));
-
+        // Gravity
+        this.ball.dy += 0.3;
+        
         // Move ball
         this.ball.x += this.ball.dx;
         this.ball.y += this.ball.dy;
-
+        
+        // Friction
+        this.ball.dx *= 0.98;
+        this.ball.dy *= 0.98;
+        
         // Ball collision with walls
-        if (this.ball.x - this.ball.radius < 0 || this.ball.x + this.ball.radius > this.width) {
-            this.ball.dx *= -1;
+        if (this.ball.x - this.ball.radius < 20 || this.ball.x + this.ball.radius > this.width - 20) {
+            this.ball.dx *= -0.8;
+            this.ball.x = Math.max(20 + this.ball.radius, Math.min(this.width - 20 - this.ball.radius, this.ball.x));
         }
-        if (this.ball.y - this.ball.radius < 0) {
-            this.ball.dy *= -1;
+        if (this.ball.y - this.ball.radius < 20) {
+            this.ball.dy *= -0.8;
+            this.ball.y = 20 + this.ball.radius;
         }
-
-        // Ball collision with paddle
-        if (this.ball.y + this.ball.radius > this.paddle.y &&
-            this.ball.x > this.paddle.x &&
-            this.ball.x < this.paddle.x + this.paddle.width) {
-            this.ball.dy *= -1;
-            this.ball.y = this.paddle.y - this.ball.radius;
-        }
-
-        // Ball collision with bricks
-        for (let brick of this.bricks) {
-            if (!brick.visible) continue;
-            if (this.ball.x + this.ball.radius > brick.x &&
-                this.ball.x - this.ball.radius < brick.x + brick.width &&
-                this.ball.y + this.ball.radius > brick.y &&
-                this.ball.y - this.ball.radius < brick.y + brick.height) {
-                brick.visible = false;
-                this.ball.dy *= -1;
-                this.score += 10;
-                document.getElementById('score-breakout').textContent = this.score;
+        
+        // Ball collision with bumpers
+        this.bumpers.forEach(bumper => {
+            const dx = this.ball.x - bumper.x;
+            const dy = this.ball.y - bumper.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < this.ball.radius + bumper.radius) {
+                const angle = Math.atan2(dy, dx);
+                this.ball.dx = Math.cos(angle) * 8;
+                this.ball.dy = Math.sin(angle) * 8;
+                this.score += 100;
+                document.getElementById('score-pinball').textContent = this.score;
             }
-        }
-
+        });
+        
+        // Ball collision with flippers
+        this.flippers.forEach(flipper => {
+            const flipperX = flipper.x + Math.cos(flipper.angle) * flipper.width/2;
+            const flipperY = flipper.y + Math.sin(flipper.angle) * flipper.width/2;
+            const dx = this.ball.x - flipperX;
+            const dy = this.ball.y - flipperY;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < this.ball.radius + flipper.height/2) {
+                const angle = Math.atan2(dy, dx);
+                const force = 10;
+                this.ball.dx = Math.cos(angle) * force;
+                this.ball.dy = Math.sin(angle) * force;
+                this.score += 50;
+                document.getElementById('score-pinball').textContent = this.score;
+            }
+        });
+        
         // Ball falls off screen
         if (this.ball.y > this.height) {
             this.lives--;
-            document.getElementById('lives-breakout').textContent = this.lives;
+            document.getElementById('lives-pinball').textContent = this.lives;
             if (this.lives <= 0) {
                 alert('Game Over! Final score: ' + this.score);
                 this.reset();
             } else {
                 this.ball.x = this.width/2;
-                this.ball.y = this.height - 60;
-                this.ball.dx = 4;
-                this.ball.dy = -4;
+                this.ball.y = this.height - 80;
+                this.ball.dx = 0;
+                this.ball.dy = 0;
             }
         }
-
-        // Check win
-        if (this.bricks.every(b => !b.visible)) {
-            alert('Gratulerer! Du klarte det! Score: ' + this.score);
-            this.reset();
+        
+        // Update flippers
+        if (this.keys['ArrowLeft']) {
+            this.flippers[0].angle = Math.max(-0.8, this.flippers[0].angle - 0.1);
+        } else {
+            this.flippers[0].angle = Math.min(-0.3, this.flippers[0].angle + 0.1);
+        }
+        if (this.keys['ArrowRight']) {
+            this.flippers[1].angle = Math.min(0.8, this.flippers[1].angle + 0.1);
+        } else {
+            this.flippers[1].angle = Math.max(0.3, this.flippers[1].angle - 0.1);
         }
     }
 
     draw() {
-        this.ctx.fillStyle = '#000';
-        this.ctx.fillRect(0, 0, this.width, this.height);
-
-        // Draw bricks
-        for (let brick of this.bricks) {
-            if (!brick.visible) continue;
-            this.ctx.fillStyle = brick.color;
-            this.ctx.fillRect(brick.x, brick.y, brick.width, brick.height);
-            this.ctx.strokeStyle = '#fff';
-            this.ctx.lineWidth = 2;
-            this.ctx.strokeRect(brick.x, brick.y, brick.width, brick.height);
-        }
-
-        // Draw paddle
-        this.ctx.fillStyle = '#0d6efd';
-        this.ctx.fillRect(this.paddle.x, this.paddle.y, this.paddle.width, this.paddle.height);
-
+        const ctx = this.ctx;
+        
+        // Clear canvas
+        ctx.fillStyle = '#1a1a1a';
+        ctx.fillRect(0, 0, this.width, this.height);
+        
+        // Draw walls
+        ctx.fillStyle = '#444';
+        ctx.fillRect(0, 0, this.width, 20);
+        ctx.fillRect(0, 0, 20, this.height);
+        ctx.fillRect(this.width - 20, 0, 20, this.height);
+        
+        // Draw bumpers
+        ctx.fillStyle = '#0d6efd';
+        this.bumpers.forEach(bumper => {
+            ctx.beginPath();
+            ctx.arc(bumper.x, bumper.y, bumper.radius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+        });
+        
+        // Draw flippers
+        ctx.fillStyle = '#ffc107';
+        this.flippers.forEach(flipper => {
+            ctx.save();
+            ctx.translate(flipper.x, flipper.y);
+            ctx.rotate(flipper.angle);
+            ctx.fillRect(-flipper.width/2, -flipper.height/2, flipper.width, flipper.height);
+            ctx.restore();
+        });
+        
         // Draw ball
-        this.ctx.fillStyle = '#ffc107';
-        this.ctx.beginPath();
-        this.ctx.arc(this.ball.x, this.ball.y, this.ball.radius, 0, Math.PI * 2);
-        this.ctx.fill();
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.arc(this.ball.x, this.ball.y, this.ball.radius, 0, Math.PI * 2);
+        ctx.fill();
     }
 }
 
 function injectStyles() {
-    if (document.getElementById('breakout-style')) return;
+    if (document.getElementById('pinball-style')) return;
     const style = document.createElement('style');
-    style.id = 'breakout-style';
+    style.id = 'pinball-style';
     style.textContent = `
         .game-container #game-content, .game-container #game-content * {
             font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol" !important;
@@ -310,7 +319,7 @@ function injectStyles() {
             align-items: center;
             justify-content: center;
             box-sizing: border-box;
-            background: #ffffff;
+            background: #000000;
         }
         .game-container #game-content {
             position: relative;
@@ -350,21 +359,21 @@ function injectStyles() {
             font-weight: 600;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
-        .breakout-wrap {
+        .pinball-wrap {
             width: 100%;
-            max-width: 650px;
+            max-width: 550px;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
-        .breakout-header h1 {
+        .pinball-header h1 {
             font-size: 3rem;
             font-weight: 800;
-            color: #333;
+            color: #fff;
             margin: 0 0 20px 0;
             text-align: center;
         }
-        .breakout-stats {
+        .pinball-stats {
             display: flex;
             gap: 20px;
             margin-bottom: 20px;
@@ -389,7 +398,7 @@ function injectStyles() {
             font-size: 2rem;
             font-weight: 800;
         }
-        .breakout-game-area {
+        .pinball-game-area {
             background: #000;
             border: 4px solid #6c757d;
             border-radius: 8px;
@@ -397,22 +406,22 @@ function injectStyles() {
             margin-bottom: 20px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
-        #breakout-canvas {
+        #pinball-canvas {
             display: block;
             width: 100%;
-            max-width: 620px;
+            max-width: 520px;
             height: auto;
-            aspect-ratio: 1;
+            aspect-ratio: 5/7;
         }
-        .breakout-controls {
+        .pinball-controls {
             text-align: center;
         }
-        .breakout-instructions {
+        .pinball-instructions {
             color: #6c757d;
             font-size: 0.9rem;
             margin-bottom: 15px;
         }
-        .breakout-buttons {
+        .pinball-buttons {
             display: flex;
             gap: 10px;
             justify-content: center;
@@ -449,23 +458,23 @@ function injectStyles() {
             height: 14px;
         }
         @media (max-width: 768px) {
-            .breakout-header h1 {
+            .pinball-header h1 {
                 font-size: 2rem;
             }
-            .breakout-stats {
+            .pinball-stats {
                 flex-direction: column;
                 gap: 10px;
             }
             .stat-box {
                 width: 100%;
             }
-            .breakout-buttons {
+            .pinball-buttons {
                 flex-direction: column;
             }
             .btn-primary, .btn-secondary {
                 width: 100%;
             }
-            #breakout-canvas {
+            #pinball-canvas {
                 max-width: 100%;
             }
         }

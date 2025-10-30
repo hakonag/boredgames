@@ -404,7 +404,7 @@ export function init() {
     `;
     document.head.appendChild(style);
     // Load Solitaire high scores in sidebar
-    displayHighScores('scores-list', 'solitaire').catch(() => {});
+    displayHighScores('scores-list', 'solitaire', 30).catch(() => {});
 
     // Lock scrolling (full-page)
     document.body.style.overflow = 'hidden';
@@ -433,9 +433,8 @@ export function cleanup() {
 }
 
 function resetSolitaire() {
-    if (solitaireGame) {
-        solitaireGame.reset();
-    }
+    // Hard reset by reloading the page
+    window.location.href = 'https://hakonag.github.io/boredgames/?game=solitaire';
 }
 
 class SolitaireGame {
@@ -723,9 +722,9 @@ class SolitaireGame {
             const elapsed = Math.floor((Date.now() - this.gameStartTime) / 1000);
             const score = Math.max(1, 200000 - elapsed * 100 - this.moveCount * 50);
             showScoreModal('solitaire', score, () => {
-                setTimeout(() => displayHighScores('scores-list', 'solitaire'), 200);
+                setTimeout(() => displayHighScores('scores-list', 'solitaire', 30), 200);
             }, () => {
-                setTimeout(() => displayHighScores('scores-list', 'solitaire'), 200);
+                setTimeout(() => displayHighScores('scores-list', 'solitaire', 30), 200);
             });
             return;
         }
@@ -1592,7 +1591,7 @@ class SolitaireGame {
         this.deal();
         this.render();
         this.startTimer();
-        displayHighScores('scores-list', 'solitaire').catch(()=>{});
+        displayHighScores('scores-list', 'solitaire', 30).catch(()=>{});
         const statusEl = document.getElementById('solitaire-status');
         if (statusEl) statusEl.textContent = '';
     }

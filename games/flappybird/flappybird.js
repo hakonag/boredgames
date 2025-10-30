@@ -1,4 +1,5 @@
 // Flappy Bird Game Module
+import { displayHighScores, showScoreModal } from '../../core/highScores.js';
 
 let flappyGame = null;
 
@@ -37,12 +38,25 @@ export function init() {
                         </button>
                     </div>
                 </div>
+                <div class="flappy-leaderboard">
+                    <h3>Toppresultater</h3>
+                    <div id="flappy-high-scores" class="scores-list"></div>
+                </div>
             </div>
         </div>
     `;
 
     injectStyles();
     if (typeof lucide !== 'undefined') lucide.createIcons();
+    
+    // Prevent wheel scrolling
+    const preventScroll = (e) => {
+        e.preventDefault();
+        return false;
+    };
+    window.addEventListener('wheel', preventScroll, { passive: false });
+    window.addEventListener('touchmove', preventScroll, { passive: false });
+    window.flappyScrollPrevent = { wheel: preventScroll, touchmove: preventScroll };
     
     flappyGame = new FlappyBirdGame();
     window.flappyGame = flappyGame;
@@ -52,12 +66,21 @@ export function init() {
     // Load best score
     const best = parseInt(localStorage.getItem('flappy-best') || '0');
     document.getElementById('best-flappy').textContent = best;
+    
+    // Load leaderboard
+    displayHighScores('flappy-high-scores', 'flappybird', 30).catch(() => {});
 }
 
 export function cleanup() {
     if (flappyGame) {
         flappyGame.removeControls();
         flappyGame = null;
+    }
+    // Remove scroll prevention
+    if (window.flappyScrollPrevent) {
+        window.removeEventListener('wheel', window.flappyScrollPrevent.wheel);
+        window.removeEventListener('touchmove', window.flappyScrollPrevent.touchmove);
+        delete window.flappyScrollPrevent;
     }
     const styleEl = document.getElementById('flappy-style');
     if (styleEl) styleEl.remove();
@@ -94,6 +117,18 @@ class FlappyBirdGame {
         this.canvas.addEventListener('click', this.clickHandler);
         
         this.keyHandler = (e) => {
+            // Don't process shortcuts if user is typing in an input field
+            const activeElement = document.activeElement;
+            if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
+                return;
+            }
+            
+            // Handle restart (R)
+            if (e.key === 'r' || e.key === 'R') {
+                window.location.href = 'https://hakonag.github.io/boredgames/?game=flappybird';
+                return;
+            }
+            
             if (e.key === ' ') {
                 e.preventDefault();
                 if (this.isGameOver) return;
@@ -216,7 +251,23 @@ class FlappyBirdGame {
         document.getElementById('flappy-start').style.display = 'inline-flex';
         document.getElementById('flappy-start').innerHTML = '<i data-lucide="refresh-cw"></i> Spill igjen';
         if (typeof lucide !== 'undefined') lucide.createIcons();
-        alert('Game Over! Score: ' + this.score);
+        
+        // Check if this is a high score
+        import('../../core/highScores.js').then(({ getHighScores }) => {
+            getHighScores('flappybird').then(scores => {
+                const minHighScore = scores.length > 0 ? Math.min(...scores.map(s => s.score)) : 0;
+                if (scores.length < 30 || this.score > minHighScore) {
+                    showScoreModal('flappybird', this.score, 
+                        () => {
+                            setTimeout(() => { displayHighScores('flappy-high-scores', 'flappybird', 30); }, 200);
+                        },
+                        () => {
+                            setTimeout(() => { displayHighScores('flappy-high-scores', 'flappybird', 30); }, 200);
+                        }
+                    );
+                }
+            });
+        });
     }
 
     draw() {
@@ -282,24 +333,50 @@ function injectStyles() {
         .game-container #game-content, .game-container #game-content * {
             font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol" !important;
         }
-        body { overflow: hidden !important; position: fixed !important; width: 100% !important; }
-        html { overflow: hidden !important; }
-        .game-container {
-            position: fixed; inset: 0;
-            background: #87ceeb;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        body {
+            overflow: hidden !important;
+            position: fixed !important;
+            width: 100% !important;
         }
-        .game-container #game-content {
-            width: 100%;
-            height: 100vh;
+        html {
+            overflow: hidden !important;
+        }
+        .game-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden !important;
+            max-width: 100vw;
             max-height: 100vh;
             margin: 0;
-            padding: 10px;
+            padding: 0;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
+            box-sizing: border-box;
+            background: #87ceeb;
+        }
+        .game-container #game-content {
+            position: relative;
+            width: 100%;
+            height: 90vh;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            max-width: 100%;
+            overflow: hidden;
+            box-sizing: border-box;
+            padding: 10px;
+            margin-top: 5vh;
+            margin-bottom: 5vh;
+            background: transparent;
+            border-radius: 0;
+            box-shadow: none;
         }
         .back-button-tetris {
             position: fixed;
@@ -417,6 +494,26 @@ function injectStyles() {
         .btn-primary i, .btn-secondary i {
             width: 14px;
             height: 14px;
+        }
+        .flappy-leaderboard {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 650px;
+        }
+        .flappy-leaderboard h3 {
+            margin: 0 0 12px 0;
+            font-size: 1rem;
+            color: #495057;
+            text-align: center;
+            font-weight: 600;
+        }
+        .flappy-leaderboard .scores-list {
+            max-height: 300px;
+            overflow-y: auto;
         }
         @media (max-width: 768px) {
             .flappy-header h1 {

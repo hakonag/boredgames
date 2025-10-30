@@ -1,4 +1,5 @@
 // 2048 Game Module
+import { displayHighScores, showScoreModal } from '../../core/highScores.js';
 
 let game2048 = null;
 
@@ -32,12 +33,25 @@ export function init() {
                         </button>
                     </div>
                 </div>
+                <div class="game-2048-leaderboard">
+                    <h3>Toppresultater</h3>
+                    <div id="2048-high-scores" class="scores-list"></div>
+                </div>
             </div>
         </div>
     `;
 
     injectStyles();
     if (typeof lucide !== 'undefined') lucide.createIcons();
+    
+    // Prevent wheel scrolling
+    const preventScroll = (e) => {
+        e.preventDefault();
+        return false;
+    };
+    window.addEventListener('wheel', preventScroll, { passive: false });
+    window.addEventListener('touchmove', preventScroll, { passive: false });
+    window.game2048ScrollPrevent = { wheel: preventScroll, touchmove: preventScroll };
     
     game2048 = new Game2048();
     window.game2048 = game2048;
@@ -48,12 +62,21 @@ export function init() {
     if (best) {
         document.getElementById('best-2048').textContent = parseInt(best).toLocaleString();
     }
+    
+    // Load leaderboard
+    displayHighScores('2048-high-scores', '2048', 30).catch(() => {});
 }
 
 export function cleanup() {
     if (game2048) {
         game2048.removeControls();
         game2048 = null;
+    }
+    // Remove scroll prevention
+    if (window.game2048ScrollPrevent) {
+        window.removeEventListener('wheel', window.game2048ScrollPrevent.wheel);
+        window.removeEventListener('touchmove', window.game2048ScrollPrevent.touchmove);
+        delete window.game2048ScrollPrevent;
     }
     const styleEl = document.getElementById('game-2048-style');
     if (styleEl) styleEl.remove();
@@ -192,8 +215,21 @@ class Game2048 {
         }
 
         if (!canMove) {
-            setTimeout(() => {
-                alert('Spill over! Prøv igjen!');
+            setTimeout(async () => {
+                // Check if this is a high score
+                const { getHighScores } = await import('../../core/highScores.js');
+                const scores = await getHighScores('2048');
+                const minHighScore = scores.length > 0 ? Math.min(...scores.map(s => s.score)) : 0;
+                if (scores.length < 30 || this.score > minHighScore) {
+                    showScoreModal('2048', this.score, 
+                        () => {
+                            setTimeout(() => { displayHighScores('2048-high-scores', '2048', 30); }, 200);
+                        },
+                        () => {
+                            setTimeout(() => { displayHighScores('2048-high-scores', '2048', 30); }, 200);
+                        }
+                    );
+                }
                 this.newGame();
             }, 100);
         }
@@ -228,6 +264,18 @@ class Game2048 {
 
     setupControls() {
         this.keyHandler = (e) => {
+            // Don't process shortcuts if user is typing in an input field
+            const activeElement = document.activeElement;
+            if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
+                return;
+            }
+            
+            // Handle restart (R)
+            if (e.key === 'r' || e.key === 'R') {
+                window.location.href = 'https://hakonag.github.io/boredgames/?game=2048';
+                return;
+            }
+            
             if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
                 e.preventDefault();
                 const dir = e.key.replace('Arrow', '').toLowerCase();
@@ -278,24 +326,50 @@ function injectStyles() {
         .game-container #game-content, .game-container #game-content * {
             font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol" !important;
         }
-        body { overflow: hidden !important; position: fixed !important; width: 100% !important; }
-        html { overflow: hidden !important; }
-        .game-container {
-            position: fixed; inset: 0;
-            background: #faf8ef;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        body {
+            overflow: hidden !important;
+            position: fixed !important;
+            width: 100% !important;
         }
-        .game-container #game-content {
-            width: 100%;
-            height: 100vh;
+        html {
+            overflow: hidden !important;
+        }
+        .game-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden !important;
+            max-width: 100vw;
             max-height: 100vh;
             margin: 0;
-            padding: 10px;
+            padding: 0;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
+            box-sizing: border-box;
+            background: #faf8ef;
+        }
+        .game-container #game-content {
+            position: relative;
+            width: 100%;
+            height: 90vh;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            max-width: 100%;
+            overflow: hidden;
+            box-sizing: border-box;
+            padding: 10px;
+            margin-top: 5vh;
+            margin-bottom: 5vh;
+            background: transparent;
+            border-radius: 0;
+            box-shadow: none;
         }
         .back-button-tetris {
             position: fixed;
@@ -422,6 +496,26 @@ function injectStyles() {
         .btn-primary i {
             width: 14px;
             height: 14px;
+        }
+        .game-2048-leaderboard {
+            margin-top: 20px;
+            padding: 15px;
+            background: #faf8ef;
+            border: 2px solid #bbada0;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 500px;
+        }
+        .game-2048-leaderboard h3 {
+            margin: 0 0 12px 0;
+            font-size: 1rem;
+            color: #776e65;
+            text-align: center;
+            font-weight: 600;
+        }
+        .game-2048-leaderboard .scores-list {
+            max-height: 300px;
+            overflow-y: auto;
         }
         @media (max-width: 768px) {
             .game-2048-header h1 {

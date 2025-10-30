@@ -44,6 +44,15 @@ export function init() {
     injectStyles();
     if (typeof lucide !== 'undefined') lucide.createIcons();
     
+    // Prevent wheel scrolling
+    const preventScroll = (e) => {
+        e.preventDefault();
+        return false;
+    };
+    window.addEventListener('wheel', preventScroll, { passive: false });
+    window.addEventListener('touchmove', preventScroll, { passive: false });
+    window.asteroidsScrollPrevent = { wheel: preventScroll, touchmove: preventScroll };
+    
     asteroidsGame = new AsteroidsGame();
     window.asteroidsGame = asteroidsGame;
     window.startAsteroids = () => asteroidsGame.start();
@@ -54,6 +63,12 @@ export function cleanup() {
     if (asteroidsGame) {
         asteroidsGame.removeControls();
         asteroidsGame = null;
+    }
+    // Remove scroll prevention
+    if (window.asteroidsScrollPrevent) {
+        window.removeEventListener('wheel', window.asteroidsScrollPrevent.wheel);
+        window.removeEventListener('touchmove', window.asteroidsScrollPrevent.touchmove);
+        delete window.asteroidsScrollPrevent;
     }
     const styleEl = document.getElementById('asteroids-style');
     if (styleEl) styleEl.remove();
@@ -90,6 +105,18 @@ class AsteroidsGame {
     setupControls() {
         this.keys = {};
         this.keyHandler = (e) => {
+            // Don't process shortcuts if user is typing in an input field
+            const activeElement = document.activeElement;
+            if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
+                return;
+            }
+            
+            // Handle restart (R)
+            if ((e.key === 'r' || e.key === 'R') && e.type === 'keydown') {
+                window.location.href = 'https://hakonag.github.io/boredgames/?game=asteroids';
+                return;
+            }
+            
             if (['ArrowLeft', 'ArrowRight', 'ArrowUp', ' '].includes(e.key)) {
                 e.preventDefault();
                 this.keys[e.key] = e.type === 'keydown';
@@ -373,24 +400,50 @@ function injectStyles() {
         .game-container #game-content, .game-container #game-content * {
             font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol" !important;
         }
-        body { overflow: hidden !important; position: fixed !important; width: 100% !important; }
-        html { overflow: hidden !important; }
-        .game-container {
-            position: fixed; inset: 0;
-            background: #000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        body {
+            overflow: hidden !important;
+            position: fixed !important;
+            width: 100% !important;
         }
-        .game-container #game-content {
-            width: 100%;
-            height: 100vh;
+        html {
+            overflow: hidden !important;
+        }
+        .game-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden !important;
+            max-width: 100vw;
             max-height: 100vh;
             margin: 0;
-            padding: 10px;
+            padding: 0;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
+            box-sizing: border-box;
+            background: #000000;
+        }
+        .game-container #game-content {
+            position: relative;
+            width: 100%;
+            height: 90vh;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            max-width: 100%;
+            overflow: hidden;
+            box-sizing: border-box;
+            padding: 10px;
+            margin-top: 5vh;
+            margin-bottom: 5vh;
+            background: transparent;
+            border-radius: 0;
+            box-shadow: none;
         }
         .back-button-tetris {
             position: fixed;

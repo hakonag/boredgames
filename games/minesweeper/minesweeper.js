@@ -99,7 +99,7 @@ export function init() {
         addHandler($("ms-reset"), 'click', reset);
         addHandler($("ms-size"), 'change', () => { reset(); });
         // load highscores
-        displayHighScores('minesweeper-high-scores', 'minesweeper').catch(()=>{});
+        displayHighScores('minesweeper-high-scores', 'minesweeper', 30).catch(()=>{});
     }
 
     function createBoard(n, numBombs) {
@@ -213,9 +213,9 @@ export function init() {
             // Higher score is better: use inverse of time
             const score = Math.max(1, 100000 - (timer*1000));
             showScoreModal('minesweeper', score, () => {
-                setTimeout(() => displayHighScores('minesweeper-high-scores', 'minesweeper'), 200);
+                setTimeout(() => displayHighScores('minesweeper-high-scores', 'minesweeper', 30), 200);
             }, () => {
-                setTimeout(() => displayHighScores('minesweeper-high-scores', 'minesweeper'), 200);
+                setTimeout(() => displayHighScores('minesweeper-high-scores', 'minesweeper', 30), 200);
             });
         }
     }

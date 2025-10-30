@@ -37,6 +37,12 @@ export function init() {
                         <span class="info-label">Nivå</span>
                         <span class="info-value" id="tetris-level">1</span>
                     </div>
+                    <div class="mode-selector-inline">
+                        <button onclick="window.toggleTetrisMode()" id="mode-toggle" class="mode-toggle-btn">
+                            <i data-lucide="feather" id="mode-icon"></i>
+                            <span id="mode-text">Lett</span>
+                        </button>
+                    </div>
                 </div>
             </div>
             <div class="tetris-board">
@@ -89,17 +95,6 @@ export function init() {
                             <span class="key-icon">M</span>
                         </div>
                         <span class="control-label">Mute</span>
-                    </div>
-                </div>
-                <div class="mode-selector">
-                    <h4>Vanskelighetsgrad</h4>
-                    <div class="mode-buttons">
-                        <button onclick="window.setTetrisMode('easy')" id="mode-easy" class="mode-btn active">
-                            <i data-lucide="feather"></i> Lett
-                        </button>
-                        <button onclick="window.setTetrisMode('hard')" id="mode-hard" class="mode-btn">
-                            <i data-lucide="flame"></i> Vanskelig
-                        </button>
                     </div>
                 </div>
                 <div class="game-buttons">
@@ -501,58 +496,34 @@ export function init() {
             width: 12px;
             height: 12px;
         }
-        .mode-selector {
-            margin-bottom: 12px;
-            padding: 10px;
-            background: #ffffff;
-            border: 2px solid #dee2e6;
-            border-radius: 8px;
+        .mode-selector-inline {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #dee2e6;
         }
-        .mode-selector h4 {
-            margin: 0 0 8px 0;
-            font-size: 0.75rem;
-            color: #495057;
-            text-align: center;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-weight: 600;
-        }
-        .mode-buttons {
-            display: flex;
-            gap: 6px;
-        }
-        .mode-btn {
-            flex: 1;
-            padding: 6px 10px;
+        .mode-toggle-btn {
+            width: 100%;
+            padding: 8px 12px;
             border-radius: 6px;
             font-size: 0.75rem;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 4px;
+            gap: 6px;
             font-weight: 600;
             transition: all 0.2s ease;
             border: 2px solid #dee2e6;
             background: #ffffff;
             color: #495057;
         }
-        .mode-btn:hover {
+        .mode-toggle-btn:hover {
             background: #f8f9fa;
             border-color: #adb5bd;
         }
-        .mode-btn.active {
-            background: #007bff;
-            color: white;
-            border-color: #0056b3;
-        }
-        .mode-btn.active:hover {
-            background: #0056b3;
-            border-color: #004085;
-        }
-        .mode-btn i {
-            width: 12px;
-            height: 12px;
+        .mode-toggle-btn i {
+            width: 14px;
+            height: 14px;
         }
         .high-scores {
             margin-top: 0;
@@ -803,28 +774,44 @@ export function init() {
         }
     };
     
-    // Mode selector function
-    window.setTetrisMode = (mode) => {
-        const easyBtn = document.getElementById('mode-easy');
-        const hardBtn = document.getElementById('mode-hard');
-        if (easyBtn && hardBtn) {
-            easyBtn.classList.toggle('active', mode === 'easy');
-            hardBtn.classList.toggle('active', mode === 'hard');
+    // Mode toggle function
+    window.toggleTetrisMode = () => {
+        if (!tetrisGame) return;
+        
+        // Get current mode and toggle it
+        const currentMode = tetrisGame.mode || 'easy';
+        const newMode = currentMode === 'easy' ? 'hard' : 'easy';
+        
+        // Update toggle button
+        const modeToggle = document.getElementById('mode-toggle');
+        const modeIcon = document.getElementById('mode-icon');
+        const modeText = document.getElementById('mode-text');
+        
+        if (modeToggle && modeIcon && modeText) {
+            if (newMode === 'easy') {
+                modeIcon.setAttribute('data-lucide', 'feather');
+                modeText.textContent = 'Lett';
+            } else {
+                modeIcon.setAttribute('data-lucide', 'flame');
+                modeText.textContent = 'Vanskelig';
+            }
+            if (typeof lucide !== 'undefined') lucide.createIcons();
         }
-        if (typeof lucide !== 'undefined') lucide.createIcons();
-        // If game exists, recreate it with new mode
-        const wasPaused = tetrisGame && tetrisGame.isPaused;
-        const wasRunning = tetrisGame && tetrisGame.animationFrameId;
+        
+        // Hard reset game with new mode
         if (tetrisGame) {
             tetrisGame.removeControls();
             tetrisGame = null;
         }
-        tetrisGame = new TetrisGame(mode);
+        tetrisGame = new TetrisGame(newMode);
         window.tetrisGame = tetrisGame;
-        // Restore game state if it was running
-        if (wasRunning && !wasPaused) {
-            setTimeout(() => window.startTetris(), 100);
-        }
+        
+        // Reset all game state
+        document.getElementById('tetris-score').textContent = '0';
+        document.getElementById('tetris-lines').textContent = '0';
+        document.getElementById('tetris-level').textContent = String(newMode === 'hard' ? 5 : 1);
+        document.getElementById('tetris-start-btn').style.display = 'block';
+        document.getElementById('tetris-pause-btn').style.display = 'none';
     };
     
     // Initialize with easy mode
@@ -924,6 +911,12 @@ class TetrisGame {
     
     setupControls() {
         this.keyHandler = (e) => {
+            // Don't process shortcuts if user is typing in an input field
+            const activeElement = document.activeElement;
+            if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
+                return;
+            }
+            
             // Prevent default for arrow keys and space when Tetris is active
             if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', ' '].includes(e.key)) {
                 // Only prevent default if game is running (not paused and has a piece)

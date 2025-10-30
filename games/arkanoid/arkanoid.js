@@ -1,6 +1,6 @@
-// Pong Game Module
+// Arkanoid Game Module
 
-let pongGame = null;
+let arkanoidGame = null;
 
 export function init() {
     const gameContent = document.getElementById('game-content');
@@ -8,34 +8,31 @@ export function init() {
         <button class="back-button-tetris" onclick="window.location.href='https://hakonag.github.io/boredgames/'">
             <i data-lucide="house"></i> Tilbake
         </button>
-        <div class="pong-wrap">
-            <div class="pong-main">
-                <div class="pong-header">
-                    <h1>Pong</h1>
-                    <div class="pong-stats">
+        <div class="arkanoid-wrap">
+            <div class="arkanoid-main">
+                <div class="arkanoid-header">
+                    <h1>Arkanoid</h1>
+                    <div class="arkanoid-stats">
                         <div class="stat-box">
-                            <div class="stat-label">Spiller 1</div>
-                            <div class="stat-value" id="score-p1">0</div>
+                            <div class="stat-label">Score</div>
+                            <div class="stat-value" id="score-arkanoid">0</div>
                         </div>
                         <div class="stat-box">
-                            <div class="stat-label">Spiller 2</div>
-                            <div class="stat-value" id="score-p2">0</div>
+                            <div class="stat-label">Liv</div>
+                            <div class="stat-value" id="lives-arkanoid">3</div>
                         </div>
                     </div>
                 </div>
-                <div class="pong-game-area">
-                    <canvas id="pong-canvas" width="800" height="500"></canvas>
+                <div class="arkanoid-game-area">
+                    <canvas id="arkanoid-canvas" width="600" height="600"></canvas>
                 </div>
-                <div class="pong-controls">
-                    <p class="pong-instructions">P1: W/S | P2: ↑/↓ | Space: Start/Pause</p>
-                    <div class="pong-buttons">
-                        <button onclick="window.startPong()" id="pong-start" class="btn-primary">
+                <div class="arkanoid-controls">
+                    <p class="arkanoid-instructions">Bruk piltastene eller mus for å styre</p>
+                    <div class="arkanoid-buttons">
+                        <button onclick="window.startArkanoid()" id="arkanoid-start" class="btn-primary">
                             <i data-lucide="play"></i> Start
                         </button>
-                        <button onclick="window.pausePong()" id="pong-pause" style="display:none" class="btn-primary">
-                            <i data-lucide="pause"></i> Pause
-                        </button>
-                        <button onclick="window.resetPong()" class="btn-secondary">
+                        <button onclick="window.resetArkanoid()" class="btn-secondary">
                             <i data-lucide="refresh-cw"></i> Reset
                         </button>
                     </div>
@@ -54,85 +51,106 @@ export function init() {
     };
     window.addEventListener('wheel', preventScroll, { passive: false });
     window.addEventListener('touchmove', preventScroll, { passive: false });
-    window.pongScrollPrevent = { wheel: preventScroll, touchmove: preventScroll };
+    window.arkanoidScrollPrevent = { wheel: preventScroll, touchmove: preventScroll };
     
-    pongGame = new PongGame();
-    window.pongGame = pongGame;
-    window.startPong = () => pongGame.start();
-    window.pausePong = () => pongGame.pause();
-    window.resetPong = () => pongGame.reset();
+    arkanoidGame = new ArkanoidGame();
+    window.arkanoidGame = arkanoidGame;
+    window.startArkanoid = () => arkanoidGame.start();
+    window.resetArkanoid = () => arkanoidGame.reset();
 }
 
 export function cleanup() {
-    if (pongGame) {
-        pongGame.removeControls();
-        pongGame = null;
+    if (arkanoidGame) {
+        arkanoidGame.removeControls();
+        arkanoidGame = null;
     }
     // Remove scroll prevention
-    if (window.pongScrollPrevent) {
-        window.removeEventListener('wheel', window.pongScrollPrevent.wheel);
-        window.removeEventListener('touchmove', window.pongScrollPrevent.touchmove);
-        delete window.pongScrollPrevent;
+    if (window.arkanoidScrollPrevent) {
+        window.removeEventListener('wheel', window.arkanoidScrollPrevent.wheel);
+        window.removeEventListener('touchmove', window.arkanoidScrollPrevent.touchmove);
+        delete window.arkanoidScrollPrevent;
     }
-    const styleEl = document.getElementById('pong-style');
+    const styleEl = document.getElementById('arkanoid-style');
     if (styleEl) styleEl.remove();
 }
 
-class PongGame {
+class ArkanoidGame {
     constructor() {
-        this.canvas = document.getElementById('pong-canvas');
+        this.canvas = document.getElementById('arkanoid-canvas');
         this.ctx = this.canvas.getContext('2d');
         this.width = this.canvas.width;
         this.height = this.canvas.height;
         
-        this.paddle1 = { x: 20, y: this.height/2 - 50, width: 10, height: 100, speed: 5, score: 0 };
-        this.paddle2 = { x: this.width - 30, y: this.height/2 - 50, width: 10, height: 100, speed: 5, score: 0 };
-        this.ball = { x: this.width/2, y: this.height/2, radius: 10, dx: 5, dy: 5, speed: 5 };
-        
-        this.keys = {};
+        this.paddle = { x: this.width/2 - 60, y: this.height - 30, width: 120, height: 15, speed: 8 };
+        this.ball = { x: this.width/2, y: this.height - 60, radius: 10, dx: 4, dy: -4 };
+        this.bricks = [];
+        this.score = 0;
+        this.lives = 3;
         this.isRunning = false;
-        this.isPaused = false;
         this.animationFrame = null;
         
+        this.initBricks();
         this.setupControls();
         this.draw();
     }
 
+    initBricks() {
+        const rows = 6;
+        const cols = 10;
+        const brickWidth = 55;
+        const brickHeight = 25;
+        const padding = 5;
+        const offsetTop = 50;
+        const offsetLeft = (this.width - (cols * (brickWidth + padding) - padding)) / 2;
+        
+        const colors = ['#ef4444', '#f59e0b', '#eab308', '#22c55e', '#3b82f6', '#a855f7'];
+        
+        this.bricks = [];
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                this.bricks.push({
+                    x: offsetLeft + c * (brickWidth + padding),
+                    y: offsetTop + r * (brickHeight + padding),
+                    width: brickWidth,
+                    height: brickHeight,
+                    color: colors[r % colors.length],
+                    visible: true
+                });
+            }
+        }
+    }
+
     setupControls() {
+        this.keys = {};
         this.keyHandler = (e) => {
-            this.keys[e.key] = e.type === 'keydown';
-            if (e.key === ' ' && e.type === 'keydown') {
+            if (['ArrowLeft', 'ArrowRight'].includes(e.key)) {
                 e.preventDefault();
-                if (!this.isRunning) this.start();
-                else this.pause();
+                this.keys[e.key] = e.type === 'keydown';
             }
         };
         document.addEventListener('keydown', this.keyHandler);
         document.addEventListener('keyup', this.keyHandler);
+        
+        this.mouseHandler = (e) => {
+            const rect = this.canvas.getBoundingClientRect();
+            this.paddle.x = e.clientX - rect.left - this.paddle.width/2;
+            this.paddle.x = Math.max(0, Math.min(this.width - this.paddle.width, this.paddle.x));
+        };
+        this.canvas.addEventListener('mousemove', this.mouseHandler);
     }
 
     removeControls() {
         document.removeEventListener('keydown', this.keyHandler);
         document.removeEventListener('keyup', this.keyHandler);
+        this.canvas.removeEventListener('mousemove', this.mouseHandler);
     }
 
     start() {
         if (!this.isRunning) {
             this.isRunning = true;
-            this.isPaused = false;
-            document.getElementById('pong-start').style.display = 'none';
-            document.getElementById('pong-pause').style.display = 'inline-flex';
-            if (!this.animationFrame) {
-                this.gameLoop();
-            }
+            document.getElementById('arkanoid-start').style.display = 'none';
+            this.gameLoop();
         }
-    }
-
-    pause() {
-        this.isPaused = !this.isPaused;
-        const btn = document.getElementById('pong-pause');
-        btn.innerHTML = this.isPaused ? '<i data-lucide="play"></i> Fortsett' : '<i data-lucide="pause"></i> Pause';
-        if (typeof lucide !== 'undefined') lucide.createIcons();
     }
 
     reset() {
@@ -141,20 +159,17 @@ class PongGame {
             this.animationFrame = null;
         }
         this.isRunning = false;
-        this.isPaused = false;
-        this.paddle1.y = this.height/2 - 50;
-        this.paddle2.y = this.height/2 - 50;
-        this.paddle1.score = 0;
-        this.paddle2.score = 0;
+        this.paddle.x = this.width/2 - 60;
         this.ball.x = this.width/2;
-        this.ball.y = this.height/2;
-        this.ball.dx = (Math.random() > 0.5 ? 1 : -1) * 5;
-        this.ball.dy = (Math.random() > 0.5 ? 1 : -1) * 5;
-        document.getElementById('score-p1').textContent = '0';
-        document.getElementById('score-p2').textContent = '0';
-        document.getElementById('pong-start').style.display = 'inline-flex';
-        document.getElementById('pong-pause').style.display = 'none';
-        if (typeof lucide !== 'undefined') lucide.createIcons();
+        this.ball.y = this.height - 60;
+        this.ball.dx = 4;
+        this.ball.dy = -4;
+        this.score = 0;
+        this.lives = 3;
+        this.initBricks();
+        document.getElementById('score-arkanoid').textContent = '0';
+        document.getElementById('lives-arkanoid').textContent = '3';
+        document.getElementById('arkanoid-start').style.display = 'inline-flex';
         this.draw();
     }
 
@@ -168,98 +183,97 @@ class PongGame {
     }
 
     update() {
-        if (this.isPaused) return;
-
-        // Move paddles
-        if (this.keys['w'] || this.keys['W']) this.paddle1.y -= this.paddle1.speed;
-        if (this.keys['s'] || this.keys['S']) this.paddle1.y += this.paddle1.speed;
-        if (this.keys['ArrowUp']) this.paddle2.y -= this.paddle2.speed;
-        if (this.keys['ArrowDown']) this.paddle2.y += this.paddle2.speed;
-
-        // Keep paddles in bounds
-        this.paddle1.y = Math.max(0, Math.min(this.height - this.paddle1.height, this.paddle1.y));
-        this.paddle2.y = Math.max(0, Math.min(this.height - this.paddle2.height, this.paddle2.y));
+        // Move paddle
+        if (this.keys['ArrowLeft']) this.paddle.x -= this.paddle.speed;
+        if (this.keys['ArrowRight']) this.paddle.x += this.paddle.speed;
+        this.paddle.x = Math.max(0, Math.min(this.width - this.paddle.width, this.paddle.x));
 
         // Move ball
         this.ball.x += this.ball.dx;
         this.ball.y += this.ball.dy;
 
-        // Ball collision with top/bottom
-        if (this.ball.y - this.ball.radius < 0 || this.ball.y + this.ball.radius > this.height) {
+        // Ball collision with walls
+        if (this.ball.x - this.ball.radius < 0 || this.ball.x + this.ball.radius > this.width) {
+            this.ball.dx *= -1;
+        }
+        if (this.ball.y - this.ball.radius < 0) {
             this.ball.dy *= -1;
         }
 
-        // Ball collision with paddles
-        if (this.ball.dx < 0 && 
-            this.ball.x - this.ball.radius < this.paddle1.x + this.paddle1.width &&
-            this.ball.y > this.paddle1.y &&
-            this.ball.y < this.paddle1.y + this.paddle1.height) {
-            this.ball.dx *= -1;
-            this.ball.x = this.paddle1.x + this.paddle1.width + this.ball.radius;
-        }
-        if (this.ball.dx > 0 &&
-            this.ball.x + this.ball.radius > this.paddle2.x &&
-            this.ball.y > this.paddle2.y &&
-            this.ball.y < this.paddle2.y + this.paddle2.height) {
-            this.ball.dx *= -1;
-            this.ball.x = this.paddle2.x - this.ball.radius;
+        // Ball collision with paddle
+        if (this.ball.y + this.ball.radius > this.paddle.y &&
+            this.ball.x > this.paddle.x &&
+            this.ball.x < this.paddle.x + this.paddle.width) {
+            this.ball.dy *= -1;
+            this.ball.y = this.paddle.y - this.ball.radius;
         }
 
-        // Scoring
-        if (this.ball.x - this.ball.radius < 0) {
-            this.paddle2.score++;
-            document.getElementById('score-p2').textContent = this.paddle2.score;
-            this.resetBall();
+        // Ball collision with bricks
+        for (let brick of this.bricks) {
+            if (!brick.visible) continue;
+            if (this.ball.x + this.ball.radius > brick.x &&
+                this.ball.x - this.ball.radius < brick.x + brick.width &&
+                this.ball.y + this.ball.radius > brick.y &&
+                this.ball.y - this.ball.radius < brick.y + brick.height) {
+                brick.visible = false;
+                this.ball.dy *= -1;
+                this.score += 10;
+                document.getElementById('score-arkanoid').textContent = this.score;
+            }
         }
-        if (this.ball.x + this.ball.radius > this.width) {
-            this.paddle1.score++;
-            document.getElementById('score-p1').textContent = this.paddle1.score;
-            this.resetBall();
-        }
-    }
 
-    resetBall() {
-        this.ball.x = this.width/2;
-        this.ball.y = this.height/2;
-        this.ball.dx = (Math.random() > 0.5 ? 1 : -1) * 5;
-        this.ball.dy = (Math.random() > 0.5 ? 1 : -1) * 5;
+        // Ball falls off screen
+        if (this.ball.y > this.height) {
+            this.lives--;
+            document.getElementById('lives-arkanoid').textContent = this.lives;
+            if (this.lives <= 0) {
+                alert('Game Over! Final score: ' + this.score);
+                this.reset();
+            } else {
+                this.ball.x = this.width/2;
+                this.ball.y = this.height - 60;
+                this.ball.dx = 4;
+                this.ball.dy = -4;
+            }
+        }
+
+        // Check win
+        if (this.bricks.every(b => !b.visible)) {
+            alert('Gratulerer! Du klarte det! Score: ' + this.score);
+            this.reset();
+        }
     }
 
     draw() {
-        const ctx = this.ctx;
-        
-        // Clear canvas
-        ctx.fillStyle = '#000';
-        ctx.fillRect(0, 0, this.width, this.height);
+        this.ctx.fillStyle = '#000';
+        this.ctx.fillRect(0, 0, this.width, this.height);
 
-        // Center line
-        ctx.strokeStyle = '#fff';
-        ctx.lineWidth = 2;
-        ctx.setLineDash([10, 10]);
-        ctx.beginPath();
-        ctx.moveTo(this.width/2, 0);
-        ctx.lineTo(this.width/2, this.height);
-        ctx.stroke();
-        ctx.setLineDash([]);
+        // Draw bricks
+        for (let brick of this.bricks) {
+            if (!brick.visible) continue;
+            this.ctx.fillStyle = brick.color;
+            this.ctx.fillRect(brick.x, brick.y, brick.width, brick.height);
+            this.ctx.strokeStyle = '#fff';
+            this.ctx.lineWidth = 2;
+            this.ctx.strokeRect(brick.x, brick.y, brick.width, brick.height);
+        }
 
-        // Paddles
-        ctx.fillStyle = '#0d6efd';
-        ctx.fillRect(this.paddle1.x, this.paddle1.y, this.paddle1.width, this.paddle1.height);
-        ctx.fillStyle = '#dc3545';
-        ctx.fillRect(this.paddle2.x, this.paddle2.y, this.paddle2.width, this.paddle2.height);
+        // Draw paddle
+        this.ctx.fillStyle = '#0d6efd';
+        this.ctx.fillRect(this.paddle.x, this.paddle.y, this.paddle.width, this.paddle.height);
 
-        // Ball
-        ctx.fillStyle = '#ffc107';
-        ctx.beginPath();
-        ctx.arc(this.ball.x, this.ball.y, this.ball.radius, 0, Math.PI * 2);
-        ctx.fill();
+        // Draw ball
+        this.ctx.fillStyle = '#ffc107';
+        this.ctx.beginPath();
+        this.ctx.arc(this.ball.x, this.ball.y, this.ball.radius, 0, Math.PI * 2);
+        this.ctx.fill();
     }
 }
 
 function injectStyles() {
-    if (document.getElementById('pong-style')) return;
+    if (document.getElementById('arkanoid-style')) return;
     const style = document.createElement('style');
-    style.id = 'pong-style';
+    style.id = 'arkanoid-style';
     style.textContent = `
         .game-container #game-content, .game-container #game-content * {
             font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol" !important;
@@ -328,21 +342,21 @@ function injectStyles() {
             font-weight: 600;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
-        .pong-wrap {
+        .arkanoid-wrap {
             width: 100%;
-            max-width: 900px;
+            max-width: 650px;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
-        .pong-header h1 {
+        .arkanoid-header h1 {
             font-size: 3rem;
             font-weight: 800;
             color: #333;
             margin: 0 0 20px 0;
             text-align: center;
         }
-        .pong-stats {
+        .arkanoid-stats {
             display: flex;
             gap: 20px;
             margin-bottom: 20px;
@@ -367,7 +381,7 @@ function injectStyles() {
             font-size: 2rem;
             font-weight: 800;
         }
-        .pong-game-area {
+        .arkanoid-game-area {
             background: #000;
             border: 4px solid #6c757d;
             border-radius: 8px;
@@ -375,22 +389,22 @@ function injectStyles() {
             margin-bottom: 20px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
-        #pong-canvas {
+        #arkanoid-canvas {
             display: block;
             width: 100%;
-            max-width: 820px;
+            max-width: 620px;
             height: auto;
-            aspect-ratio: 8/5;
+            aspect-ratio: 1;
         }
-        .pong-controls {
+        .arkanoid-controls {
             text-align: center;
         }
-        .pong-instructions {
+        .arkanoid-instructions {
             color: #6c757d;
             font-size: 0.9rem;
             margin-bottom: 15px;
         }
-        .pong-buttons {
+        .arkanoid-buttons {
             display: flex;
             gap: 10px;
             justify-content: center;
@@ -427,21 +441,24 @@ function injectStyles() {
             height: 14px;
         }
         @media (max-width: 768px) {
-            .pong-header h1 {
+            .arkanoid-header h1 {
                 font-size: 2rem;
             }
-            .pong-stats {
+            .arkanoid-stats {
                 flex-direction: column;
                 gap: 10px;
             }
             .stat-box {
                 width: 100%;
             }
-            .pong-buttons {
+            .arkanoid-buttons {
                 flex-direction: column;
             }
             .btn-primary, .btn-secondary {
                 width: 100%;
+            }
+            #arkanoid-canvas {
+                max-width: 100%;
             }
         }
     `;

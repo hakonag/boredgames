@@ -44,6 +44,15 @@ export function init() {
     injectStyles();
     if (typeof lucide !== 'undefined') lucide.createIcons();
     
+    // Prevent wheel scrolling
+    const preventScroll = (e) => {
+        e.preventDefault();
+        return false;
+    };
+    window.addEventListener('wheel', preventScroll, { passive: false });
+    window.addEventListener('touchmove', preventScroll, { passive: false });
+    window.froggerScrollPrevent = { wheel: preventScroll, touchmove: preventScroll };
+    
     froggerGame = new FroggerGame();
     window.froggerGame = froggerGame;
     window.startFrogger = () => froggerGame.start();
@@ -54,6 +63,12 @@ export function cleanup() {
     if (froggerGame) {
         froggerGame.removeControls();
         froggerGame = null;
+    }
+    // Remove scroll prevention
+    if (window.froggerScrollPrevent) {
+        window.removeEventListener('wheel', window.froggerScrollPrevent.wheel);
+        window.removeEventListener('touchmove', window.froggerScrollPrevent.touchmove);
+        delete window.froggerScrollPrevent;
     }
     const styleEl = document.getElementById('frogger-style');
     if (styleEl) styleEl.remove();
@@ -301,24 +316,50 @@ function injectStyles() {
         .game-container #game-content, .game-container #game-content * {
             font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol" !important;
         }
-        body { overflow: hidden !important; position: fixed !important; width: 100% !important; }
-        html { overflow: hidden !important; }
-        .game-container {
-            position: fixed; inset: 0;
-            background: #90ee90;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        body {
+            overflow: hidden !important;
+            position: fixed !important;
+            width: 100% !important;
         }
-        .game-container #game-content {
-            width: 100%;
-            height: 100vh;
+        html {
+            overflow: hidden !important;
+        }
+        .game-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden !important;
+            max-width: 100vw;
             max-height: 100vh;
             margin: 0;
-            padding: 10px;
+            padding: 0;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
+            box-sizing: border-box;
+            background: #90ee90;
+        }
+        .game-container #game-content {
+            position: relative;
+            width: 100%;
+            height: 90vh;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            max-width: 100%;
+            overflow: hidden;
+            box-sizing: border-box;
+            padding: 10px;
+            margin-top: 5vh;
+            margin-bottom: 5vh;
+            background: transparent;
+            border-radius: 0;
+            box-shadow: none;
         }
         .back-button-tetris {
             position: fixed;
