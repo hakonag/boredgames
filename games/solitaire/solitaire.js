@@ -403,6 +403,24 @@ class SolitaireGame {
         window.addEventListener('resize', () => this.updateScale());
     }
     
+    updateScale() {
+        const board = document.querySelector('.solitaire-board');
+        if (!board) return;
+        const computed = getComputedStyle(board);
+        const gap = parseInt(computed.getPropertyValue('--pile-gap')) || 8;
+        const paddingLeft = parseInt(getComputedStyle(board).paddingLeft) || 0;
+        const paddingRight = parseInt(getComputedStyle(board).paddingRight) || 0;
+        const availableWidth = board.clientWidth - paddingLeft - paddingRight;
+        const columns = 7;
+        const totalGaps = gap * (columns - 1);
+        const cardW = Math.max(48, Math.min(76, Math.floor((availableWidth - totalGaps) / columns)));
+        const cardH = Math.floor(cardW * 1.414);
+        board.style.setProperty('--card-w', cardW + 'px');
+        board.style.setProperty('--card-h', cardH + 'px');
+        const topRow = document.querySelector('.solitaire-top-row');
+        if (topRow) topRow.style.height = cardH + 'px';
+    }
+
     createDeck() {
         this.deck = [];
         for (let suit = 0; suit < 4; suit++) {
