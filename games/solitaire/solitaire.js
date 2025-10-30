@@ -1,3 +1,4 @@
+import { displayHighScores, showScoreModal } from '../../core/highScores.js';
 // Solitaire (Kabal) Game Module
 
 let solitaireGame = null;
@@ -65,7 +66,7 @@ export function init() {
         .game-container #game-content { width:100%; height:90vh; max-height:90vh; margin-top:5vh; margin-bottom:5vh; display:flex; flex-direction:column; align-items:center; justify-content:center; background:transparent; }
 
         .solitaire-layout { display:grid; grid-template-columns: 4fr 1fr; gap:16px; align-items:stretch; width:100%; max-width:1200px; height:100%; padding:0 10px; box-sizing:border-box; }
-        .solitaire-board { --card-w:76px; --card-h:108px; --pile-gap:8px; background:
+        .solitaire-board { --card-w:76px; --card-h:108px; --pile-gap:12px; background:
             radial-gradient(1200px 800px at 50% 0%, rgba(255,255,255,0.06), rgba(255,255,255,0) 60%),
             linear-gradient(180deg, #0e8747 0%, #0c7a41 40%, #096f3b 100%);
             border:2px solid #0b5e31; border-radius:10px; padding:8px; overflow:hidden; display:flex; flex-direction:column; min-height:0; margin:0; width:100%; height:100%; box-sizing:border-box; box-shadow:inset 0 0 0 2px rgba(255,255,255,0.06), 0 8px 24px rgba(0,0,0,.18); }
@@ -73,22 +74,28 @@ export function init() {
         /* Force grid on the combined class to override any flex defaults */
         .solitaire-game.solitaire-layout { display:grid !important; grid-template-columns: 4fr 1fr; }
         .solitaire-right { min-width: 220px; display:flex; flex-direction:column; gap:12px; height:100%; align-self:stretch; }
+        /* Align top row to 7-column grid like tableau: [stock][waste][gap][A][A][A][A] */
         .solitaire-top-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
+            display: grid;
+            grid-template-columns: repeat(7, var(--card-w));
+            justify-content: start;
+            column-gap: var(--pile-gap);
+            margin-bottom: 14px;
             flex-shrink: 0;
-            height: 70px;
+            height: var(--card-h);
         }
         .stock-area {
+            grid-column: 1 / span 2;
             display: flex;
             gap: var(--pile-gap);
-            flex: 1;
+            justify-content: flex-start;
         }
         .foundation-area {
-            display: flex;
-            gap: var(--pile-gap);
-            flex: 1;
+            grid-column: 4 / span 4;
+            display: grid;
+            grid-template-columns: repeat(4, var(--card-w));
+            column-gap: var(--pile-gap);
+            justify-content: start;
         }
         .stock-pile, .waste-pile, .foundation-pile, .tableau-pile {
             width: var(--card-w);
@@ -237,16 +244,17 @@ export function init() {
             line-height: 1;
         }
         .tableau-area {
-            display: flex;
-            gap: var(--pile-gap);
+            display: grid;
+            grid-template-columns: repeat(7, var(--card-w));
+            justify-content: start;
+            column-gap: var(--pile-gap);
             flex: 1;
             overflow: hidden;
             min-height: 0;
-            margin-top: 6px;
+            margin-top: 14px;
         }
         .tableau-pile {
             position: relative;
-            flex: 0 0 auto;
             overflow: visible;
         }
         .drop-zone {
@@ -256,6 +264,16 @@ export function init() {
         .drop-zone.drag-over {
             border-color: #ffd700;
             background: rgba(255,215,0,0.18);
+        }
+        /* Positive feedback flash */
+        @keyframes pileFlash {
+            0% { box-shadow: 0 0 0 0 rgba(255,215,0,0); }
+            30% { box-shadow: 0 0 0 6px rgba(255,215,0,0.35), 0 0 18px rgba(255,215,0,0.5); }
+            100% { box-shadow: 0 0 0 0 rgba(255,215,0,0); }
+        }
+        .pile-flash {
+            animation: pileFlash 550ms ease-out;
+            border-color: #ffd700 !important;
         }
         .solitaire-controls { display:flex; flex-direction:column; gap:10px; }
         .game-stats { display:flex; gap:8px; }
@@ -298,6 +316,8 @@ export function init() {
         .back-button-tetris i { width:14px; height:14px; }
     `;
     document.head.appendChild(style);
+    // Load Solitaire high scores in sidebar
+    displayHighScores('scores-list', 'solitaire').catch(() => {});
 
     // Lock scrolling (full-page)
     document.body.style.overflow = 'hidden';
@@ -370,7 +390,8 @@ class SolitaireGame {
         const availableWidth = board.clientWidth - paddingLeft - paddingRight;
         const columns = 7;
         const totalGaps = gap * (columns - 1);
-        const cardW = Math.max(48, Math.min(76, Math.floor((availableWidth - totalGaps) / columns)));
+        // Allow larger cards to better fill the felt area
+        const cardW = Math.max(60, Math.min(96, Math.floor((availableWidth - totalGaps) / columns)));
         const cardH = Math.floor(cardW * 1.414);
         board.style.setProperty('--card-w', cardW + 'px');
         board.style.setProperty('--card-h', cardH + 'px');
@@ -493,6 +514,8 @@ class SolitaireGame {
             if (cardsToMove.length === 1) {
                 this.foundations[targetIndex].push(cardsToMove[0]);
                 this.checkWin();
+                const el = document.getElementById(`foundation-${targetIndex}`);
+                if (el) this.flashPile(el);
             } else {
                 // Can't move multiple cards to foundation
                 // Put cards back
@@ -509,6 +532,8 @@ class SolitaireGame {
             // Validate that we can place the sequence
             if (this.canPlaceSequence(cardsToMove, targetIndex)) {
                 this.tableau[targetIndex].push(...cardsToMove);
+                const el = document.getElementById(`tableau-${targetIndex}`);
+                if (el) this.flashPile(el);
             } else {
                 // Can't place here, put cards back
                 if (source === 'waste') {
@@ -607,7 +632,14 @@ class SolitaireGame {
         
         if (allComplete) {
             document.getElementById('solitaire-status').textContent = '🎉 Gratulerer! Du vant!';
-            this.checkHighScore();
+            // Compute a Solitaire score (lower time and fewer moves => higher score)
+            const elapsed = Math.floor((Date.now() - this.gameStartTime) / 1000);
+            const score = Math.max(1, 200000 - elapsed * 100 - this.moveCount * 50);
+            showScoreModal('solitaire', score, () => {
+                setTimeout(() => displayHighScores('scores-list', 'solitaire'), 200);
+            }, () => {
+                setTimeout(() => displayHighScores('scores-list', 'solitaire'), 200);
+            });
             return;
         }
         
@@ -1022,8 +1054,9 @@ class SolitaireGame {
             const pileLength = this.tableau[col].length;
             const maxSteps = Math.max(1, pileLength - 1);
             // compute a per-pile step so the last card is always fully visible
-            const step = Math.max(6, Math.min(18, Math.floor((availableHeight - cardHeight) / maxSteps)));
-            const faceDownStep = Math.max(4, Math.floor(step * 0.6));
+            // Slightly increase spacing for cleaner stacks, especially over face-down runs
+            const step = Math.max(8, Math.min(20, Math.floor((availableHeight - cardHeight) / maxSteps)));
+            const faceDownStep = Math.max(6, Math.floor(step * 0.7));
 
             this.tableau[col].forEach((card, cardIndex) => {
                 const cardEl = this.createCardElement(card, 'tableau', col);
@@ -1034,9 +1067,9 @@ class SolitaireGame {
                 cardEl.style.zIndex = cardIndex;
                 
                 if (!card.faceUp) {
-                    cardEl.style.opacity = '0.8';
-                    // Make face-down cards slightly smaller to show the stack better
-                    cardEl.style.transform = 'scale(0.95)';
+                    cardEl.style.opacity = '0.9';
+                    // Slightly smaller for face-down cards to clarify layering
+                    cardEl.style.transform = 'scale(0.98)';
                 }
                 
                 pileEl.appendChild(cardEl);
@@ -1260,12 +1293,8 @@ class SolitaireGame {
         ghost.style.left = `${newLeft}px`;
         ghost.style.top = `${newTop}px`;
         
-        // Check which drop zone we're over using the card's center position
-        const cardRect = ghost.getBoundingClientRect();
-        const cardCenterX = cardRect.left + cardRect.width / 2;
-        const cardCenterY = cardRect.top + cardRect.height / 2;
-        
-        const elementBelow = document.elementFromPoint(cardCenterX, cardCenterY);
+        // Use pointer coordinates for hit-testing to improve accuracy on tall ghost stacks
+        const elementBelow = document.elementFromPoint(clientX, clientY);
         if (elementBelow) {
             const dropZone = elementBelow.closest('.foundation-pile, .tableau-pile');
             if (dropZone) {
@@ -1298,12 +1327,8 @@ class SolitaireGame {
         const clientX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
         const clientY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
         
-        // Use card center position for drop detection
-        const cardRect = ghost.getBoundingClientRect();
-        const cardCenterX = cardRect.left + cardRect.width / 2;
-        const cardCenterY = cardRect.top + cardRect.height / 2;
-        
-        const elementBelow = document.elementFromPoint(cardCenterX, cardCenterY);
+        // Use pointer coordinates for drop detection (more intuitive than ghost center)
+        const elementBelow = document.elementFromPoint(clientX, clientY);
         let dropZone = null;
         let targetSource = null;
         let targetIndex = null;
@@ -1316,10 +1341,12 @@ class SolitaireGame {
                 dropZone = foundationEl;
                 targetSource = 'foundation';
                 targetIndex = parseInt(foundationEl.id.split('-')[1]);
+                this.flashPile(foundationEl);
             } else if (tableauEl) {
                 dropZone = tableauEl;
                 targetSource = 'tableau';
                 targetIndex = parseInt(tableauEl.id.split('-')[1]);
+                this.flashPile(tableauEl);
             }
         }
         
@@ -1361,6 +1388,14 @@ class SolitaireGame {
         
         // If placement failed, re-render to restore card position
         this.render();
+    }
+
+    flashPile(el) {
+        el.classList.remove('pile-flash');
+        // restart animation
+        void el.offsetWidth;
+        el.classList.add('pile-flash');
+        setTimeout(() => el.classList.remove('pile-flash'), 600);
     }
     
     startTimer() {
@@ -1414,7 +1449,8 @@ class SolitaireGame {
         this.deal();
         this.render();
         this.startTimer();
-        this.displayHighScores();
-        document.getElementById('solitaire-status').textContent = '';
+        displayHighScores('scores-list', 'solitaire').catch(()=>{});
+        const statusEl = document.getElementById('solitaire-status');
+        if (statusEl) statusEl.textContent = '';
     }
 }
