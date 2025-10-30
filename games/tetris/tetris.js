@@ -6,10 +6,11 @@ let tetrisGame = null;
 export function init() {
     const gameContent = document.getElementById('game-content');
     gameContent.innerHTML = `
-        <button class="back-button-tetris" onclick="window.goHome()">
-            <i data-lucide="arrow-left"></i> Tilbake
+        <button class="back-button-tetris" onclick="window.location.href='https://hakonag.github.io/boredgames/'">
+            <i data-lucide="house"></i> Tilbake
         </button>
         <div class="tetris-game">
+            <div id="tetris-fps" class="fps-indicator">60 fps</div>
             <div class="tetris-side-panel">
                 <div class="preview-box">
                     <h4>Hold</h4>
@@ -164,7 +165,7 @@ export function init() {
         .game-container #game-content {
             position: relative;
             width: 100%;
-            height: 90%;
+            height: 90vh;
             max-height: 90vh;
             display: flex;
             flex-direction: column;
@@ -173,10 +174,17 @@ export function init() {
             max-width: 100%;
             overflow: hidden;
             box-sizing: border-box;
-            padding: 20px;
-            background: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 0 0;
+            margin-top: 5vh;
+            margin-bottom: 5vh;
+            background: transparent;
+            border-radius: 0;
+            box-shadow: none;
+        }
+        /* Apply clean grotesk-style font to Tetris page */
+        .game-container #game-content, 
+        .game-container #game-content * {
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol" !important;
         }
         .back-button-tetris {
             position: fixed;
@@ -184,17 +192,17 @@ export function init() {
             left: 15px;
             background: #f8f9fa;
             color: #333;
-            border: 2px solid #dee2e6;
-            padding: 10px 18px;
-            border-radius: 8px;
-            font-size: 0.9rem;
+            border: 1px solid #dee2e6;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
             cursor: pointer;
             transition: all 0.2s ease;
             z-index: 10000;
             display: flex;
             align-items: center;
             gap: 6px;
-            font-weight: 500;
+            font-weight: 600;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
         .back-button-tetris:hover {
@@ -202,8 +210,8 @@ export function init() {
             border-color: #adb5bd;
         }
         .back-button-tetris i {
-            width: 16px;
-            height: 16px;
+            width: 14px;
+            height: 14px;
         }
         .tetris-game {
             display: flex;
@@ -215,6 +223,19 @@ export function init() {
             height: 100%;
             padding: 0;
             box-sizing: border-box;
+        }
+        .fps-indicator {
+            position: absolute;
+            top: -32px; /* sits just above the game window area */
+            right: 20px;
+            background: #f8f9fa;
+            color: #6c757d;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 6px 10px;
+            font-size: 10px;
+            line-height: 1;
+            z-index: 5;
         }
         .tetris-side-panel {
             display: flex;
@@ -302,6 +323,7 @@ export function init() {
             flex-grow: 1;
             justify-content: center;
         }
+        /* removed arcade frame styling for full-page experience */
         #tetris-canvas {
             border: 4px solid #6c757d;
             background: #000;
@@ -619,6 +641,11 @@ export function init() {
         }
     };
     
+    // Fullscreen toggle
+    window.toggleFullscreenTetris = () => {
+        if (tetrisGame) tetrisGame.toggleFullscreen();
+    };
+    
     // Add mute toggle function
     window.toggleMute = () => {
         if (tetrisGame) {
@@ -668,13 +695,21 @@ class TetrisGame {
         this.score = 0;
         this.lines = 0;
         this.level = 1;
-        this.gameLoop = null;
+        this.gameLoop = null; // deprecated, kept for compatibility
+        this.animationFrameId = null;
+        this.lastTimestamp = 0;
+        this.gravityAccumulatorMs = 0;
+        this.cellSize = 30;
+        this.fps = 60;
+        this.fpsDisplayAccum = 0;
         this.isPaused = false;
         this.fallTime = 0;
         this.fallInterval = 1000;
         this.isMuted = false;
         this.backgroundMusic = null;
         this.setupAudio();
+        this.setupCanvasScaling();
+        this.createGridCache();
         
         this.pieces = [
             [[1,1,1,1]], // I
@@ -790,12 +825,12 @@ class TetrisGame {
         }
         this.spawnPiece();
         this.drawPreviews();
-        this.gameLoop = setInterval(() => {
-            if (!this.isPaused) {
-                this.update();
-                this.draw();
-            }
-        }, 16);
+        // kick off RAF loop
+        this.lastTimestamp = performance.now();
+        if (!this.animationFrameId) {
+            const bound = this.runLoop.bind(this);
+            this.animationFrameId = requestAnimationFrame(bound);
+        }
         
         document.getElementById('tetris-start-btn').style.display = 'none';
         document.getElementById('tetris-pause-btn').style.display = 'block';
@@ -856,7 +891,6 @@ class TetrisGame {
         this.canHold = true; // Reset hold flag
         
         if (this.checkCollision(this.currentPiece)) {
-            clearInterval(this.gameLoop);
             this.gameOver();
         }
         
@@ -989,12 +1023,27 @@ class TetrisGame {
         }
     }
     
-    update() {
-        this.fallTime += 16;
-        if (this.fallTime >= this.fallInterval) {
-            this.movePiece(0, 1);
-            this.fallTime = 0;
+    runLoop(timestamp) {
+        // schedule next frame first to keep steady
+        this.animationFrameId = requestAnimationFrame(this.runLoop.bind(this));
+        const delta = Math.min(32, timestamp - this.lastTimestamp); // clamp to avoid huge jumps
+        this.lastTimestamp = timestamp;
+        if (!this.isPaused) {
+            this.gravityAccumulatorMs += delta;
+            while (this.gravityAccumulatorMs >= this.fallInterval) {
+                this.movePiece(0, 1);
+                this.gravityAccumulatorMs -= this.fallInterval;
+            }
         }
+        // FPS smoothing and display (update ~4x per second)
+        if (delta > 0) this.fps = this.fps * 0.9 + (1000 / delta) * 0.1;
+        this.fpsDisplayAccum += delta;
+        if (this.fpsDisplayAccum >= 250) {
+            const el = document.getElementById('tetris-fps');
+            if (el) el.textContent = `${Math.round(this.fps)} fps`;
+            this.fpsDisplayAccum = 0;
+        }
+        this.draw();
     }
     
     getGhostPosition() {
@@ -1019,32 +1068,14 @@ class TetrisGame {
     }
     
     draw() {
+        // clear and draw cached grid
         this.ctx.fillStyle = '#000';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-        
-        const cellSize = 30;
-        const gridColor = '#1a1a1a';
-        
-        // Draw grid lines
-        this.ctx.strokeStyle = gridColor;
-        this.ctx.lineWidth = 1;
-        
-        // Vertical lines
-        for (let x = 0; x <= 10; x++) {
-            this.ctx.beginPath();
-            this.ctx.moveTo(x * cellSize, 0);
-            this.ctx.lineTo(x * cellSize, this.canvas.height);
-            this.ctx.stroke();
+        this.ctx.fillRect(0, 0, 300, 600);
+        if (this.gridCacheCanvas) {
+            this.ctx.drawImage(this.gridCacheCanvas, 0, 0, 300, 600);
         }
         
-        // Horizontal lines
-        for (let y = 0; y <= 20; y++) {
-            this.ctx.beginPath();
-            this.ctx.moveTo(0, y * cellSize);
-            this.ctx.lineTo(this.canvas.width, y * cellSize);
-            this.ctx.stroke();
-        }
-        
+        const cellSize = this.cellSize;
         // Draw placed blocks
         for (let y = 0; y < 20; y++) {
             for (let x = 0; x < 10; x++) {
@@ -1100,6 +1131,44 @@ class TetrisGame {
                 }
             }
         }
+    }
+
+    setupCanvasScaling() {
+        const dpr = Math.max(1, window.devicePixelRatio || 1);
+        // logical size is 300x600
+        this.canvas.width = 300 * dpr;
+        this.canvas.height = 600 * dpr;
+        this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    createGridCache() {
+        const dpr = 1; // draw at logical size; main ctx scaling handles DPI
+        const w = 300;
+        const h = 600;
+        this.gridCacheCanvas = document.createElement('canvas');
+        this.gridCacheCanvas.width = w * dpr;
+        this.gridCacheCanvas.height = h * dpr;
+        const gctx = this.gridCacheCanvas.getContext('2d');
+        gctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        // draw grid lines once
+        gctx.strokeStyle = '#1a1a1a';
+        gctx.lineWidth = 1;
+        for (let x = 0; x <= 10; x++) {
+            gctx.beginPath();
+            gctx.moveTo(x * this.cellSize, 0);
+            gctx.lineTo(x * this.cellSize, h);
+            gctx.stroke();
+        }
+        for (let y = 0; y <= 20; y++) {
+            gctx.beginPath();
+            gctx.moveTo(0, y * this.cellSize);
+            gctx.lineTo(w, y * this.cellSize);
+            gctx.stroke();
+        }
+    }
+
+    toggleFullscreen() {
+        // No-op now that the arcade frame UI is removed; kept for compatibility
     }
     
     drawPreviews() {

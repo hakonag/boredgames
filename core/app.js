@@ -4,8 +4,31 @@ import { loadGame } from './gameLoader.js';
 
 // Initialize homepage with games from registry
 document.addEventListener('DOMContentLoaded', () => {
-    renderGameCards();
+    const gameFromUrl = getGameFromUrl();
+    if (gameFromUrl) {
+        loadGame(gameFromUrl);
+    } else {
+        renderGameCards();
+    }
 });
+
+function getGameFromUrl() {
+    const params = new URLSearchParams(window.location.search);
+    const q = params.get('game');
+    if (q) return q;
+    // Also support /games/<id>/ and /<id>
+    const parts = window.location.pathname.split('/').filter(Boolean);
+    const last = parts[parts.length - 1] || '';
+    const secondLast = parts[parts.length - 2] || '';
+    if (secondLast === 'games' && last) return last; // /games/<id>
+    // If hosted under a repo path, last may be index.html; try prev
+    if (last === 'index.html' && parts.length >= 2 && parts[parts.length - 2] !== 'games') {
+        return null;
+    }
+    // Allow /<id>
+    if (last && last !== 'index.html' && last !== 'boredgames') return last;
+    return null;
+}
 
 function renderGameCards() {
     const gamesGrid = document.querySelector('.games-grid');

@@ -27,6 +27,12 @@ export function loadGame(gameId) {
             if (module.init) {
                 currentGame = module;
                 module.init();
+                // Update browser URL for deep-linking
+                try {
+                    const url = new URL(window.location.href);
+                    url.searchParams.set('game', gameId);
+                    window.history.pushState({ gameId }, '', url);
+                } catch {}
             } else {
                 console.error(`Game ${gameId} does not export an init function`);
                 goBackToHome();
@@ -57,5 +63,24 @@ window.goHome = () => {
     }
     currentGame = null;
     goBackToHome();
+    // Remove game param from URL
+    try {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('game');
+        window.history.pushState({}, '', url.pathname.replace(/\/$/, '') + (url.search || '') + url.hash);
+    } catch {}
 };
+
+// Handle back/forward navigation
+window.addEventListener('popstate', (e) => {
+    const params = new URLSearchParams(window.location.search);
+    const game = params.get('game');
+    if (game) {
+        // If already showing a game, avoid duplicate init
+        cleanupActiveGame();
+        loadGame(game);
+    } else {
+        window.goHome();
+    }
+});
 
