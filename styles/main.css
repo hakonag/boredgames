@@ -9,11 +9,10 @@
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    background: linear-gradient(135deg, #2a2a3e 0%, #1e1e2e 50%, #252535 100%);
-    background-attachment: fixed;
+    background: white;
     min-height: 100vh;
     padding: 20px;
-    color: #e0e0e0;
+    color: #333;
 }
 
 .container {
@@ -31,21 +30,19 @@ header {
     text-align: center;
     margin-bottom: 50px;
     padding: 30px 20px;
-    background: rgba(255, 215, 0, 0.1);
-    border: 2px solid rgba(255, 215, 0, 0.3);
+    background: white;
+    border: 2px solid #e0e0e0;
     border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 header h1 {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 2.5rem;
-    font-weight: normal;
-    margin: 15px 0;
-    text-transform: uppercase;
-    letter-spacing: 3px;
-    color: #ffd700;
-    text-shadow: 2px 2px 0 rgba(255, 68, 0, 0.4);
+    font-size: 3.5rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    text-transform: lowercase;
+    letter-spacing: -1px;
+    color: #000;
 }
 
 .divider {
@@ -53,12 +50,12 @@ header h1 {
     max-width: 600px;
     margin: 20px auto;
     border: none;
-    border-top: 2px solid rgba(255, 215, 0, 0.3);
+    border-top: 1px solid #e0e0e0;
 }
 
 .subtitle {
-    font-size: 1rem;
-    color: #b0b0b0;
+    font-size: 1.1rem;
+    color: #000;
     margin-top: 15px;
     font-weight: 400;
 }
@@ -72,28 +69,26 @@ header h1 {
 }
 
 .game-card {
-    background: rgba(255, 255, 255, 0.05);
-    border: 2px solid rgba(255, 215, 0, 0.4);
+    background: #f8f9fa;
+    border: 2px solid #dee2e6;
     border-radius: 12px;
-    padding: 35px 25px;
+    padding: 30px 20px;
     text-align: center;
     cursor: pointer;
     transition: all 0.2s ease;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-    min-height: 260px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    min-height: 200px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     position: relative;
-    backdrop-filter: blur(10px);
 }
 
 .game-card:hover {
     transform: translateY(-3px);
-    border-color: rgba(255, 215, 0, 0.6);
-    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2);
-    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    border-color: #adb5bd;
 }
 
 .game-card:active {
@@ -101,9 +96,8 @@ header h1 {
 }
 
 .game-card.coming-soon {
-    opacity: 0.6;
-    border-color: rgba(128, 128, 128, 0.4);
-    border-style: dashed;
+    border-color: #d0d0d0;
+    border-style: solid;
 }
 
 .game-card.coming-soon::after {
@@ -111,19 +105,18 @@ header h1 {
     position: absolute;
     top: 10px;
     right: 10px;
-    background: rgba(255, 68, 0, 0.3);
-    color: #ffd700;
+    background: #6c757d;
+    color: white;
     padding: 4px 8px;
     font-size: 0.65rem;
     border-radius: 4px;
-    font-family: 'Press Start 2P', monospace;
+    font-weight: 600;
 }
 
 .game-icon {
     font-size: 4rem;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
     display: block;
-    filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
     transition: transform 0.2s ease;
 }
 
@@ -132,18 +125,15 @@ header h1 {
 }
 
 .game-card h2 {
-    font-size: 1.4rem;
+    font-size: 1.6rem;
     margin-bottom: 10px;
-    color: #ffd700;
+    color: #000;
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .game-card p {
-    color: #b0b0b0;
-    font-size: 0.9rem;
+    color: #666;
+    font-size: 0.95rem;
     margin: 0;
     line-height: 1.5;
 }
@@ -151,13 +141,11 @@ header h1 {
 .game-container {
     max-width: 1200px;
     margin: 0 auto;
-    background: rgba(255, 255, 255, 0.05);
-    border: 2px solid rgba(255, 215, 0, 0.3);
+    background: white;
     border-radius: 15px;
     padding: 30px;
     min-height: 500px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 
 .game-container.hidden {
@@ -165,22 +153,20 @@ header h1 {
 }
 
 .back-button {
-    background: rgba(255, 68, 0, 0.7);
+    background: #667eea;
     color: white;
-    border: 2px solid rgba(255, 215, 0, 0.4);
-    padding: 10px 20px;
+    border: none;
+    padding: 12px 24px;
     border-radius: 8px;
-    font-size: 0.9rem;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 1rem;
     cursor: pointer;
     margin-bottom: 20px;
     transition: all 0.2s ease;
-    font-weight: 500;
+    font-weight: 600;
 }
 
 .back-button:hover {
-    background: rgba(255, 68, 0, 0.85);
-    border-color: rgba(255, 215, 0, 0.6);
+    background: #5568d3;
 }
 
 .back-button:active {
@@ -189,7 +175,7 @@ header h1 {
 
 #game-content {
     width: 100%;
-    color: #e0e0e0;
+    color: #333;
 }
 
 /* Pixelated effect only for game canvases */
@@ -201,21 +187,81 @@ canvas {
 
 /* Subtle scrollbar */
 ::-webkit-scrollbar {
-    width: 12px;
+    width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 6px;
+    background: #f1f1f1;
+    border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: rgba(255, 215, 0, 0.3);
-    border-radius: 6px;
+    background: #c1c1c1;
+    border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 215, 0, 0.5);
+    background: #a8a8a8;
+}
+
+/* Footer */
+.main-footer {
+    margin-top: 60px;
+    padding: 30px 0;
+    border-top: 1px solid #e0e0e0;
+    background: #f8f9fa;
+    border-radius: 12px;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.footer-text {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.footer-text p {
+    margin: 4px 0;
+}
+
+.footer-links {
+    display: flex;
+    gap: 20px;
+}
+
+.github-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #495057;
+    text-decoration: none;
+    padding: 8px 16px;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    background: white;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.github-link:hover {
+    color: #212529;
+    border-color: #adb5bd;
+    background: #f8f9fa;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.github-link i {
+    width: 18px;
+    height: 18px;
 }
 
 /* Responsive */
@@ -244,5 +290,19 @@ canvas {
 
     .game-container {
         padding: 20px;
+    }
+
+    .footer-content {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+    }
+
+    .footer-text {
+        order: 2;
+    }
+
+    .footer-links {
+        order: 1;
     }
 }

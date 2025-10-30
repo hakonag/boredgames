@@ -140,10 +140,12 @@ export function displayHighScores(containerId, gameId) {
             return;
         }
         
-        scoresContainer.innerHTML = scores.map((entry, index) => `
+        // Show up to 10 scores
+        const displayScores = scores.slice(0, 10);
+        scoresContainer.innerHTML = displayScores.map((entry, index) => `
             <div class="score-entry">
-                <span class="score-name">${index + 1}. ${entry.name}</span>
-                <span class="score-value">${entry.score.toLocaleString()}</span>
+                <div class="score-name">${index + 1}. ${entry.name}</div>
+                <div class="score-value">${entry.score.toLocaleString()}</div>
             </div>
         `).join('');
     }).catch(err => {
@@ -223,4 +225,5 @@ export function showScoreModal(gameId, score, onSubmit, onSkip) {
     
     input.focus();
 }
+
 
