@@ -66,10 +66,10 @@ export function init() {
         .game-container #game-content { width:100%; height:90vh; max-height:90vh; margin-top:5vh; margin-bottom:5vh; display:flex; flex-direction:column; align-items:center; justify-content:center; background:transparent; }
 
         .solitaire-layout { display:grid; grid-template-columns: 4fr 1fr; gap:16px; align-items:stretch; width:100%; max-width:1200px; height:100%; padding:0 10px; box-sizing:border-box; }
-        .solitaire-board { --card-w:76px; --card-h:108px; --pile-gap:12px; background:
+        .solitaire-board { --card-w:76px; --card-h:108px; --pile-gap:18px; background:
             radial-gradient(1200px 800px at 50% 0%, rgba(255,255,255,0.06), rgba(255,255,255,0) 60%),
             linear-gradient(180deg, #0e8747 0%, #0c7a41 40%, #096f3b 100%);
-            border:2px solid #0b5e31; border-radius:10px; padding:8px; overflow:hidden; display:flex; flex-direction:column; min-height:0; margin:0; width:100%; height:100%; box-sizing:border-box; box-shadow:inset 0 0 0 2px rgba(255,255,255,0.06), 0 8px 24px rgba(0,0,0,.18); }
+            border:2px solid #0b5e31; border-radius:10px; padding:16px; overflow:hidden; display:flex; flex-direction:column; min-height:0; margin:0; width:100%; height:100%; box-sizing:border-box; box-shadow:inset 0 0 0 2px rgba(255,255,255,0.06), 0 8px 24px rgba(0,0,0,.18); }
         .solitaire-game { width:100%; height:100%; margin:0; padding:0; overflow:hidden; box-sizing:border-box; }
         /* Force grid on the combined class to override any flex defaults */
         .solitaire-game.solitaire-layout { display:grid !important; grid-template-columns: 4fr 1fr; }
@@ -80,7 +80,7 @@ export function init() {
             grid-template-columns: repeat(7, var(--card-w));
             justify-content: start;
             column-gap: var(--pile-gap);
-            margin-bottom: 14px;
+            margin-bottom: 18px;
             flex-shrink: 0;
             height: var(--card-h);
         }
@@ -251,7 +251,7 @@ export function init() {
             flex: 1;
             overflow: hidden;
             min-height: 0;
-            margin-top: 14px;
+            margin-top: 18px;
         }
         .tableau-pile {
             position: relative;
@@ -261,20 +261,23 @@ export function init() {
             border: 2px dashed rgba(255,255,255,0.5);
             background: rgba(255,255,255,0.08);
         }
-        .drop-zone.drag-over {
-            border-color: #ffd700;
-            background: rgba(255,215,0,0.18);
-        }
+        .drop-zone.drag-over { border-color: #ffd700; background: rgba(255,215,0,0.24); }
+        /* Stronger hover indicator for any valid pile under pointer */
+        .drag-over { border-color:#ffd700 !important; background: rgba(255,215,0,0.2) !important; box-shadow: 0 0 0 8px rgba(255,215,0,0.25), 0 0 24px rgba(255,215,0,0.45); }
         /* Positive feedback flash */
         @keyframes pileFlash {
-            0% { box-shadow: 0 0 0 0 rgba(255,215,0,0); }
-            30% { box-shadow: 0 0 0 6px rgba(255,215,0,0.35), 0 0 18px rgba(255,215,0,0.5); }
-            100% { box-shadow: 0 0 0 0 rgba(255,215,0,0); }
+            0% { box-shadow: 0 0 0 0 rgba(255,215,0,0); background-color: rgba(255,215,0,0); }
+            25% { box-shadow: 0 0 0 8px rgba(255,215,0,0.45), 0 0 22px rgba(255,215,0,0.6); background-color: rgba(255,215,0,0.15); }
+            100% { box-shadow: 0 0 0 0 rgba(255,215,0,0); background-color: rgba(255,215,0,0); }
         }
         .pile-flash {
-            animation: pileFlash 550ms ease-out;
+            animation: pileFlash 650ms ease-out;
             border-color: #ffd700 !important;
+            border-style: solid !important;
         }
+        /* Card-level flash/highlight when targeting non-empty piles */
+        .card-flash { animation: pileFlash 650ms ease-out; }
+        .target-card-hover { outline: 3px solid #ffd700; box-shadow: 0 0 0 6px rgba(255,215,0,0.25), 0 0 20px rgba(255,215,0,0.35); }
         .solitaire-controls { display:flex; flex-direction:column; gap:10px; }
         .game-stats { display:flex; gap:8px; }
         .stat-pill { background:#f8f9fa; border:2px solid #dee2e6; border-radius:10px; padding:8px 12px; display:flex; flex-direction:column; align-items:center; min-width:90px; }
@@ -1294,20 +1297,23 @@ class SolitaireGame {
         ghost.style.top = `${newTop}px`;
         
         // Use pointer coordinates for hit-testing to improve accuracy on tall ghost stacks
-        const elementBelow = document.elementFromPoint(clientX, clientY);
-        if (elementBelow) {
-            const dropZone = elementBelow.closest('.foundation-pile, .tableau-pile');
-            if (dropZone) {
-                // Remove drag-over from all other elements first
-                document.querySelectorAll('.drag-over').forEach(el => {
-                    el.classList.remove('drag-over');
-                });
-                dropZone.classList.add('drag-over');
-            } else {
-                // Remove drag-over if not over a valid drop zone
-                document.querySelectorAll('.drag-over').forEach(el => {
-                    el.classList.remove('drag-over');
-                });
+        const target = this.findDropTargetFromPoint(clientX, clientY);
+        // Remove previous hover states
+        document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+        this.clearTargetHighlight();
+        if (target) {
+            if (target.classList.contains('foundation-pile')) {
+                // highlight empty foundation slot; if not empty, highlight its top card instead
+                if (this.isFoundationEmpty(target)) {
+                    target.classList.add('drag-over');
+                } else {
+                    const top = this.getTopCardElement(target);
+                    if (top) { top.classList.add('target-card-hover'); this.currentHoverEl = top; }
+                }
+            } else if (target.classList.contains('tableau-pile')) {
+                const topCard = this.getTopCardElement(target);
+                if (topCard) { topCard.classList.add('target-card-hover'); this.currentHoverEl = topCard; }
+                else { target.classList.add('drag-over'); }
             }
         }
     }
@@ -1328,25 +1334,31 @@ class SolitaireGame {
         const clientY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
         
         // Use pointer coordinates for drop detection (more intuitive than ghost center)
-        const elementBelow = document.elementFromPoint(clientX, clientY);
         let dropZone = null;
         let targetSource = null;
         let targetIndex = null;
-        
-        if (elementBelow) {
-            const foundationEl = elementBelow.closest('.foundation-pile[id^="foundation-"]');
-            const tableauEl = elementBelow.closest('.tableau-pile[id^="tableau-"]');
-            
-            if (foundationEl) {
-                dropZone = foundationEl;
+        const targetEl = this.findDropTargetFromPoint(clientX, clientY);
+        if (targetEl) {
+            if (targetEl.id && targetEl.id.startsWith('foundation-')) {
+                dropZone = targetEl;
                 targetSource = 'foundation';
-                targetIndex = parseInt(foundationEl.id.split('-')[1]);
-                this.flashPile(foundationEl);
-            } else if (tableauEl) {
-                dropZone = tableauEl;
+                targetIndex = parseInt(targetEl.id.split('-')[1]);
+            } else if (targetEl.id && targetEl.id.startsWith('tableau-')) {
+                dropZone = targetEl;
                 targetSource = 'tableau';
-                targetIndex = parseInt(tableauEl.id.split('-')[1]);
-                this.flashPile(tableauEl);
+                targetIndex = parseInt(targetEl.id.split('-')[1]);
+            }
+            if (dropZone) {
+                if (targetSource === 'tableau') {
+                    const topCard = this.getTopCardElement(dropZone);
+                    if (topCard) this.flashCard(topCard); else this.flashPile(dropZone);
+                } else if (targetSource === 'foundation') {
+                    if (this.isFoundationEmpty(dropZone)) this.flashPile(dropZone);
+                    else {
+                        const top = this.getTopCardElement(dropZone);
+                        if (top) this.flashCard(top); else this.flashPile(dropZone);
+                    }
+                }
             }
         }
         
@@ -1396,6 +1408,53 @@ class SolitaireGame {
         void el.offsetWidth;
         el.classList.add('pile-flash');
         setTimeout(() => el.classList.remove('pile-flash'), 600);
+    }
+
+    flashCard(cardEl) {
+        cardEl.classList.remove('card-flash');
+        void cardEl.offsetWidth;
+        cardEl.classList.add('card-flash');
+        setTimeout(() => cardEl.classList.remove('card-flash'), 600);
+    }
+
+    clearTargetHighlight() {
+        if (this.currentHoverEl) {
+            this.currentHoverEl.classList.remove('target-card-hover');
+            this.currentHoverEl = null;
+        }
+    }
+
+    isFoundationEmpty(fEl) {
+        const idx = parseInt(fEl.id.split('-')[1]);
+        return this.foundations[idx] && this.foundations[idx].length === 0;
+    }
+
+    getTopCardElement(pileEl) {
+        // Find the last rendered card inside this pile
+        const cards = pileEl.querySelectorAll('.solitaire-card');
+        return cards.length ? cards[cards.length - 1] : null;
+    }
+
+    findDropTargetFromPoint(x, y) {
+        // First try direct hit
+        let el = document.elementFromPoint(x, y);
+        if (el) {
+            const dz = el.closest('.foundation-pile[id^="foundation-"], .tableau-pile[id^="tableau-"]');
+            if (dz) return dz;
+        }
+        // Expand search: allow small tolerance around piles for easier drops
+        const expand = 14; // px tolerance
+        const candidates = [
+            ...document.querySelectorAll('.foundation-pile[id^="foundation-"]'),
+            ...document.querySelectorAll('.tableau-pile[id^="tableau-"]')
+        ];
+        for (const c of candidates) {
+            const r = c.getBoundingClientRect();
+            if (x >= r.left - expand && x <= r.right + expand && y >= r.top - expand && y <= r.bottom + expand) {
+                return c;
+            }
+        }
+        return null;
     }
     
     startTimer() {
