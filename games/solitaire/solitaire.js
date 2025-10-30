@@ -64,13 +64,15 @@ export function init() {
         .game-container { position: fixed; inset: 0; background:#fff; border-radius:0; box-shadow:none; padding:0; display:flex; align-items:center; justify-content:center; }
         .game-container #game-content { width:100%; height:90vh; max-height:90vh; margin-top:5vh; margin-bottom:5vh; display:flex; flex-direction:column; align-items:center; justify-content:center; background:transparent; }
 
-        .solitaire-layout { display:flex; gap:16px; align-items:stretch; width:100%; max-width:1200px; height:100%; padding:0 10px; box-sizing:border-box; }
+        .solitaire-layout { display:grid; grid-template-columns: 4fr 1fr; gap:16px; align-items:stretch; width:100%; max-width:1200px; height:100%; padding:0 10px; box-sizing:border-box; }
         .solitaire-board { --card-w:76px; --card-h:108px; --pile-gap:8px; background:
             radial-gradient(1200px 800px at 50% 0%, rgba(255,255,255,0.06), rgba(255,255,255,0) 60%),
             linear-gradient(180deg, #0e8747 0%, #0c7a41 40%, #096f3b 100%);
-            border:2px solid #0b5e31; border-radius:10px; padding:8px; flex:1; overflow:hidden; display:flex; flex-direction:column; min-height:0; margin:0; width:auto; box-sizing:border-box; box-shadow:inset 0 0 0 2px rgba(255,255,255,0.06), 0 8px 24px rgba(0,0,0,.18); }
-        .solitaire-game { width:100%; height:100%; margin:0; padding:0; overflow:hidden; display:flex; flex-direction:column; box-sizing:border-box; }
-        .solitaire-right { width: 220px; flex-shrink:0; display:flex; flex-direction:column; gap:12px; }
+            border:2px solid #0b5e31; border-radius:10px; padding:8px; overflow:hidden; display:flex; flex-direction:column; min-height:0; margin:0; width:100%; height:100%; box-sizing:border-box; box-shadow:inset 0 0 0 2px rgba(255,255,255,0.06), 0 8px 24px rgba(0,0,0,.18); }
+        .solitaire-game { width:100%; height:100%; margin:0; padding:0; overflow:hidden; box-sizing:border-box; }
+        /* Force grid on the combined class to override any flex defaults */
+        .solitaire-game.solitaire-layout { display:grid !important; grid-template-columns: 4fr 1fr; }
+        .solitaire-right { min-width: 220px; display:flex; flex-direction:column; gap:12px; height:100%; align-self:stretch; }
         .solitaire-top-row {
             display: flex;
             justify-content: space-between;
@@ -208,6 +210,13 @@ export function init() {
         .solitaire-card.black {
             color: #212121;
         }
+        /* Ensure inner glyphs inherit correct color */
+        .solitaire-card.red .card-value,
+        .solitaire-card.red .card-value-bottom,
+        .solitaire-card.red .card-suit { color: #d32f2f !important; }
+        .solitaire-card.black .card-value,
+        .solitaire-card.black .card-value-bottom,
+        .solitaire-card.black .card-suit { color: #212121 !important; }
         .card-value {
             font-size: 1rem;
             font-weight: bold;
@@ -274,9 +283,10 @@ export function init() {
             color: #333;
             font-size: 0.7rem;
         }
-        .solitaire-leaderboard { background:#f8f9fa; border:2px solid #dee2e6; border-radius:10px; padding:10px; flex:1; display:flex; flex-direction:column; }
+        .solitaire-leaderboard { background:#f8f9fa; border:2px solid #dee2e6; border-radius:10px; padding:10px; flex:1; display:flex; flex-direction:column; min-height:0; }
         .solitaire-leaderboard h3 { margin:0 0 8px 0; font-size:.9rem; text-align:center; color:#495057; }
-        .scores-list { flex:1; overflow:auto; }
+        .scores-list { flex:1; overflow:auto; min-height:0; }
+        /* Intentionally keep side-by-side layout across sizes per request */
         .score-item { display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px solid #e9ecef; font-size:.8rem; }
         .score-item:last-child { border-bottom:none; }
         .score-rank {
@@ -1106,16 +1116,41 @@ class SolitaireGame {
                 }
                 
                 this.dragging = { card, source, index };
-                cardEl.classList.add('dragging');
-                cardEl.style.position = 'fixed';
-                cardEl.style.pointerEvents = 'none';
-                cardEl.style.zIndex = '10000';
-                cardEl.style.transform = 'rotate(2deg)';
-                cardEl.style.transition = 'none';
-                
-                // Set initial position to follow mouse exactly
-                cardEl.style.left = `${clientX - this.dragOffset.x}px`;
-                cardEl.style.top = `${clientY - this.dragOffset.y}px`;
+                // Build a ghost stack for dragging sequences
+                const seq = this.dragSequence && this.dragSequence.length ? this.dragSequence : [card];
+                const ghost = document.createElement('div');
+                ghost.className = 'drag-ghost';
+                ghost.style.position = 'fixed';
+                ghost.style.pointerEvents = 'none';
+                ghost.style.zIndex = '10000';
+                ghost.style.transition = 'none';
+                // create shallow visual clones
+                seq.forEach((sc, i) => {
+                    const clone = document.createElement('div');
+                    clone.className = `solitaire-card ${sc.color}`;
+                    clone.style.position = 'absolute';
+                    clone.style.left = '0px';
+                    clone.style.top = `${i * 18}px`;
+                    clone.style.width = getComputedStyle(cardEl).width;
+                    clone.style.height = getComputedStyle(cardEl).height;
+                    clone.innerHTML = `
+                        <div class="card-value">${this.values[sc.value]}</div>
+                        <div class="card-suit">${this.suits[sc.suit]}</div>
+                        <div class="card-value-bottom">${this.values[sc.value]}</div>
+                    `;
+                    ghost.appendChild(clone);
+                });
+                document.body.appendChild(ghost);
+                this.dragGhostEl = ghost;
+                // Hide originals while dragging
+                const hideOriginal = (c) => {
+                    const el = document.querySelector(`[data-card-id="${c.suit}-${c.value}"]`);
+                    if (el) el.style.visibility = 'hidden';
+                };
+                seq.forEach(hideOriginal);
+                // initial position
+                ghost.style.left = `${clientX - this.dragOffset.x}px`;
+                ghost.style.top = `${clientY - this.dragOffset.y}px`;
             };
             
             cardEl.onmousedown = startDrag;
@@ -1210,8 +1245,8 @@ class SolitaireGame {
     handleDragMove(e) {
         if (!this.dragging) return;
         
-        const cardEl = document.querySelector('.solitaire-card.dragging');
-        if (!cardEl) return;
+        const ghost = this.dragGhostEl;
+        if (!ghost) return;
         
         e.preventDefault();
         e.stopPropagation();
@@ -1222,11 +1257,11 @@ class SolitaireGame {
         // Position card to follow mouse precisely
         const newLeft = clientX - this.dragOffset.x;
         const newTop = clientY - this.dragOffset.y;
-        cardEl.style.left = `${newLeft}px`;
-        cardEl.style.top = `${newTop}px`;
+        ghost.style.left = `${newLeft}px`;
+        ghost.style.top = `${newTop}px`;
         
         // Check which drop zone we're over using the card's center position
-        const cardRect = cardEl.getBoundingClientRect();
+        const cardRect = ghost.getBoundingClientRect();
         const cardCenterX = cardRect.left + cardRect.width / 2;
         const cardCenterY = cardRect.top + cardRect.height / 2;
         
@@ -1251,8 +1286,8 @@ class SolitaireGame {
     handleDragEnd(e) {
         if (!this.dragging) return;
         
-        const cardEl = document.querySelector('.solitaire-card.dragging');
-        if (!cardEl) {
+        const ghost = this.dragGhostEl;
+        if (!ghost) {
             this.dragging = null;
             return;
         }
@@ -1264,7 +1299,7 @@ class SolitaireGame {
         const clientY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
         
         // Use card center position for drop detection
-        const cardRect = cardEl.getBoundingClientRect();
+        const cardRect = ghost.getBoundingClientRect();
         const cardCenterX = cardRect.left + cardRect.width / 2;
         const cardCenterY = cardRect.top + cardRect.height / 2;
         
@@ -1291,15 +1326,14 @@ class SolitaireGame {
         // Remove all drag-over classes
         document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
         
-        // Remove dragging class and restore card
-        cardEl.classList.remove('dragging');
-        cardEl.style.position = '';
-        cardEl.style.left = '';
-        cardEl.style.top = '';
-        cardEl.style.pointerEvents = '';
-        cardEl.style.transform = '';
-        cardEl.style.zIndex = '';
-        cardEl.style.transition = '';
+        // Remove ghost and restore originals
+        if (this.dragGhostEl && this.dragGhostEl.parentNode) this.dragGhostEl.parentNode.removeChild(this.dragGhostEl);
+        this.dragGhostEl = null;
+        const seq = this.dragSequence && this.dragSequence.length ? this.dragSequence : [this.dragging.card];
+        seq.forEach((c) => {
+            const el = document.querySelector(`[data-card-id="${c.suit}-${c.value}"]`);
+            if (el) el.style.visibility = '';
+        });
         
         const { card, source, index } = this.dragging;
         this.dragging = null;
