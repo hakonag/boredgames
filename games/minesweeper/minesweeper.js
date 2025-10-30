@@ -1,3 +1,4 @@
+import { displayHighScores, showScoreModal } from '../../core/highScores.js';
 // Minesweeper MVP
 let msHandlers = [];
 
@@ -5,8 +6,8 @@ export function init() {
     const root = document.getElementById('game-content');
     if (!root) return;
     root.innerHTML = `
-        <button class="back-button-tetris" onclick="window.goHome()">
-            <i data-lucide="arrow-left"></i> Tilbake
+        <button class="back-button-tetris" onclick="window.location.href='https://hakonag.github.io/boredgames/'">
+            <i data-lucide="house"></i> Tilbake
         </button>
         <div class="ms-wrap">
             <div class="ms-top">
@@ -17,19 +18,47 @@ export function init() {
             <div class="ms-controls">
                 <label>Størrelse</label>
                 <select id="ms-size">
-                    <option value="9">9x9 (10 bomber)</option>
-                    <option value="12">12x12 (20 bomber)</option>
-                    <option value="16">16x16 (40 bomber)</option>
+                    <option value="9">Liten (9x9 · 10 bomber)</option>
+                    <option value="12">Middels (12x12 · 20 bomber)</option>
+                    <option value="16">Stor (16x16 · 40 bomber)</option>
                 </select>
                 <button id="ms-reset" class="btn-primary"><i data-lucide="refresh-cw"></i> Nytt spill</button>
             </div>
-            <div id="ms-board" class="ms-board" role="grid" aria-label="Minesweeper board"></div>
+            <div class="ms-main">
+                <div id="ms-board" class="ms-board" role="grid" aria-label="Minesweeper board"></div>
+                <div class="ms-sidebar">
+                    <h3>Toppresultater</h3>
+                    <div id="minesweeper-high-scores" class="ms-highscores"></div>
+                </div>
+            </div>
             <div id="ms-status" class="ms-status"></div>
         </div>
     `;
 
     injectStyles();
     if (typeof lucide !== 'undefined') lucide.createIcons();
+
+    // Lock scrolling and make game full-page similar to Tetris
+    document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.width = '100%';
+    document.body.style.height = '100%';
+    document.documentElement.style.overflow = 'hidden';
+    const preventScroll = (e) => { e.preventDefault(); return false; };
+    window.addEventListener('wheel', preventScroll, { passive: false });
+    window.addEventListener('touchmove', preventScroll, { passive: false });
+    window.tetrisScrollPrevent = { wheel: preventScroll, touchmove: preventScroll };
+
+    // Inject page-level override styles to remove container chrome
+    const style = document.createElement('style');
+    style.id = 'game-specific-styles';
+    style.textContent = `
+        body { overflow:hidden !important; position:fixed !important; width:100% !important; }
+        html { overflow:hidden !important; }
+        .game-container { position: fixed; inset: 0; overflow:hidden !important; max-width: 100vw; max-height: 100vh; margin:0; padding:0; display:flex; flex-direction:column; align-items:center; justify-content:center; box-sizing:border-box; background:#ffffff; border-radius:0; box-shadow:none; }
+        .game-container #game-content { position: relative; width:100%; height:90%; max-height:90vh; display:flex; flex-direction:column; align-items:center; justify-content:center; max-width:100%; overflow:hidden; box-sizing:border-box; padding:20px; background:#ffffff; }
+    `;
+    document.head.appendChild(style);
 
     const $ = (id) => document.getElementById(id);
     let size = parseInt($("ms-size").value, 10);
@@ -69,6 +98,8 @@ export function init() {
         paintBoard();
         addHandler($("ms-reset"), 'click', reset);
         addHandler($("ms-size"), 'change', () => { reset(); });
+        // load highscores
+        displayHighScores('minesweeper-high-scores', 'minesweeper').catch(()=>{});
     }
 
     function createBoard(n, numBombs) {
@@ -179,6 +210,13 @@ export function init() {
         if (revealed.size >= safe) {
             stopTimer();
             $("ms-status").textContent = 'Gratulerer! Du vant!';
+            // Higher score is better: use inverse of time
+            const score = Math.max(1, 100000 - (timer*1000));
+            showScoreModal('minesweeper', score, () => {
+                setTimeout(() => displayHighScores('minesweeper-high-scores', 'minesweeper'), 200);
+            }, () => {
+                setTimeout(() => displayHighScores('minesweeper-high-scores', 'minesweeper'), 200);
+            });
         }
     }
 
@@ -200,17 +238,30 @@ function injectStyles() {
     const style = document.createElement('style');
     style.id = 'ms-style';
     style.textContent = `
-    .ms-wrap { display:flex; flex-direction:column; align-items:center; gap:12px; }
-    .ms-top { display:flex; align-items:center; justify-content:space-between; gap:16px; width:min(520px, 100%); }
-    .ms-title { font-weight:800; letter-spacing:.5px; }
+    /* Page framing similar to Tetris (5/90/5) and grotesk font */
+    .game-container #game-content, .game-container #game-content * { font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol" !important; color:#111; }
+    .game-container #game-content { width:100%; height:90vh; max-height:90vh; margin-top:5vh; margin-bottom:5vh; background:transparent; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+    body { background:#fff; }
+    
+    .ms-wrap { display:flex; flex-direction:column; align-items:center; gap:14px; }
+    .ms-top { display:flex; align-items:center; justify-content:space-between; gap:16px; width:min(560px, 100%); }
+    .ms-title { font-weight:800; letter-spacing:.5px; color:#000; }
     .ms-info { background:#f8f9fa; border:2px solid #dee2e6; border-radius:8px; padding:6px 10px; font-weight:700; color:#495057; }
     .ms-controls { display:flex; gap:8px; align-items:center; }
-    .ms-controls select { padding:6px 8px; border:2px solid #dee2e6; border-radius:6px; }
-    .ms-board { --ms-size: 9; display:grid; grid-template-columns: repeat(var(--ms-size), 28px); grid-auto-rows: 28px; gap:4px; background:#000; padding:12px; border:6px solid #6c757d; border-radius:10px; box-shadow:0 6px 20px rgba(0,0,0,.15); }
-    .ms-cell { background:#111; color:#fff; border:2px solid #343a40; border-radius:4px; cursor:pointer; font-weight:800; display:flex; align-items:center; justify-content:center; }
-    .ms-cell.open { background:#222; }
+    .ms-controls select { padding:6px 8px; border:2px solid #dee2e6; border-radius:6px; background:#fff; color:#111; }
+    .ms-main { display:flex; gap:16px; align-items:flex-start; }
+    .ms-board { --ms-size: 9; display:grid; grid-template-columns: repeat(var(--ms-size), 28px); grid-auto-rows: 28px; gap:4px; background:#fff; padding:12px; border:2px solid #dee2e6; border-radius:10px; box-shadow:0 6px 20px rgba(0,0,0,.12); }
+    .ms-sidebar { width:200px; background:#f8f9fa; border:2px solid #dee2e6; border-radius:10px; padding:10px; }
+    .ms-sidebar h3 { margin:0 0 8px 0; font-size:.9rem; color:#495057; text-align:center; }
+    .ms-highscores { max-height:320px; overflow:auto; }
+    .ms-cell { background:#f1f3f5; color:#111; border:2px solid #dee2e6; border-radius:6px; cursor:pointer; font-weight:800; display:flex; align-items:center; justify-content:center; }
+    .ms-cell.open { background:#fff; }
     .ms-cell.flag::after { content:'🚩'; }
     .ms-status { min-height:20px; color:#495057; font-weight:700; }
+    
+    .back-button-tetris { position: fixed; top: 15px; left: 15px; background: #f8f9fa; color: #333; border: 1px solid #dee2e6; padding: 6px 10px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; transition: all 0.2s ease; z-index: 10000; display: flex; align-items: center; gap: 6px; font-weight: 600; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
+    .back-button-tetris:hover { background: #e9ecef; border-color: #adb5bd; }
+    .back-button-tetris i { width:14px; height:14px; }
     `;
     document.head.appendChild(style);
 }

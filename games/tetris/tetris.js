@@ -1230,18 +1230,22 @@ class TetrisGame {
     }
     
     gameOver() {
+        // Stop game loop and input to avoid laggy post-game state
+        if (this.animationFrameId) {
+            cancelAnimationFrame(this.animationFrameId);
+            this.animationFrameId = null;
+        }
+        this.isPaused = true;
         const finalScore = this.score;
+        // Pause music during modal
+        if (this.backgroundMusic && !this.backgroundMusic.paused) this.backgroundMusic.pause();
         if (finalScore > 0) {
             showScoreModal('tetris', finalScore, 
                 () => {
-                    setTimeout(() => {
-                        this.reset();
-                    }, 100);
+                    setTimeout(() => { this.reset(); }, 100);
                 },
                 () => {
-                    setTimeout(() => {
-                        this.reset();
-                    }, 100);
+                    setTimeout(() => { this.reset(); }, 100);
                 }
             );
         } else {

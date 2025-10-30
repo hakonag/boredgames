@@ -118,14 +118,12 @@ header h1 {
 }
 
 .game-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    transform: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     border-color: #adb5bd;
 }
 
-.game-card:active {
-    transform: translateY(-1px);
-}
+.game-card:active { transform: none; }
 
 .game-card.coming-soon {
     border-color: #d0d0d0;
@@ -278,18 +276,12 @@ canvas {
     border: 2px solid #dee2e6;
     border-radius: 8px;
     background: white;
-    transition: all 0.2s ease;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
     font-size: 0.9rem;
     font-weight: 500;
 }
 
-.github-link:hover {
-    color: #212529;
-    border-color: #adb5bd;
-    background: #f8f9fa;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
+.github-link:hover { color:#212529; border-color:#adb5bd; background:#f8f9fa; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
 
 .github-link i {
     width: 18px;
