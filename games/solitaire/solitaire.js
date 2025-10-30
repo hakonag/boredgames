@@ -51,7 +51,6 @@ export function init() {
         window.removeEventListener('touchmove', window.tetrisScrollPrevent.touchmove);
         window.tetrisScrollPrevent = null;
     }
-    
     // Lock scrolling for Solitaire
     document.body.style.overflow = 'hidden';
     document.body.style.position = 'fixed';
@@ -62,6 +61,11 @@ export function init() {
     const style = document.createElement('style');
     style.id = 'game-specific-styles';
     style.textContent = `
+        .solitaire-board {
+            --card-w: 76px;
+            --card-h: 108px;
+            --pile-gap: 8px;
+        }
         .solitaire-game {
             width: 100vw;
             height: 100vh;
@@ -82,6 +86,8 @@ export function init() {
             flex-direction: column;
             min-height: 0;
             margin: 2px;
+            width: 100%;
+            box-sizing: border-box;
         }
         .solitaire-top-row {
             display: flex;
@@ -92,17 +98,17 @@ export function init() {
         }
         .stock-area {
             display: flex;
-            gap: 8px;
+            gap: var(--pile-gap);
             flex: 1;
         }
         .foundation-area {
             display: flex;
-            gap: 8px;
+            gap: var(--pile-gap);
             flex: 1;
         }
         .stock-pile, .waste-pile, .foundation-pile, .tableau-pile {
-            width: 80px;
-            height: 112px;
+            width: var(--card-w);
+            height: var(--card-h);
             border: 2px solid rgba(255,255,255,0.3);
             border-radius: 8px;
             position: relative;
@@ -113,14 +119,14 @@ export function init() {
             background: rgba(255,255,255,0.1);
         }
         .tableau-pile {
-            width: 80px;
-            min-height: 112px;
+            width: var(--card-w);
+            min-height: var(--card-h);
             border: none;
-            margin-right: 10px;
+            margin-right: var(--pile-gap);
         }
         .solitaire-card {
-            width: 76px;
-            height: 108px;
+            width: var(--card-w);
+            height: var(--card-h);
             background: white;
             border: 2px solid #333;
             border-radius: 6px;
@@ -168,13 +174,13 @@ export function init() {
         }
         .card-stack {
             position: relative;
-            width: 76px;
-            height: 108px;
+            width: var(--card-w);
+            height: var(--card-h);
         }
         .card-stack .stacked-card {
             position: absolute;
-            width: 76px;
-            height: 108px;
+            width: var(--card-w);
+            height: var(--card-h);
             border: 1px solid rgba(0,0,0,0.2);
             border-radius: 6px;
             background: rgba(255,255,255,0.95);
@@ -182,14 +188,14 @@ export function init() {
         }
         .stock-visual {
             position: relative;
-            width: 76px;
-            height: 108px;
+            width: var(--card-w);
+            height: var(--card-h);
             margin: 2px;
         }
         .stock-card {
             position: absolute;
-            width: 76px;
-            height: 108px;
+            width: var(--card-w);
+            height: var(--card-h);
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border: 2px solid rgba(255,255,255,0.3);
             border-radius: 6px;
@@ -239,7 +245,7 @@ export function init() {
         }
         .tableau-area {
             display: flex;
-            gap: 3px;
+            gap: var(--pile-gap);
             flex: 1;
             overflow: hidden;
             min-height: 0;
@@ -391,8 +397,10 @@ class SolitaireGame {
         this.shuffleDeck();
         this.deal();
         this.render();
+        this.updateScale();
         this.setupDragAndDrop();
         this.startTimer();
+        window.addEventListener('resize', () => this.updateScale());
     }
     
     createDeck() {
@@ -846,6 +854,8 @@ class SolitaireGame {
     }
     
     render() {
+        // Ensure scale fits before drawing
+        this.updateScale();
         // Render stock
         const stockEl = document.getElementById('solitaire-stock');
         stockEl.innerHTML = '';
@@ -985,7 +995,8 @@ class SolitaireGame {
         // Dynamically compute vertical offsets so piles fit in the available height
         const tableauArea = document.getElementById('solitaire-tableau');
         const availableHeight = tableauArea ? tableauArea.clientHeight : 300;
-        const cardHeight = 108; // matches CSS
+        const board = document.querySelector('.solitaire-board');
+        const cardHeight = board ? parseInt(getComputedStyle(board).getPropertyValue('--card-h')) || 108 : 108;
         for (let col = 0; col < 7; col++) {
             const pileEl = document.createElement('div');
             pileEl.className = 'tableau-pile';
