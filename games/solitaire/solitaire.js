@@ -35,7 +35,12 @@ export function init() {
                     </div>
                 </div>
                 <button onclick="window.resetSolitaire()">Nytt spill</button>
+                <button onclick="window.showHighScores()">Topp 10</button>
                 <p id="solitaire-status"></p>
+            </div>
+            <div id="high-scores" class="high-scores hidden">
+                <h3>🏆 Topp 10</h3>
+                <div id="scores-list"></div>
             </div>
         </div>
     `;
@@ -56,20 +61,28 @@ export function init() {
     style.id = 'game-specific-styles';
     style.textContent = `
         .solitaire-game {
-            max-width: 1000px;
+            max-width: 100vw;
             margin: 0 auto;
-            padding: 20px;
+            padding: 10px;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
         .solitaire-board {
             background: #0d7a3d;
             border-radius: 15px;
-            padding: 20px;
-            min-height: 600px;
+            padding: 15px;
+            flex: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
         .solitaire-top-row {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 30px;
+            margin-bottom: 15px;
+            flex-shrink: 0;
         }
         .stock-area {
             display: flex;
@@ -218,12 +231,16 @@ export function init() {
         }
         .tableau-area {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             flex-wrap: wrap;
+            flex: 1;
+            overflow: hidden;
         }
         .tableau-pile {
             position: relative;
-            margin-bottom: 30px;
+            margin-bottom: 15px;
+            flex: 1;
+            min-width: 0;
         }
         .drop-zone {
             border: 2px dashed rgba(255,255,255,0.5);
@@ -235,30 +252,31 @@ export function init() {
         }
         .solitaire-controls {
             text-align: center;
-            margin-top: 20px;
+            margin-top: 10px;
+            flex-shrink: 0;
         }
         .game-stats {
             display: flex;
             justify-content: center;
-            gap: 30px;
-            margin-bottom: 15px;
+            gap: 20px;
+            margin-bottom: 10px;
         }
         .stat-item {
             display: flex;
             flex-direction: column;
             align-items: center;
             background: rgba(255,255,255,0.1);
-            padding: 10px 15px;
+            padding: 8px 12px;
             border-radius: 8px;
-            min-width: 80px;
+            min-width: 70px;
         }
         .stat-label {
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             color: rgba(255,255,255,0.8);
-            margin-bottom: 5px;
+            margin-bottom: 3px;
         }
         .stat-item span:last-child {
-            font-size: 1.2rem;
+            font-size: 1rem;
             font-weight: bold;
             color: white;
         }
@@ -266,17 +284,51 @@ export function init() {
             background: #667eea;
             color: white;
             border: none;
-            padding: 12px 24px;
+            padding: 8px 16px;
             border-radius: 8px;
-            font-size: 1rem;
+            font-size: 0.9rem;
             cursor: pointer;
+            margin: 0 5px;
         }
         .solitaire-controls button:hover {
             background: #5568d3;
         }
         #solitaire-status {
-            margin-top: 10px;
+            margin-top: 5px;
             color: #333;
+            font-size: 0.9rem;
+        }
+        .high-scores {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 200px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+        .high-scores h3 {
+            margin: 0 0 10px 0;
+            font-size: 1rem;
+            text-align: center;
+        }
+        .score-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 3px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            font-size: 0.8rem;
+        }
+        .score-item:last-child {
+            border-bottom: none;
+        }
+        .score-rank {
+            font-weight: bold;
+            margin-right: 10px;
         }
     `;
     document.head.appendChild(style);
@@ -284,6 +336,7 @@ export function init() {
     solitaireGame = new SolitaireGame();
     window.solitaireGame = solitaireGame;
     window.resetSolitaire = resetSolitaire;
+    window.showHighScores = () => solitaireGame.showHighScores();
 }
 
 export function cleanup() {
@@ -318,6 +371,7 @@ class SolitaireGame {
         this.moveCount = 0;
         this.gameStartTime = null;
         this.gameTimer = null;
+        this.highScores = this.loadHighScores();
         
         this.createDeck();
         this.shuffleDeck();
@@ -556,6 +610,7 @@ class SolitaireGame {
         
         if (allComplete) {
             document.getElementById('solitaire-status').textContent = '🎉 Gratulerer! Du vant!';
+            this.checkHighScore();
             return;
         }
         
@@ -679,11 +734,81 @@ class SolitaireGame {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
     
+    loadHighScores() {
+        const saved = localStorage.getItem('solitaire-high-scores');
+        return saved ? JSON.parse(saved) : [];
+    }
+    
+    saveHighScores() {
+        localStorage.setItem('solitaire-high-scores', JSON.stringify(this.highScores));
+    }
+    
+    checkHighScore() {
+        const elapsed = Math.floor((Date.now() - this.gameStartTime) / 1000);
+        const newScore = {
+            moves: this.moveCount,
+            time: elapsed,
+            date: new Date().toISOString()
+        };
+        
+        // Add to high scores
+        this.highScores.push(newScore);
+        
+        // Sort by moves (ascending), then by time (ascending)
+        this.highScores.sort((a, b) => {
+            if (a.moves !== b.moves) {
+                return a.moves - b.moves;
+            }
+            return a.time - b.time;
+        });
+        
+        // Keep only top 10
+        this.highScores = this.highScores.slice(0, 10);
+        
+        this.saveHighScores();
+        this.displayHighScores();
+    }
+    
+    displayHighScores() {
+        const scoresList = document.getElementById('scores-list');
+        if (!scoresList) return;
+        
+        scoresList.innerHTML = '';
+        
+        this.highScores.forEach((score, index) => {
+            const scoreEl = document.createElement('div');
+            scoreEl.className = 'score-item';
+            
+            const minutes = Math.floor(score.time / 60);
+            const seconds = score.time % 60;
+            const timeStr = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            
+            scoreEl.innerHTML = `
+                <span class="score-rank">${index + 1}.</span>
+                <span>${score.moves} trekk</span>
+                <span>${timeStr}</span>
+            `;
+            
+            scoresList.appendChild(scoreEl);
+        });
+    }
+    
+    showHighScores() {
+        const highScoresEl = document.getElementById('high-scores');
+        if (highScoresEl) {
+            highScoresEl.classList.toggle('hidden');
+            if (!highScoresEl.classList.contains('hidden')) {
+                this.displayHighScores();
+            }
+        }
+    }
+    
     setupDragAndDrop() {
-        document.addEventListener('mousemove', (e) => this.handleDragMove(e));
-        document.addEventListener('mouseup', (e) => this.handleDragEnd(e));
+        // Use capture phase for better event handling
+        document.addEventListener('mousemove', (e) => this.handleDragMove(e), { passive: false });
+        document.addEventListener('mouseup', (e) => this.handleDragEnd(e), { passive: false });
         document.addEventListener('touchmove', (e) => this.handleDragMove(e), { passive: false });
-        document.addEventListener('touchend', (e) => this.handleDragEnd(e));
+        document.addEventListener('touchend', (e) => this.handleDragEnd(e), { passive: false });
     }
     
     render() {
@@ -930,7 +1055,7 @@ class SolitaireGame {
                 const clientY = e.touches ? e.touches[0].clientY : e.clientY;
                 
                 const rect = cardEl.getBoundingClientRect();
-                // Calculate offset from mouse to card center for smooth following
+                // Calculate offset from mouse to where it clicked on the card
                 this.dragOffset.x = clientX - rect.left;
                 this.dragOffset.y = clientY - rect.top;
                 
@@ -1062,10 +1187,12 @@ class SolitaireGame {
         const cardEl = document.querySelector('.solitaire-card.dragging');
         if (!cardEl) return;
         
+        e.preventDefault();
+        
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
         const clientY = e.touches ? e.touches[0].clientY : e.clientY;
         
-        // Position card directly under mouse cursor
+        // Position card to follow mouse precisely
         cardEl.style.left = `${clientX - this.dragOffset.x}px`;
         cardEl.style.top = `${clientY - this.dragOffset.y}px`;
         
@@ -1074,16 +1201,18 @@ class SolitaireGame {
         if (elementBelow) {
             const dropZone = elementBelow.closest('.foundation-pile, .tableau-pile');
             if (dropZone) {
+                // Remove drag-over from all other elements first
+                document.querySelectorAll('.drag-over').forEach(el => {
+                    el.classList.remove('drag-over');
+                });
                 dropZone.classList.add('drag-over');
+            } else {
+                // Remove drag-over if not over a valid drop zone
+                document.querySelectorAll('.drag-over').forEach(el => {
+                    el.classList.remove('drag-over');
+                });
             }
         }
-        
-        // Remove drag-over from other elements
-        document.querySelectorAll('.drag-over').forEach(el => {
-            if (el !== elementBelow?.closest('.foundation-pile, .tableau-pile')) {
-                el.classList.remove('drag-over');
-            }
-        });
     }
     
     handleDragEnd(e) {
@@ -1094,6 +1223,8 @@ class SolitaireGame {
             this.dragging = null;
             return;
         }
+        
+        e.preventDefault();
         
         const clientX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
         const clientY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
@@ -1209,6 +1340,7 @@ class SolitaireGame {
         this.deal();
         this.render();
         this.startTimer();
+        this.displayHighScores();
         document.getElementById('solitaire-status').textContent = '';
     }
 }
