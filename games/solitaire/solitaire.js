@@ -899,12 +899,15 @@ class SolitaireGame {
                     cardEl.style.cursor = 'default';
                 }
                 
-                // Stack cards visually with offset
-                const offset = (this.waste.length - 1 - i) * 1;
+                // Stack cards visually with small horizontal offset only
+                const stackIndex = i - startIndex; // 0..2
+                const offset = stackIndex * 6; // tighter stack
                 cardEl.style.left = `${offset}px`;
-                cardEl.style.top = `${offset}px`;
-                cardEl.style.zIndex = i;
-                cardEl.style.opacity = 1 - (i * 0.05);
+                cardEl.style.top = `0px`;
+                cardEl.style.zIndex = 100 + stackIndex;
+                // Fixed opacities so waste doesn't get more transparent over time
+                const opacities = [0.8, 0.9, 1.0];
+                cardEl.style.opacity = opacities[stackIndex] ?? 1;
                 
                 wasteEl.appendChild(cardEl);
             }
@@ -963,12 +966,13 @@ class SolitaireGame {
                         cardEl.style.cursor = 'default';
                     }
                     
-                    // Stack cards with slight offset
-                    const offset = (this.foundations[i].length - 1 - j) * 1;
+                    // Stack top 3 with tiny offset; keep opacity solid
+                    const stackIndex = j - startIndex; // 0..2
+                    const offset = stackIndex * 4;
                     cardEl.style.left = `${offset}px`;
-                    cardEl.style.top = `${offset}px`;
-                    cardEl.style.zIndex = j;
-                    cardEl.style.opacity = 1 - (j * 0.05);
+                    cardEl.style.top = `0px`;
+                    cardEl.style.zIndex = 100 + stackIndex;
+                    cardEl.style.opacity = 1;
                     
                     foundationEl.appendChild(cardEl);
                 }
@@ -978,6 +982,10 @@ class SolitaireGame {
         // Render tableau
         const tableauEl = document.getElementById('solitaire-tableau');
         tableauEl.innerHTML = '';
+        // Dynamically compute vertical offsets so piles fit in the available height
+        const tableauArea = document.getElementById('solitaire-tableau');
+        const availableHeight = tableauArea ? tableauArea.clientHeight : 300;
+        const cardHeight = 108; // matches CSS
         for (let col = 0; col < 7; col++) {
             const pileEl = document.createElement('div');
             pileEl.className = 'tableau-pile';
@@ -1025,11 +1033,17 @@ class SolitaireGame {
                 }
             };
             
+            const pileLength = this.tableau[col].length;
+            const maxSteps = Math.max(1, pileLength - 1);
+            // compute a per-pile step so the last card is always fully visible
+            const step = Math.max(6, Math.min(18, Math.floor((availableHeight - cardHeight) / maxSteps)));
+            const faceDownStep = Math.max(4, Math.floor(step * 0.6));
+
             this.tableau[col].forEach((card, cardIndex) => {
                 const cardEl = this.createCardElement(card, 'tableau', col);
                 
-                // Stack all cards with offset, but face-down cards have smaller offset
-                const offset = card.faceUp ? cardIndex * 12 : cardIndex * 6;
+                // Stack all cards with dynamic offset so they fit the column height
+                const offset = card.faceUp ? cardIndex * step : cardIndex * faceDownStep;
                 cardEl.style.top = `${offset}px`;
                 cardEl.style.zIndex = cardIndex;
                 
