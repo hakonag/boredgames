@@ -122,7 +122,6 @@ export function init() {
             width: var(--card-w);
             min-height: var(--card-h);
             border: none;
-            margin-right: var(--pile-gap);
         }
         .solitaire-card {
             width: var(--card-w);
@@ -169,8 +168,8 @@ export function init() {
         }
         .stock-pile, .waste-pile {
             position: relative;
-            width: 80px;
-            height: 112px;
+            width: var(--card-w);
+            height: var(--card-h);
         }
         .card-stack {
             position: relative;
@@ -253,10 +252,8 @@ export function init() {
         }
         .tableau-pile {
             position: relative;
-            flex: 1;
-            min-width: 0;
-            height: 120px;
-            overflow: hidden;
+            flex: 0 0 auto;
+            overflow: visible;
         }
         .drop-zone {
             border: 2px dashed rgba(255,255,255,0.5);
