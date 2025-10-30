@@ -91,6 +91,69 @@ export const gameRegistry = [
         category: 'arcade',
         initFunction: 'initSpaceInvader',
         enabled: true
+    },
+    {
+        id: '2048',
+        name: '2048',
+        icon: '🔢',
+        description: 'Slidende tall-puslespill',
+        category: 'puzzle',
+        initFunction: 'init2048',
+        enabled: true
+    },
+    {
+        id: '1010',
+        name: '1010!',
+        icon: '🧩',
+        description: 'Blokk-puslespill',
+        category: 'puzzle',
+        initFunction: 'init1010',
+        enabled: true
+    },
+    {
+        id: 'pong',
+        name: 'Pong',
+        icon: '🏓',
+        description: 'Klassisk 2-spiller pong',
+        category: 'arcade',
+        initFunction: 'initPong',
+        enabled: true
+    },
+    {
+        id: 'breakout',
+        name: 'Breakout',
+        icon: '🧱',
+        description: 'Klassisk breakout',
+        category: 'arcade',
+        initFunction: 'initBreakout',
+        enabled: true
+    },
+    {
+        id: 'pacman',
+        name: 'Pacman',
+        icon: '👻',
+        description: 'Klassisk pacman',
+        category: 'arcade',
+        initFunction: 'initPacman',
+        enabled: true
+    },
+    {
+        id: 'flappybird',
+        name: 'Flappy Bird',
+        icon: '🐦',
+        description: 'Flappy bird klassiker',
+        category: 'arcade',
+        initFunction: 'initFlappyBird',
+        enabled: true
+    },
+    {
+        id: 'sudoku',
+        name: 'Sudoku',
+        icon: '🔢',
+        description: 'Klassisk sudoku',
+        category: 'puzzle',
+        initFunction: 'initSudoku',
+        enabled: true
     }
 ];
 

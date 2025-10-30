@@ -90,6 +90,52 @@ function injectStyles() {
     .bet { display:flex; align-items:center; gap:8px; justify-content:center; }
     #slots-amount { width:100px; padding:6px 8px; border:2px solid #dee2e6; border-radius:6px; }
     .result-line { text-align:center; color:#495057; min-height:20px; font-weight:600; }
+    @media (max-width: 768px) {
+        .game-container #game-content {
+            height: 100vh;
+            max-height: 100vh;
+            margin: 0;
+            padding: 10px;
+        }
+        .slots-wrap {
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+            max-width: 100%;
+        }
+        .slots-machine {
+            width: 100%;
+            max-width: 100%;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            padding: 10px;
+        }
+        .reel {
+            width: 100%;
+            height: auto;
+            aspect-ratio: 1;
+            font-size: 36px;
+        }
+        .slots-controls {
+            width: 100%;
+        }
+        .balance {
+            padding: 10px;
+            font-size: 0.9rem;
+        }
+        .bet {
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        #slots-amount {
+            width: 100%;
+            padding: 8px;
+            font-size: 0.9rem;
+        }
+        .result-line {
+            font-size: 0.85rem;
+        }
+    }
     `;
     document.head.appendChild(style);
 }

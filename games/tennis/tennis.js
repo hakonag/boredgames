@@ -233,6 +233,63 @@ function injectStyles() {
     .btn-secondary:hover { background:#5a6268; border-color:#495057; }
     .scoreboard { display:flex; justify-content:space-between; gap:10px; margin-top:6px; }
     .score { background:#fff; border:2px solid #dee2e6; border-radius:8px; padding:8px 10px; flex:1; display:flex; align-items:center; justify-content:space-between; font-size:1rem; }
+    @media (max-width: 768px) {
+        .game-container #game-content {
+            height: 100vh;
+            max-height: 100vh;
+            margin: 0;
+            padding: 10px;
+        }
+        .back-button-tetris {
+            top: 10px;
+            left: 10px;
+            padding: 8px 10px;
+            font-size: 0.7rem;
+        }
+        .tennis-wrap {
+            flex-direction: column;
+            gap: 12px;
+            height: auto;
+            padding: 0;
+        }
+        .tennis-left {
+            order: 1;
+            width: 100%;
+            flex: none;
+        }
+        #tennis-canvas {
+            width: 100%;
+            max-width: 100%;
+            height: auto;
+            aspect-ratio: 4/3;
+        }
+        .tennis-right {
+            order: 2;
+            width: 100%;
+            flex-shrink: 1;
+        }
+        .tennis-controls {
+            padding: 10px;
+        }
+        .tennis-controls h3 {
+            font-size: 0.85rem;
+        }
+        .control-line {
+            font-size: 0.8rem;
+        }
+        .btn-primary, .btn-secondary {
+            padding: 10px;
+            font-size: 0.85rem;
+        }
+        .scoreboard {
+            flex-direction: column;
+            gap: 8px;
+        }
+        .score {
+            font-size: 0.9rem;
+            padding: 10px;
+        }
+    }
     `;
     document.head.appendChild(style);
 }

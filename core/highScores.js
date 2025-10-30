@@ -57,12 +57,12 @@ export async function getHighScores(gameId = 'tetris') {
                     });
                     
                     uniqueScores.sort((a, b) => b.score - a.score);
-                    const top10 = uniqueScores.slice(0, 10);
+                    const top30 = uniqueScores.slice(0, 30);
                     
                     // Update localStorage with merged scores
-                    localStorage.setItem(storageKey, JSON.stringify(top10));
+                    localStorage.setItem(storageKey, JSON.stringify(top30));
                     
-                    return top10;
+                    return top30;
                 }
             } catch (error) {
                 console.log('Could not fetch remote scores, using local:', error);
@@ -95,10 +95,10 @@ export async function saveHighScore(gameId, name, score) {
     // Add new score and sort
     currentScores.push(newScore);
     currentScores.sort((a, b) => b.score - a.score);
-    const top10 = currentScores.slice(0, 10);
+    const top30 = currentScores.slice(0, 30);
     
     // Save to localStorage
-    localStorage.setItem(storageKey, JSON.stringify(top10));
+    localStorage.setItem(storageKey, JSON.stringify(top30));
     
     // Try to save to JSONBin and wait for it to complete
     if (JSONBIN_API_KEY && SCORES_BIN_ID && SCORES_BIN_ID !== 'tetris-high-scores') {
@@ -109,7 +109,7 @@ export async function saveHighScore(gameId, name, score) {
                     'Content-Type': 'application/json',
                     'X-Master-Key': JSONBIN_API_KEY
                 },
-                body: JSON.stringify(top10)
+                body: JSON.stringify(top30)
             });
             
             if (!response.ok) {
@@ -127,10 +127,10 @@ export async function saveHighScore(gameId, name, score) {
         console.log('JSONBin not configured. Scores saved locally only.');
     }
     
-    return top10;
+    return top30;
 }
 
-export function displayHighScores(containerId, gameId) {
+export function displayHighScores(containerId, gameId, limit = 10) {
     const scoresContainer = document.getElementById(containerId);
     if (!scoresContainer) return Promise.resolve();
     
@@ -140,8 +140,8 @@ export function displayHighScores(containerId, gameId) {
             return;
         }
         
-        // Show up to 10 scores
-        const displayScores = scores.slice(0, 10);
+        // Show up to limit scores (default 30, but can be customized per game)
+        const displayScores = scores.slice(0, limit);
         scoresContainer.innerHTML = displayScores.map((entry, index) => `
             <div class="score-entry">
                 <div class="score-name">${index + 1}. ${entry.name}</div>

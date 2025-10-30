@@ -262,6 +262,61 @@ function injectStyles() {
     .back-button-tetris { position: fixed; top: 15px; left: 15px; background: #f8f9fa; color: #333; border: 1px solid #dee2e6; padding: 6px 10px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; transition: all 0.2s ease; z-index: 10000; display: flex; align-items: center; gap: 6px; font-weight: 600; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
     .back-button-tetris:hover { background: #e9ecef; border-color: #adb5bd; }
     .back-button-tetris i { width:14px; height:14px; }
+    @media (max-width: 768px) {
+        .game-container #game-content {
+            height: 100vh;
+            max-height: 100vh;
+            margin: 0;
+            padding: 10px;
+        }
+        .back-button-tetris {
+            top: 10px;
+            left: 10px;
+            padding: 8px 10px;
+            font-size: 0.7rem;
+        }
+        .ms-wrap {
+            width: 100%;
+            gap: 10px;
+        }
+        .ms-top {
+            flex-direction: column;
+            width: 100%;
+            gap: 10px;
+        }
+        .ms-title {
+            font-size: 1.2rem;
+        }
+        .ms-main {
+            flex-direction: column;
+            width: 100%;
+            gap: 12px;
+        }
+        .ms-board {
+            width: 100%;
+            max-width: 100%;
+            justify-content: center;
+            padding: 8px;
+        }
+        .ms-cell {
+            width: calc((100vw - 60px) / var(--ms-size) - 4px);
+            height: calc((100vw - 60px) / var(--ms-size) - 4px);
+            max-width: 32px;
+            max-height: 32px;
+            font-size: 0.7rem;
+        }
+        .ms-sidebar {
+            width: 100%;
+            order: -1;
+        }
+        .ms-highscores {
+            max-height: 200px;
+        }
+        .ms-controls select {
+            font-size: 0.85rem;
+            padding: 8px;
+        }
+    }
     `;
     document.head.appendChild(style);
 }

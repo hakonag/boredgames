@@ -205,6 +205,59 @@ function injectStyles() {
     .control-line { font-size:.9rem; color:#495057; }
     .buttons { display:flex; flex-direction:column; gap:6px; }
     .panel { background:#fff; border:2px solid #dee2e6; border-radius:10px; padding:10px; display:flex; flex-direction:column; gap:6px; }
+    @media (max-width: 768px) {
+        .game-container #game-content {
+            height: 100vh;
+            max-height: 100vh;
+            margin: 0;
+            padding: 10px;
+        }
+        .back-button-tetris {
+            top: 10px;
+            left: 10px;
+            padding: 8px 10px;
+            font-size: 0.7rem;
+        }
+        .si-wrap {
+            flex-direction: column;
+            gap: 12px;
+            height: auto;
+            padding: 0;
+        }
+        .si-left {
+            order: 1;
+            width: 100%;
+            flex: none;
+        }
+        #si-canvas {
+            width: 100%;
+            max-width: 100%;
+            height: auto;
+            aspect-ratio: 16/10;
+        }
+        .si-right {
+            order: 2;
+            width: 100%;
+            flex-shrink: 1;
+        }
+        .si-controls {
+            padding: 10px;
+        }
+        .si-controls h3 {
+            font-size: 0.85rem;
+        }
+        .control-line {
+            font-size: 0.8rem;
+        }
+        .btn-primary, .btn-secondary {
+            padding: 10px;
+            font-size: 0.85rem;
+        }
+        .panel {
+            padding: 10px;
+            font-size: 0.85rem;
+        }
+    }
     `;
     document.head.appendChild(style);
 }

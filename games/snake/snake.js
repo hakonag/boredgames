@@ -22,6 +22,30 @@ export function init() {
 		#snake-canvas { width: 100%; height: 100%; background: #111; border: 2px solid #333; border-radius: 8px; image-rendering: pixelated; }
 		.snake-hud { position: absolute; top: 10px; left: 10px; display: flex; gap: 10px; align-items: center; background: rgba(0,0,0,0.4); color: #fff; padding: 6px 10px; border-radius: 6px; }
 		.snake-hud button { background: #0d6efd; color: #fff; border: 1px solid #0b5ed7; border-radius: 4px; padding: 4px 8px; cursor: pointer; }
+		@media (max-width: 768px) {
+			.game-container #game-content {
+				height: 100vh;
+				max-height: 100vh;
+				margin: 0;
+				padding: 10px;
+			}
+			.snake-root {
+				width: 100%;
+				max-width: 100%;
+				min-height: calc(100vh - 80px);
+			}
+			#snake-canvas {
+				max-width: 100%;
+			}
+			.snake-hud {
+				font-size: 0.85rem;
+				padding: 8px 12px;
+			}
+			.snake-hud button {
+				padding: 6px 12px;
+				font-size: 0.85rem;
+			}
+		}
 	`;
 	document.head.appendChild(style);
 

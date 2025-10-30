@@ -141,6 +141,75 @@ function injectStyles() {
     .num-bet { display:flex; gap:8px; justify-content:center; }
     #bet-number { width:130px; padding:6px 8px; border:2px solid #dee2e6; border-radius:6px; }
     .result-line { text-align:center; color:#495057; min-height:20px; font-weight:600; }
+    @media (max-width: 768px) {
+        .game-container #game-content {
+            height: 100vh;
+            max-height: 100vh;
+            margin: 0;
+            padding: 10px;
+        }
+        .roulette-wrap {
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+            max-width: 100%;
+        }
+        .roulette-left {
+            order: 2;
+            width: 100%;
+        }
+        .roulette-wheel {
+            width: 100%;
+            max-width: min(320px, calc(100vw - 40px));
+            height: auto;
+            aspect-ratio: 1;
+        }
+        .roulette-controls {
+            width: 100%;
+            max-width: 320px;
+        }
+        .roulette-right {
+            order: 1;
+            width: 100%;
+            max-width: 100%;
+        }
+        .roul-history .hist {
+            width: 32px;
+            height: 32px;
+            font-size: 0.85rem;
+        }
+        .balance {
+            padding: 10px;
+            font-size: 0.9rem;
+        }
+        .bets {
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .bet-btn {
+            padding: 8px 12px;
+            font-size: 0.85rem;
+        }
+        #bet-amount {
+            width: 100%;
+            max-width: 120px;
+            padding: 8px;
+            font-size: 0.9rem;
+        }
+        .num-bet {
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        #bet-number {
+            width: 100%;
+            max-width: 200px;
+            padding: 8px;
+            font-size: 0.9rem;
+        }
+        .result-line {
+            font-size: 0.85rem;
+        }
+    }
     `;
     document.head.appendChild(style);
 }

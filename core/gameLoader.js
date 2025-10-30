@@ -118,6 +118,13 @@ function showGameLoader(gameId) {
         gameId === 'ludo' ? '#f59f00' :
         gameId === 'roulette' ? '#fa5252' :
         gameId === 'casino' ? '#fcc419' :
+        gameId === '2048' ? '#776e65' :
+        gameId === '1010' ? '#4a90e2' :
+        gameId === 'pong' ? '#0d6efd' :
+        gameId === 'breakout' ? '#ef4444' :
+        gameId === 'pacman' ? '#ffff00' :
+        gameId === 'flappybird' ? '#ffd700' :
+        gameId === 'sudoku' ? '#495057' :
         '#339af0'
     );
     const blocks = gameId === 'tetris' ? 8 : 6;

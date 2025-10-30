@@ -91,6 +91,17 @@ export function init() {
                         <span class="control-label">Mute</span>
                     </div>
                 </div>
+                <div class="mode-selector">
+                    <h4>Vanskelighetsgrad</h4>
+                    <div class="mode-buttons">
+                        <button onclick="window.setTetrisMode('easy')" id="mode-easy" class="mode-btn active">
+                            <i data-lucide="feather"></i> Lett
+                        </button>
+                        <button onclick="window.setTetrisMode('hard')" id="mode-hard" class="mode-btn">
+                            <i data-lucide="flame"></i> Vanskelig
+                        </button>
+                    </div>
+                </div>
                 <div class="game-buttons">
                     <button onclick="window.startTetris()" id="tetris-start-btn" class="btn-primary">
                         <i data-lucide="play"></i> Start
@@ -273,6 +284,8 @@ export function init() {
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
+            min-height: 0;
+            max-height: 100%;
         }
         .preview-box {
             background: #f8f9fa;
@@ -436,6 +449,9 @@ export function init() {
         #tetris-high-scores {
             flex: 1;
             overflow-y: auto;
+            overflow-x: hidden;
+            min-height: 0;
+            max-height: 100%;
         }
         .btn-primary {
             background: #007bff;
@@ -482,6 +498,59 @@ export function init() {
             border-color: #495057;
         }
         .btn-secondary i {
+            width: 12px;
+            height: 12px;
+        }
+        .mode-selector {
+            margin-bottom: 12px;
+            padding: 10px;
+            background: #ffffff;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+        }
+        .mode-selector h4 {
+            margin: 0 0 8px 0;
+            font-size: 0.75rem;
+            color: #495057;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+        .mode-buttons {
+            display: flex;
+            gap: 6px;
+        }
+        .mode-btn {
+            flex: 1;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            border: 2px solid #dee2e6;
+            background: #ffffff;
+            color: #495057;
+        }
+        .mode-btn:hover {
+            background: #f8f9fa;
+            border-color: #adb5bd;
+        }
+        .mode-btn.active {
+            background: #007bff;
+            color: white;
+            border-color: #0056b3;
+        }
+        .mode-btn.active:hover {
+            background: #0056b3;
+            border-color: #004085;
+        }
+        .mode-btn i {
             width: 12px;
             height: 12px;
         }
@@ -605,7 +674,90 @@ export function init() {
             color: #007bff;
             margin-top: 10px;
         }
-        @media (max-width: 1024px) {
+        @media (max-width: 768px) {
+            .game-container #game-content {
+                height: 100vh;
+                max-height: 100vh;
+                margin: 0;
+                padding: 10px;
+            }
+            .back-button-tetris {
+                top: 10px;
+                left: 10px;
+                padding: 8px 10px;
+                font-size: 0.7rem;
+            }
+            .fps-indicator {
+                top: 50px;
+                right: 10px;
+                font-size: 9px;
+                padding: 4px 8px;
+            }
+            .tetris-game {
+                flex-direction: column;
+                gap: 10px;
+                width: 100%;
+                height: 100%;
+                max-width: 100%;
+            }
+            .tetris-side-panel {
+                width: 100%;
+                flex-direction: row;
+                justify-content: space-around;
+                gap: 8px;
+                order: 1;
+            }
+            .preview-box {
+                flex: 1;
+                min-width: 0;
+            }
+            #hold-canvas, #next-canvas {
+                width: 100%;
+                max-width: 80px;
+            }
+            .tetris-board {
+                order: 2;
+                width: 100%;
+                flex-grow: 1;
+            }
+            #tetris-canvas {
+                max-width: min(250px, calc(100vw - 20px));
+                width: 100%;
+                height: auto;
+            }
+            .tetris-right-panels {
+                flex-direction: column;
+                width: 100%;
+                gap: 10px;
+                order: 3;
+            }
+            .tetris-controls-panel, .tetris-leaderboard-panel {
+                width: 100%;
+            }
+            .tetris-info {
+                margin-top: 8px;
+            }
+            .info-item {
+                font-size: 0.85rem;
+            }
+            .control-item {
+                padding: 8px;
+                font-size: 0.85rem;
+            }
+            .key-icon-large {
+                width: 28px;
+                height: 28px;
+            }
+            .btn-primary, .btn-secondary {
+                padding: 10px;
+                font-size: 0.85rem;
+            }
+            .score-entry {
+                font-size: 0.75rem;
+                padding: 6px 0;
+            }
+        }
+        @media (max-width: 1024px) and (min-width: 769px) {
             .tetris-game {
                 flex-wrap: wrap;
                 gap: 15px;
@@ -651,13 +803,38 @@ export function init() {
         }
     };
     
-    tetrisGame = new TetrisGame();
+    // Mode selector function
+    window.setTetrisMode = (mode) => {
+        const easyBtn = document.getElementById('mode-easy');
+        const hardBtn = document.getElementById('mode-hard');
+        if (easyBtn && hardBtn) {
+            easyBtn.classList.toggle('active', mode === 'easy');
+            hardBtn.classList.toggle('active', mode === 'hard');
+        }
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+        // If game exists, recreate it with new mode
+        const wasPaused = tetrisGame && tetrisGame.isPaused;
+        const wasRunning = tetrisGame && tetrisGame.animationFrameId;
+        if (tetrisGame) {
+            tetrisGame.removeControls();
+            tetrisGame = null;
+        }
+        tetrisGame = new TetrisGame(mode);
+        window.tetrisGame = tetrisGame;
+        // Restore game state if it was running
+        if (wasRunning && !wasPaused) {
+            setTimeout(() => window.startTetris(), 100);
+        }
+    };
+    
+    // Initialize with easy mode
+    tetrisGame = new TetrisGame('easy');
     window.tetrisGame = tetrisGame; // Store globally for cleanup
     window.startTetris = startTetris;
     window.pauseTetris = pauseTetris;
     
     // Load and display high scores (async) - handle promise properly
-    displayHighScores('tetris-high-scores', 'tetris').catch(err => console.log('Error loading scores:', err));
+    displayHighScores('tetris-high-scores', 'tetris', 30).catch(err => console.log('Error loading scores:', err));
 }
 
 export function cleanup() {
@@ -678,7 +855,7 @@ function pauseTetris() {
 }
 
 class TetrisGame {
-    constructor() {
+    constructor(mode = 'easy') {
         this.canvas = document.getElementById('tetris-canvas');
         if (!this.canvas) {
             console.error('Tetris canvas not found!');
@@ -692,7 +869,10 @@ class TetrisGame {
         this.canHold = true;
         this.score = 0;
         this.lines = 0;
-        this.level = 1;
+        this.mode = mode || 'easy';
+        // Easy mode: start at level 1, Hard mode: start at level 5 (much faster)
+        this.startLevel = this.mode === 'hard' ? 5 : 1;
+        this.level = this.startLevel;
         this.gameLoop = null; // deprecated, kept for compatibility
         this.animationFrameId = null;
         this.lastTimestamp = 0;
@@ -702,7 +882,9 @@ class TetrisGame {
         this.fpsDisplayAccum = 0;
         this.isPaused = false;
         this.fallTime = 0;
-        this.fallInterval = 1000;
+        // Calculate initial fall interval based on starting level
+        // Formula: max(100, 1000 - (level - 1) * 100)
+        this.fallInterval = Math.max(100, 1000 - (this.startLevel - 1) * 100);
         this.isMuted = false;
         this.backgroundMusic = null;
         this.setupAudio();
@@ -734,6 +916,9 @@ class TetrisGame {
         setTimeout(() => {
             this.draw();
             this.drawPreviews();
+            // Update level display with starting level
+            const levelEl = document.getElementById('tetris-level');
+            if (levelEl) levelEl.textContent = this.level;
         }, 10);
     }
     
@@ -1017,7 +1202,8 @@ class TetrisGame {
         if (linesCleared > 0) {
             this.lines += linesCleared;
             this.score += linesCleared * 100 * this.level;
-            this.level = Math.floor(this.lines / 10) + 1;
+            // Level increases every 10 lines, but always at least the starting level
+            this.level = Math.max(this.startLevel, Math.floor(this.lines / 10) + 1);
             this.fallInterval = Math.max(100, 1000 - (this.level - 1) * 100);
             
             const scoreEl = document.getElementById('tetris-score');
@@ -1259,9 +1445,10 @@ class TetrisGame {
         this.grid = Array(20).fill().map(() => Array(10).fill(0));
         this.score = 0;
         this.lines = 0;
-        this.level = 1;
+        this.level = this.startLevel;
         this.fallTime = 0;
-        this.fallInterval = 1000;
+        // Reset fall interval based on starting level
+        this.fallInterval = Math.max(100, 1000 - (this.startLevel - 1) * 100);
         this.currentPiece = null;
         this.nextPiece = null;
         this.heldPiece = null;
@@ -1273,7 +1460,7 @@ class TetrisGame {
         const levelEl = document.getElementById('tetris-level');
         if (scoreEl) scoreEl.textContent = '0';
         if (linesEl) linesEl.textContent = '0';
-        if (levelEl) levelEl.textContent = '1';
+        if (levelEl) levelEl.textContent = String(this.startLevel);
         document.getElementById('tetris-start-btn').style.display = 'block';
         document.getElementById('tetris-pause-btn').style.display = 'none';
         if (typeof lucide !== 'undefined') {

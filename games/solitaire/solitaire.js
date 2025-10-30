@@ -317,6 +317,90 @@ export function init() {
         .back-button-tetris { position: fixed; top: 15px; left: 15px; background: #f8f9fa; color: #333; border: 1px solid #dee2e6; padding: 6px 10px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; transition: background-color .15s ease, border-color .15s ease, color .15s ease; z-index: 10000; display: flex; align-items: center; gap: 6px; font-weight: 600; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
         .back-button-tetris:hover { background:#e9ecef; border-color:#adb5bd; }
         .back-button-tetris i { width:14px; height:14px; }
+        @media (max-width: 768px) {
+            .game-container #game-content {
+                height: 100vh;
+                max-height: 100vh;
+                margin: 0;
+                padding: 10px;
+            }
+            .back-button-tetris {
+                top: 10px;
+                left: 10px;
+                padding: 8px 10px;
+                font-size: 0.7rem;
+            }
+            .solitaire-layout {
+                grid-template-columns: 1fr !important;
+                grid-template-rows: auto 1fr;
+                gap: 10px;
+                height: 100%;
+            }
+            .solitaire-board {
+                order: 2;
+                --card-w: 56px;
+                --card-h: 80px;
+                --pile-gap: 12px;
+                padding: 10px;
+            }
+            .solitaire-right {
+                order: 1;
+                min-width: 100%;
+                flex-direction: row;
+                gap: 10px;
+                height: auto;
+            }
+            .solitaire-controls {
+                flex: 1;
+            }
+            .solitaire-leaderboard {
+                flex: 1;
+                min-height: 150px;
+            }
+            .game-stats {
+                flex-direction: column;
+                gap: 6px;
+            }
+            .stat-pill {
+                min-width: auto;
+                width: 100%;
+                padding: 6px 10px;
+            }
+            .stat-pill span:last-child {
+                font-size: 1rem;
+            }
+            .solitaire-top-row {
+                grid-template-columns: repeat(7, var(--card-w));
+                column-gap: var(--pile-gap);
+                margin-bottom: 12px;
+            }
+            .tableau-area {
+                grid-template-columns: repeat(7, var(--card-w));
+                column-gap: var(--pile-gap);
+                margin-top: 12px;
+            }
+            .solitaire-card {
+                width: var(--card-w);
+                height: var(--card-h);
+                padding: 3px;
+            }
+            .card-value {
+                font-size: 0.85rem;
+            }
+            .card-suit {
+                font-size: 1.1rem;
+            }
+            .card-value-bottom {
+                font-size: 0.85rem;
+            }
+            .scores-list {
+                max-height: 120px;
+            }
+            .score-item {
+                font-size: 0.75rem;
+                padding: 4px 0;
+            }
+        }
     `;
     document.head.appendChild(style);
     // Load Solitaire high scores in sidebar
