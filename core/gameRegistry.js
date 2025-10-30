@@ -12,6 +12,15 @@ export const gameRegistry = [
         enabled: true
     },
     {
+        id: 'minesweeper',
+        name: 'Minesweeper',
+        icon: '💣',
+        description: 'Finn bombene – ikke spreng!',
+        category: 'puzzle',
+        initFunction: 'initMinesweeper',
+        enabled: true
+    },
+    {
         id: 'yatzy',
         name: 'Yatzy',
         icon: '🎲',
@@ -45,7 +54,7 @@ export const gameRegistry = [
         description: 'Casinoklassiker',
         category: 'casino',
         initFunction: 'initRoulette',
-        enabled: false // Placeholder game
+        enabled: true
     },
     {
         id: 'casino',
@@ -54,7 +63,7 @@ export const gameRegistry = [
         description: 'Casinospillsamling',
         category: 'casino',
         initFunction: 'initCasino',
-        enabled: false // Placeholder game
+        enabled: true
     }
 ];
 

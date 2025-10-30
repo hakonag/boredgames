@@ -6,6 +6,12 @@ let currentGame = null;
 
 export function loadGame(gameId) {
     // Clean up previous game
+    // Call game-specific cleanup if available
+    try {
+        if (currentGame && typeof currentGame.cleanup === 'function') {
+            currentGame.cleanup();
+        }
+    } catch {}
     cleanupActiveGame();
     
     const container = document.querySelector('.container');

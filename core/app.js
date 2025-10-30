@@ -69,16 +69,12 @@ function renderGameCards() {
             <p>${game.description}</p>
         `;
         
-        if (game.enabled) {
-            card.addEventListener('click', () => {
-                loadGame(game.id);
-            });
-        } else {
-            card.style.cursor = 'not-allowed';
-            card.addEventListener('click', () => {
-                // Show message that game is coming soon
-                alert(`🎮 ${game.name} kommer snart!`);
-            });
+        // Always allow click to attempt load; visual style still reflects coming-soon
+        card.addEventListener('click', () => {
+            loadGame(game.id);
+        });
+        if (!game.enabled) {
+            card.style.cursor = 'pointer';
         }
         
         gamesGrid.appendChild(card);
