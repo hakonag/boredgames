@@ -185,6 +185,36 @@ export function init() {
             border-radius: 0;
             box-shadow: none;
         }
+        /* Ensure back button is positioned correctly */
+        .back-button-shared {
+            position: fixed !important;
+            top: 10px !important;
+            left: 10px !important;
+            background: #f8f9fa !important;
+            color: #111 !important;
+            border: 2px solid #dee2e6 !important;
+            padding: 8px 12px !important;
+            border-radius: 0 !important;
+            font-size: 0.875rem !important;
+            font-weight: 600 !important;
+            cursor: pointer !important;
+            transition: all 0.2s ease !important;
+            z-index: 10000 !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 6px !important;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+            margin: 0 !important;
+        }
+        .back-button-shared:hover {
+            background: #e9ecef !important;
+            border-color: #111 !important;
+        }
+        .back-button-shared i {
+            width: 16px !important;
+            height: 16px !important;
+            stroke-width: 2 !important;
+        }
         /* Apply clean grotesk-style font to Tetris page */
         .game-container #game-content, 
         .game-container #game-content * {
