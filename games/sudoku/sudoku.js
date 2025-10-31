@@ -173,11 +173,18 @@ class SudokuGame {
     }
 
     setupControls() {
-        if (this.selectedCell && /^[1-9]$/.test(e.key)) {
+        this.keyHandler = setupHardReset('sudoku', (e) => {
+            // Don't process shortcuts if user is typing in an input field
+            const activeElement = document.activeElement;
+            if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
+                return;
+            }
+            
+            if (this.selectedCell && /^[1-9]$/.test(e.key)) {
                 const num = parseInt(e.key);
                 this.placeNumber(num);
             }
-        };
+        });
         document.addEventListener('keydown', this.keyHandler);
     }
 
@@ -427,27 +434,64 @@ function getGameSpecificStyles() {
             font-size: 0.9rem;
         }
         @media (max-width: 768px) {
+            .sudoku-wrap {
+                max-width: 100%;
+                padding: 0 5px;
+            }
             .sudoku-header h1 {
                 font-size: 2rem;
+                margin-bottom: 15px;
             }
             .sudoku-stats {
                 flex-direction: column;
                 gap: 10px;
+                width: 100%;
             }
             .stat-box {
                 width: 100%;
+                padding: 12px 20px;
+            }
+            .stat-value {
+                font-size: 1.75rem;
             }
             .sudoku-game-area {
                 flex-direction: column;
+                width: 100%;
+                gap: 15px;
             }
             .sudoku-board {
                 max-width: 100%;
+                width: 100%;
             }
             .sudoku-controls-panel {
                 width: 100%;
             }
             .sudoku-cell {
                 font-size: 1.2rem;
+                min-height: 35px;
+            }
+            .numpad-btn {
+                min-height: 44px;
+                padding: 14px;
+                font-size: 1.1rem;
+            }
+            .btn-primary, .btn-secondary {
+                min-height: 48px;
+                padding: 14px 20px;
+            }
+        }
+        @media (max-width: 480px) {
+            .sudoku-cell {
+                font-size: 1rem;
+                min-height: 30px;
+            }
+            .numpad-btn {
+                min-height: 44px;
+                padding: 12px;
+                font-size: 1rem;
+            }
+            .sudoku-header h1 {
+                font-size: 1.75rem;
             }
         }
     `;

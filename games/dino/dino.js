@@ -523,21 +523,48 @@ function getGameSpecificStyles() {
             overflow-y: auto;
         }
         @media (max-width: 768px) {
+            .dino-wrap {
+                max-width: 100%;
+                padding: 0 5px;
+            }
             .dino-header h1 {
                 font-size: 2rem;
+                margin-bottom: 15px;
             }
             .dino-stats {
                 flex-direction: column;
                 gap: 10px;
+                width: 100%;
             }
             .stat-box {
                 width: 100%;
+                padding: 12px 20px;
+            }
+            .stat-value {
+                font-size: 1.75rem;
+            }
+            .dino-game-area {
+                width: 100%;
+                max-width: 100%;
+                padding: 5px;
+            }
+            #dino-canvas {
+                max-width: 100%;
+                height: auto;
             }
             .dino-buttons {
                 flex-direction: column;
+                width: 100%;
             }
             .btn-primary, .btn-secondary {
                 width: 100%;
+                min-height: 48px;
+                padding: 14px 20px;
+            }
+        }
+        @media (max-width: 480px) {
+            .dino-header h1 {
+                font-size: 1.75rem;
             }
             #dino-canvas {
                 max-width: 100%;

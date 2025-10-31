@@ -91,7 +91,7 @@ export function init() {
     const showResult = (t) => { $("roul-result").textContent = t; };
 
     // R shortcut for hard refresh
-    const rHandler = setupHardReset('roulette', () => {
+    const rHandler = setupHardReset('roulette', (e) => {
         // Additional key handling if needed
     });
     addHandler(document, 'keydown', rHandler);

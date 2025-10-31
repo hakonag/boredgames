@@ -313,22 +313,56 @@ function getGameSpecificStyles() {
             height: 14px;
         }
         @media (max-width: 768px) {
+            .memory-wrap {
+                max-width: 100%;
+                padding: 0 5px;
+            }
             .memory-header h1 {
                 font-size: 2rem;
+                margin-bottom: 15px;
             }
             .memory-stats {
                 flex-direction: column;
                 gap: 10px;
+                width: 100%;
             }
             .stat-box {
                 width: 100%;
+                padding: 12px 20px;
+            }
+            .stat-value {
+                font-size: 1.75rem;
             }
             .memory-board {
+                max-width: 100%;
                 grid-template-columns: repeat(4, 1fr);
                 gap: 8px;
             }
             .memory-card {
                 font-size: 2rem;
+                min-height: 60px;
+            }
+            .memory-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+            .btn-secondary {
+                width: 100%;
+                min-height: 48px;
+                padding: 14px 20px;
+            }
+        }
+        @media (max-width: 480px) {
+            .memory-board {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 6px;
+            }
+            .memory-card {
+                font-size: 1.75rem;
+                min-height: 55px;
+            }
+            .memory-header h1 {
+                font-size: 1.75rem;
             }
         }
     `;

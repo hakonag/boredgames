@@ -114,13 +114,11 @@ class ArkanoidGame {
                 return;
             }
             
-            
-            
             if (['ArrowLeft', 'ArrowRight'].includes(e.key)) {
                 e.preventDefault();
                 this.keys[e.key] = e.type === 'keydown';
             }
-        };
+        });
         document.addEventListener('keydown', this.keyHandler);
         document.addEventListener('keyup', this.keyHandler);
         
@@ -271,43 +269,61 @@ class ArkanoidGame {
 
 function getGameSpecificStyles() {
     return `
-.arkanoid-wrap {
+        .arkanoid-wrap {
             width: 100%;
             max-width: min(650px, 95vw);
+            max-height: calc(100vh - 20px);
+            overflow-y: auto;
+            overflow-x: hidden;
             display: flex;
             flex-direction: column;
             align-items: center;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        .arkanoid-main {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            flex-shrink: 0;
+        }
+        .arkanoid-header {
+            flex-shrink: 0;
+            width: 100%;
         }
         .arkanoid-header h1 {
             font-size: 2.5rem;
             font-weight: 800;
             color: #111;
-            margin: 0 0 20px 0;
+            margin: 0 0 15px 0;
             text-align: center;
         }
         .arkanoid-stats {
             display: flex;
-            gap: 20px;
-            margin-bottom: 20px;
+            gap: 15px;
+            margin-bottom: 0;
             justify-content: center;
+            flex-wrap: wrap;
         }
         .stat-box {
             background: #f8f9fa;
             border: 2px solid #dee2e6;
             border-radius: 0;
-            padding: 15px 30px;
+            padding: 12px 24px;
             text-align: center;
-            min-width: 120px;
+            min-width: 100px;
         }
         .stat-label {
             color: #6c757d;
             font-size: 0.85rem;
             font-weight: 600;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
         .stat-value {
             color: #212529;
-            font-size: 2rem;
+            font-size: 1.75rem;
             font-weight: 800;
         }
         .arkanoid-game-area {
@@ -315,18 +331,24 @@ function getGameSpecificStyles() {
             border: 4px solid #6c757d;
             border-radius: 0;
             padding: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 0;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            flex-shrink: 0;
+            width: 100%;
+            max-width: min(620px, calc(95vw - 40px));
         }
         #arkanoid-canvas {
             display: block;
             width: 100%;
-            max-width: min(620px, calc(95vw - 40px));
+            max-width: 100%;
             height: auto;
             aspect-ratio: 1;
         }
         .arkanoid-controls {
             text-align: center;
+            flex-shrink: 0;
+            width: 100%;
+            margin-top: 10px;
         }
         .arkanoid-instructions {
             color: #6c757d;
@@ -337,6 +359,7 @@ function getGameSpecificStyles() {
             display: flex;
             gap: 10px;
             justify-content: center;
+            flex-wrap: wrap;
         }
         .btn-primary, .btn-secondary {
             padding: 10px 20px;
@@ -348,6 +371,7 @@ function getGameSpecificStyles() {
             align-items: center;
             gap: 6px;
             border: 2px solid;
+            min-height: 44px;
         }
         .btn-primary {
             background: #0d6efd;
@@ -370,24 +394,47 @@ function getGameSpecificStyles() {
             height: 14px;
         }
         @media (max-width: 768px) {
+            .arkanoid-wrap {
+                max-height: calc(100vh - 10px);
+                padding: 5px;
+            }
             .arkanoid-header h1 {
                 font-size: 2rem;
+                margin-bottom: 12px;
             }
             .arkanoid-stats {
                 flex-direction: column;
                 gap: 10px;
+                width: 100%;
             }
             .stat-box {
                 width: 100%;
+                padding: 12px 20px;
+            }
+            .stat-value {
+                font-size: 1.5rem;
+            }
+            .arkanoid-game-area {
+                width: 100%;
+                max-width: 100%;
+                padding: 5px;
             }
             .arkanoid-buttons {
                 flex-direction: column;
+                width: 100%;
             }
             .btn-primary, .btn-secondary {
                 width: 100%;
+                min-height: 48px;
+                padding: 14px 20px;
             }
-            #arkanoid-canvas {
-                max-width: 100%;
+        }
+        @media (max-width: 480px) {
+            .arkanoid-header h1 {
+                font-size: 1.75rem;
+            }
+            .stat-value {
+                font-size: 1.25rem;
             }
         }
     `;

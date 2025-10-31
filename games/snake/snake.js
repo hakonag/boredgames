@@ -1,11 +1,11 @@
 // Snake Game Module
+import { createBackButton } from '../../core/gameUtils.js';
 
 let state = null;
 
 export function init() {
 	const gameContent = document.getElementById('game-content');
-	gameContent.innerHTML = `
-		<button class="back-button-tetris" onclick="window.goHome()">← boredgames</button>
+	gameContent.innerHTML = createBackButton() + `
 		<div class="snake-root">
 			<canvas id="snake-canvas"></canvas>
 			<div class="snake-hud">
@@ -65,30 +65,7 @@ export function init() {
 	canvas.width = gridSize * cell;
 	canvas.height = gridSize * cell;
 
-	state = {
-		ctx,
-		gridSize,
-		cell,
-		dir: { x: 1, y: 0 },
-		nextDir: { x: 1, y: 0 },
-		snake: [{ x: 8, y: 10 }, { x: 7, y: 10 }],
-		food: spawnFood(),
-		score: 0,
-		lastTime: 0,
-		acc: 0,
-		speedMs: 110,
-		running: true,
-		preventKeys,
-		touchStart,
-		touchEnd,
-		rafId: 0,
-	};
-
-	updateScore();
-	document.getElementById('snake-restart').onclick = () => restart();
-	window.addEventListener('keydown', onKey);
-	
-	// Touch/swipe controls for mobile
+	// Touch/swipe controls for mobile - define before state object
 	let touchStartX, touchStartY;
 	const touchStart = (e) => {
 		touchStartX = e.touches[0].clientX;
@@ -116,6 +93,30 @@ export function init() {
 		}
 		touchStartX = touchStartY = null;
 	};
+
+	state = {
+		ctx,
+		gridSize,
+		cell,
+		dir: { x: 1, y: 0 },
+		nextDir: { x: 1, y: 0 },
+		snake: [{ x: 8, y: 10 }, { x: 7, y: 10 }],
+		food: spawnFood(),
+		score: 0,
+		lastTime: 0,
+		acc: 0,
+		speedMs: 110,
+		running: true,
+		preventKeys,
+		touchStart,
+		touchEnd,
+		rafId: 0,
+	};
+
+	updateScore();
+	document.getElementById('snake-restart').onclick = () => restart();
+	window.addEventListener('keydown', onKey);
+	
 	canvas.addEventListener('touchstart', touchStart, { passive: true });
 	canvas.addEventListener('touchend', touchEnd, { passive: true });
 	

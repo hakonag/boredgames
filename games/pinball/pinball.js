@@ -94,8 +94,6 @@ class PinballGame {
                 return;
             }
             
-            
-            
             if (['ArrowLeft', 'ArrowRight', ' '].includes(e.key)) {
                 e.preventDefault();
                 this.keys[e.key] = e.type === 'keydown';
@@ -103,7 +101,7 @@ class PinballGame {
                     this.launchBall();
                 }
             }
-        };
+        });
         document.addEventListener('keydown', this.keyHandler);
         document.addEventListener('keyup', this.keyHandler);
     }

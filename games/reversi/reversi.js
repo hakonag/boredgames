@@ -83,9 +83,7 @@ class ReversiGame {
             if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
                 return;
             }
-            
-            
-        };
+        });
         document.addEventListener('keydown', this.keyHandler);
     }
 

@@ -177,13 +177,13 @@ class Game2048 {
 
         const moved = JSON.stringify(oldBoard) !== JSON.stringify(this.board);
         if (moved) {
-            this.updateDisplayWithAnimation();
+            this.updateDisplayWithAnimation(oldBoard);
             setTimeout(() => {
                 this.addRandomTile();
                 this.updateDisplay();
                 this.moving = false;
                 this.checkGameOver();
-            }, 150);
+            }, 200);
         } else {
             this.moving = false;
         }
@@ -232,7 +232,7 @@ class Game2048 {
         }
     }
 
-    updateDisplayWithAnimation() {
+    updateDisplayWithAnimation(oldBoard) {
         const boardEl = document.getElementById('board-2048');
         if (!boardEl) return;
 
@@ -249,6 +249,9 @@ class Game2048 {
             }
         }
 
+        // Track which tiles from old board have been used
+        const usedOldTiles = Array(this.size).fill().map(() => Array(this.size).fill(false));
+
         // Add tiles with animation
         requestAnimationFrame(() => {
             for (let i = 0; i < this.size; i++) {
@@ -261,56 +264,75 @@ class Game2048 {
                         tile.className = `tile-2048 tile-${this.board[i][j]}`;
                         tile.textContent = this.board[i][j];
                         
-                        // Find source position in previous board
+                        // Find source position in old board
+                        let fromRow = i, fromCol = j;
                         let foundSource = false;
-                        if (this.prevBoard) {
-                            let fromRow = i, fromCol = j;
-                            
-                            // Search for matching tile in previous board
+                        
+                        if (oldBoard) {
+                            // Find matching tile in old board that could have moved here
                             for (let oldI = 0; oldI < this.size; oldI++) {
                                 for (let oldJ = 0; oldJ < this.size; oldJ++) {
-                                    const prevValue = this.prevBoard[oldI][oldJ];
-                                    const currValue = this.board[i][j];
+                                    if (usedOldTiles[oldI][oldJ]) continue;
                                     
-                                    // Check if this is a direct move (same value)
-                                    if (prevValue === currValue && (oldI !== i || oldJ !== j)) {
-                                        // Verify it's in the correct direction
-                                        if ((oldI === i && ((oldJ < j) || (oldJ > j))) || 
-                                            (oldJ === j && ((oldI < i) || (oldI > i)))) {
+                                    const oldValue = oldBoard[oldI][oldJ];
+                                    const newValue = this.board[i][j];
+                                    
+                                    // Check if this is the same tile (moved)
+                                    if (oldValue === newValue && (oldI !== i || oldJ !== j)) {
+                                        // Check if it's in the correct direction (same row or column)
+                                        if ((oldI === i && oldJ !== j) || (oldJ === j && oldI !== i)) {
                                             fromRow = oldI;
                                             fromCol = oldJ;
+                                            usedOldTiles[oldI][oldJ] = true;
                                             foundSource = true;
+                                            break;
                                         }
                                     }
-                                    // Check if this is a merged tile
-                                    else if (prevValue === currValue / 2 && (oldI !== i || oldJ !== j)) {
-                                        // Could be one of the merged tiles
-                                        if ((oldI === i && ((oldJ < j) || (oldJ > j))) || 
-                                            (oldJ === j && ((oldI < i) || (oldI > i)))) {
-                                            fromRow = oldI;
-                                            fromCol = oldJ;
-                                            foundSource = true;
+                                    // Check if this is a merged tile (one of the two that merged)
+                                    else if (oldValue === newValue / 2 && (oldI !== i || oldJ !== j)) {
+                                        // Check if it's in the correct direction
+                                        if ((oldI === i && oldJ !== j) || (oldJ === j && oldI !== i)) {
+                                            // Check if the other tile is also in the correct direction
+                                            let otherFound = false;
+                                            for (let otherI = 0; otherI < this.size; otherI++) {
+                                                for (let otherJ = 0; otherJ < this.size; otherJ++) {
+                                                    if (otherI === oldI && otherJ === oldJ) continue;
+                                                    if (usedOldTiles[otherI][otherJ]) continue;
+                                                    if (oldBoard[otherI][otherJ] === oldValue && 
+                                                        ((otherI === i && otherJ !== j) || (otherJ === j && otherI !== i))) {
+                                                        otherFound = true;
+                                                        break;
+                                                    }
+                                                }
+                                                if (otherFound) break;
+                                            }
+                                            if (otherFound) {
+                                                fromRow = oldI;
+                                                fromCol = oldJ;
+                                                usedOldTiles[oldI][oldJ] = true;
+                                                foundSource = true;
+                                                break;
+                                            }
                                         }
                                     }
                                 }
+                                if (foundSource) break;
                             }
-                            
-                            // Set animation properties if tile moved
-                            if (foundSource && (fromRow !== i || fromCol !== j)) {
-                                const deltaRow = i - fromRow;
-                                const deltaCol = j - fromCol;
-                                tile.style.setProperty('--delta-row', deltaRow);
-                                tile.style.setProperty('--delta-col', deltaCol);
-                                tile.classList.add('tile-sliding');
-                            }
+                        }
+                        
+                        // Set animation properties if tile moved
+                        if (foundSource && (fromRow !== i || fromCol !== j)) {
+                            const deltaRow = fromRow - i; // Negative = moving down, positive = moving up
+                            const deltaCol = fromCol - j; // Negative = moving right, positive = moving left
+                            tile.style.setProperty('--from-row', deltaRow);
+                            tile.style.setProperty('--from-col', deltaCol);
+                            tile.classList.add('tile-sliding');
+                        } else {
+                            // New tile (spawned randomly)
+                            tile.classList.add('tile-new');
                         }
                         
                         cell.appendChild(tile);
-                        
-                        // Mark as new tile if no source was found (randomly added)
-                        if (!foundSource) {
-                            tile.classList.add('tile-new');
-                        }
                     }
                 }
             }
@@ -492,18 +514,14 @@ function getGameSpecificStyles() {
         }
         
         .tile-sliding {
-            transform: translate(
-                calc(var(--delta-col, 0) * (100% + 10px)),
-                calc(var(--delta-row, 0) * (100% + 10px))
-            );
-            animation: slideIn 0.15s ease-out forwards;
+            animation: slideIn 0.2s ease-out forwards;
         }
         
         @keyframes slideIn {
             from {
                 transform: translate(
-                    calc(var(--delta-col, 0) * (100% + 10px)),
-                    calc(var(--delta-row, 0) * (100% + 10px))
+                    calc(var(--from-col, 0) * (100% + 10px)),
+                    calc(var(--from-row, 0) * (100% + 10px))
                 );
             }
             to {

@@ -352,22 +352,59 @@ function getGameSpecificStyles() {
             height: 14px;
         }
         @media (max-width: 768px) {
+            .mahjong-wrap {
+                max-width: 100%;
+                padding: 0 5px;
+            }
             .mahjong-header h1 {
                 font-size: 2rem;
+                margin-bottom: 15px;
             }
             .mahjong-stats {
                 flex-direction: column;
                 gap: 10px;
+                width: 100%;
             }
             .stat-box {
+                width: 100%;
+                padding: 12px 20px;
+            }
+            .stat-value {
+                font-size: 1.75rem;
+            }
+            .mahjong-game-area {
+                max-height: calc(100vh - 300px);
+                overflow-y: auto;
+                overflow-x: hidden;
                 width: 100%;
             }
             .mahjong-board {
                 max-width: 100%;
+                padding: 6px;
             }
             .mahjong-cell {
                 font-size: 1rem;
+                min-height: 24px;
+                min-width: 24px;
+            }
+            .mahjong-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+            .btn-secondary {
+                width: 100%;
+                min-height: 48px;
+                padding: 14px 20px;
+            }
+        }
+        @media (max-width: 480px) {
+            .mahjong-cell {
+                font-size: 0.85rem;
                 min-height: 20px;
+                min-width: 20px;
+            }
+            .mahjong-header h1 {
+                font-size: 1.75rem;
             }
         }
     `;

@@ -367,21 +367,51 @@ function getGameSpecificStyles() {
             height: 14px;
         }
         @media (max-width: 768px) {
+            .pong-wrap {
+                max-width: 100%;
+                padding: 0 5px;
+            }
             .pong-header h1 {
                 font-size: 2rem;
+                margin-bottom: 15px;
             }
             .pong-stats {
                 flex-direction: column;
                 gap: 10px;
+                width: 100%;
             }
             .stat-box {
                 width: 100%;
+                padding: 12px 20px;
+            }
+            .stat-value {
+                font-size: 1.75rem;
+            }
+            .pong-game-area {
+                width: 100%;
+                max-width: 100%;
+                padding: 5px;
+            }
+            #pong-canvas {
+                max-width: 100%;
+                height: auto;
             }
             .pong-buttons {
                 flex-direction: column;
+                width: 100%;
             }
             .btn-primary, .btn-secondary {
                 width: 100%;
+                min-height: 48px;
+                padding: 14px 20px;
+            }
+        }
+        @media (max-width: 480px) {
+            .pong-header h1 {
+                font-size: 1.75rem;
+            }
+            #pong-canvas {
+                max-width: 100%;
             }
         }
     `;

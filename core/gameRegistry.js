@@ -40,7 +40,7 @@ export const gameRegistry = [
         category: 'dice',
         initFunction: 'initYatzy',
         themeColor: '#845ef7',
-        enabled: false // Placeholder game
+        enabled: true
     },
     {
         id: 'ludo',
@@ -50,7 +50,7 @@ export const gameRegistry = [
         category: 'board',
         initFunction: 'initLudo',
         themeColor: '#f59f00',
-        enabled: false // Placeholder game
+        enabled: true
     },
     {
         id: 'tetris',

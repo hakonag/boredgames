@@ -263,6 +263,9 @@ export function getBaseGameStyles(gameId) {
                 max-height: 100vh;
                 margin: 0;
                 padding: 8px;
+                overflow-y: auto;
+                overflow-x: hidden;
+                justify-content: flex-start;
             }
             .back-button-shared {
                 top: 8px;
@@ -303,6 +306,7 @@ export function getBaseGameStyles(gameId) {
             .score-modal-content {
                 padding: 30px 20px;
                 margin: 20px;
+                max-width: calc(100vw - 40px);
             }
             .score-modal-content input {
                 min-height: 48px;
@@ -332,6 +336,19 @@ export function getBaseGameStyles(gameId) {
             .btn-primary, .btn-secondary {
                 padding: 12px 18px;
                 font-size: 0.9375rem;
+            }
+            .back-button-shared {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+            }
+        }
+        /* Extra small devices */
+        @media (max-width: 360px) {
+            .game-container #game-content h1 {
+                font-size: 1.5rem;
+            }
+            .stat-value {
+                font-size: 1.25rem;
             }
         }
     `;

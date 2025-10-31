@@ -73,7 +73,13 @@ class TicTacToeGame {
     }
 
     setupControls() {
-        };
+        this.keyHandler = setupHardReset('tictactoe', (e) => {
+            // Don't process shortcuts if user is typing in an input field
+            const activeElement = document.activeElement;
+            if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
+                return;
+            }
+        });
         document.addEventListener('keydown', this.keyHandler);
     }
 

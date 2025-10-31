@@ -1,14 +1,12 @@
 // Tetris Game Module
+import { createBackButton } from '../../core/gameUtils.js';
 import { displayHighScores, showScoreModal } from '../../core/highScores.js';
 
 let tetrisGame = null;
 
 export function init() {
     const gameContent = document.getElementById('game-content');
-    gameContent.innerHTML = `
-        <button class="back-button-tetris" onclick="window.location.href='https://hakonag.github.io/boredgames/'">
-            <i data-lucide="house"></i> boredgames
-        </button>
+    gameContent.innerHTML = createBackButton() + `
         <div class="tetris-game">
             <div id="tetris-fps" class="fps-indicator">60 fps</div>
             <div class="tetris-side-panel">
@@ -191,33 +189,6 @@ export function init() {
         .game-container #game-content, 
         .game-container #game-content * {
             font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol" !important;
-        }
-        .back-button-tetris {
-            position: fixed;
-            top: 15px;
-            left: 15px;
-            background: #f8f9fa;
-            color: #111;
-            border: 1px solid #dee2e6;
-            padding: 6px 10px;
-            border-radius: 0;
-            font-size: 0.75rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            z-index: 10000;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-weight: 600;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        .back-button-tetris:hover {
-            background: #e9ecef;
-            border-color: #adb5bd;
-        }
-        .back-button-tetris i {
-            width: 14px;
-            height: 14px;
         }
         .tetris-game {
             display: flex;
@@ -651,12 +622,6 @@ export function init() {
                 max-height: 100vh;
                 margin: 0;
                 padding: 10px;
-            }
-            .back-button-tetris {
-                top: 10px;
-                left: 10px;
-                padding: 8px 10px;
-                font-size: 0.7rem;
             }
             .fps-indicator {
                 top: 50px;

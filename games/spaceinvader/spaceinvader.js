@@ -1,4 +1,5 @@
 // Space Invader MVP
+import { createBackButton } from '../../core/gameUtils.js';
 import { injectGameStyles, removeGameStyles } from '../../core/gameStyles.js';
 
 let invader = null;
@@ -6,10 +7,7 @@ let invader = null;
 export function init() {
     const root = document.getElementById('game-content');
     if (!root) return;
-    root.innerHTML = `
-        <button class="back-button-tetris" onclick="window.location.href='https://hakonag.github.io/boredgames/'">
-            <i data-lucide=\"house\"></i> boredgames
-        </button>
+    root.innerHTML = createBackButton() + `
         <div class="si-wrap">
             <div class="si-left">
                 <canvas id="si-canvas" width="800" height="500"></canvas>
