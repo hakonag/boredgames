@@ -1,6 +1,6 @@
 // Main entry point - Uses game registry and dynamic loading
 import { gameRegistry, getEnabledGames } from './gameRegistry.js';
-import { loadGame } from './gameLoader.js';
+import { loadGame, updateFavicon } from './gameLoader.js';
 
 // Initialize homepage with games from registry
 document.addEventListener('DOMContentLoaded', () => {
@@ -13,6 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
             loadGame(gameFromUrl);
         }, 600);
     } else {
+        // Ensure favicon is set to game controller for home page
+        updateFavicon('🎮');
         // Simulate quick intro loading then render grid
         setTimeout(() => {
             setupSearchAndSort();

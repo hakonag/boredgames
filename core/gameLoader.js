@@ -22,6 +22,12 @@ export function loadGame(gameId) {
     gameContainer.classList.remove('hidden');
     showGameLoader(gameId);
     
+    // Update favicon to game emoji
+    const game = gameRegistry.find(g => g.id === gameId);
+    if (game && game.icon) {
+        updateFavicon(game.icon, gameId);
+    }
+    
     // Clear previous game
     gameContent.innerHTML = '';
     
@@ -73,6 +79,9 @@ function goBackToHome() {
     const gameContainer = document.getElementById('game-container');
     container.classList.remove('hidden');
     gameContainer.classList.add('hidden');
+    
+    // Reset favicon to default
+    updateFavicon('🎮');
 }
 
 // Make goHome available globally for onclick handlers
@@ -130,5 +139,32 @@ function hideGameLoader() {
     if (!overlay) return;
     overlay.classList.add('hidden');
     overlay.innerHTML = '';
+}
+
+/**
+ * Updates the favicon to show the game emoji
+ * @param {string} emoji - The emoji to display in the favicon
+ * @param {string} gameId - Optional game ID for title update
+ */
+export function updateFavicon(emoji, gameId = null) {
+    // Remove existing favicon links
+    const existingLinks = document.querySelectorAll('link[rel="icon"]');
+    existingLinks.forEach(link => link.remove());
+    
+    // Create new favicon link with emoji
+    const link = document.createElement('link');
+    link.rel = 'icon';
+    link.href = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>${emoji}</text></svg>`;
+    document.head.appendChild(link);
+    
+    // Update title based on game
+    if (gameId) {
+        const game = gameRegistry.find(g => g.id === gameId);
+        if (game) {
+            document.title = `${game.name} - BoredGames`;
+        }
+    } else if (emoji === '🎮') {
+        document.title = 'Bored Games - Spill når du kjeder deg';
+    }
 }
 
