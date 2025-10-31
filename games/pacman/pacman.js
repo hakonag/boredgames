@@ -139,14 +139,60 @@ class PacmanGame {
                     this.pacman.nextDirection = null;
                 }
             }
-        };
+        });
         document.addEventListener('keydown', this.keyHandler);
         document.addEventListener('keyup', this.keyHandler);
+        
+        // Touch/swipe controls for mobile
+        let touchStartX, touchStartY;
+        this.touchStart = (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        };
+        this.touchEnd = (e) => {
+            if (!touchStartX || !touchStartY) return;
+            const touchEndX = e.changedTouches[0].clientX;
+            const touchEndY = e.changedTouches[0].clientY;
+            const diffX = touchEndX - touchStartX;
+            const diffY = touchEndY - touchStartY;
+            const absX = Math.abs(diffX);
+            const absY = Math.abs(diffY);
+            
+            if (Math.max(absX, absY) > 30) {
+                if (absX > absY) {
+                    // Horizontal swipe
+                    this.currentKey = diffX > 0 ? 'right' : 'left';
+                    this.pacman.nextDirection = this.currentKey;
+                } else {
+                    // Vertical swipe
+                    this.currentKey = diffY > 0 ? 'down' : 'up';
+                    this.pacman.nextDirection = this.currentKey;
+                }
+                // Clear direction after a short delay
+                setTimeout(() => {
+                    if (this.currentKey) {
+                        this.currentKey = null;
+                        this.pacman.nextDirection = null;
+                    }
+                }, 100);
+            }
+            touchStartX = touchStartY = null;
+        };
+        const canvas = document.getElementById('pacman-canvas');
+        if (canvas) {
+            canvas.addEventListener('touchstart', this.touchStart, { passive: true });
+            canvas.addEventListener('touchend', this.touchEnd, { passive: true });
+        }
     }
 
     removeControls() {
         document.removeEventListener('keydown', this.keyHandler);
         document.removeEventListener('keyup', this.keyHandler);
+        const canvas = document.getElementById('pacman-canvas');
+        if (canvas && this.touchStart && this.touchEnd) {
+            canvas.removeEventListener('touchstart', this.touchStart);
+            canvas.removeEventListener('touchend', this.touchEnd);
+        }
     }
 
     start() {

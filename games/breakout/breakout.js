@@ -1,11 +1,12 @@
 // Breakout Game Module
+import { createBackButton, setupScrollPrevention, removeScrollPrevention, setupHardReset } from '../../core/gameUtils.js';
+import { injectGameStyles, removeGameStyles } from '../../core/gameStyles.js';
 
 let breakoutGame = null;
 
 export function init() {
     const gameContent = document.getElementById('game-content');
-    gameContent.innerHTML = `
-        createBackButton() + `
+    gameContent.innerHTML = createBackButton() + `
         <div class="breakout-wrap">
             <div class="breakout-main">
                 <div class="breakout-header">
@@ -125,16 +126,22 @@ class BreakoutGame {
         
         this.mouseHandler = (e) => {
             const rect = this.canvas.getBoundingClientRect();
-            this.paddle.x = e.clientX - rect.left - this.paddle.width/2;
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            this.paddle.x = clientX - rect.left - this.paddle.width/2;
             this.paddle.x = Math.max(0, Math.min(this.width - this.paddle.width, this.paddle.x));
         };
         this.canvas.addEventListener('mousemove', this.mouseHandler);
+        // Touch controls for mobile
+        this.canvas.addEventListener('touchmove', this.mouseHandler, { passive: true });
     }
 
     removeControls() {
         document.removeEventListener('keydown', this.keyHandler);
         document.removeEventListener('keyup', this.keyHandler);
-        this.canvas.removeEventListener('mousemove', this.mouseHandler);
+        if (this.canvas) {
+            this.canvas.removeEventListener('mousemove', this.mouseHandler);
+            this.canvas.removeEventListener('touchmove', this.mouseHandler);
+        }
     }
 
     start() {

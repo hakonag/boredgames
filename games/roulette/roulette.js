@@ -1,13 +1,12 @@
 // Roulette MVP
+import { createBackButton, setupScrollPrevention, removeScrollPrevention, setupHardReset } from '../../core/gameUtils.js';
+import { injectGameStyles, removeGameStyles } from '../../core/gameStyles.js';
 let rouletteHandlers = [];
 
 export function init() {
     const gameContent = document.getElementById('game-content');
     if (!gameContent) return;
-    gameContent.innerHTML = `
-        <button class="back-button-tetris" onclick="window.goHome()">
-            <i data-lucide="arrow-left"></i> Tilbake
-        </button>
+    gameContent.innerHTML = createBackButton() + `
         <div class="roulette-wrap">
             <div class="roulette-left">
                 <div class="roulette-wheel">
@@ -37,6 +36,8 @@ export function init() {
     `;
     injectGameStyles('roulette', getGameSpecificStyles());
     if (typeof lucide !== 'undefined') lucide.createIcons();
+    
+    setupScrollPrevention('roulette');
 
     const segments = buildSegments();
     drawWheel(document.getElementById('wheel-inner'), segments);
@@ -90,15 +91,9 @@ export function init() {
     const showResult = (t) => { $("roul-result").textContent = t; };
 
     // R shortcut for hard refresh
-    const rHandler = (e) => {
-        // Don't process shortcuts if user is typing in an input field
-        const activeElement = document.activeElement;
-        if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
-            return;
-        }
-        
-        
-    };
+    const rHandler = setupHardReset('roulette', () => {
+        // Additional key handling if needed
+    });
     addHandler(document, 'keydown', rHandler);
     
     // UI handlers
@@ -120,9 +115,8 @@ export function cleanup() {
     // remove listeners
     rouletteHandlers.forEach(([el, evt, fn]) => { try { el.removeEventListener(evt, fn); } catch {} });
     rouletteHandlers = [];
-    // remove injected style
-    const s = document.getElementById('roulette-style');
-        removeGameStyles('roulette');
+    removeScrollPrevention('roulette');
+    removeGameStyles('roulette');
 }
 
 function getGameSpecificStyles() {

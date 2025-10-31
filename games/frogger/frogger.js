@@ -1,11 +1,12 @@
 // Frogger Game Module
+import { createBackButton, setupScrollPrevention, removeScrollPrevention, setupHardReset } from '../../core/gameUtils.js';
+import { injectGameStyles, removeGameStyles } from '../../core/gameStyles.js';
 
 let froggerGame = null;
 
 export function init() {
     const gameContent = document.getElementById('game-content');
-    gameContent.innerHTML = `
-        createBackButton() + `
+    gameContent.innerHTML = createBackButton() + `
         <div class="frogger-wrap">
             <div class="frogger-main">
                 <div class="frogger-header">
@@ -96,14 +97,45 @@ class FroggerGame {
                     this.moveFrog(e.key.replace('Arrow', '').toLowerCase());
                 }
             }
-        };
+        });
         document.addEventListener('keydown', this.keyHandler);
         document.addEventListener('keyup', this.keyHandler);
+        
+        // Touch/swipe controls for mobile
+        let touchStartX, touchStartY;
+        this.touchStart = (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        };
+        this.touchEnd = (e) => {
+            if (!touchStartX || !touchStartY) return;
+            const touchEndX = e.changedTouches[0].clientX;
+            const touchEndY = e.changedTouches[0].clientY;
+            const diffX = touchEndX - touchStartX;
+            const diffY = touchEndY - touchStartY;
+            const absX = Math.abs(diffX);
+            const absY = Math.abs(diffY);
+            
+            if (Math.max(absX, absY) > 30) {
+                if (absX > absY) {
+                    this.moveFrog(diffX > 0 ? 'right' : 'left');
+                } else {
+                    this.moveFrog(diffY > 0 ? 'down' : 'up');
+                }
+            }
+            touchStartX = touchStartY = null;
+        };
+        this.canvas.addEventListener('touchstart', this.touchStart, { passive: true });
+        this.canvas.addEventListener('touchend', this.touchEnd, { passive: true });
     }
 
     removeControls() {
         document.removeEventListener('keydown', this.keyHandler);
         document.removeEventListener('keyup', this.keyHandler);
+        if (this.canvas && this.touchStart && this.touchEnd) {
+            this.canvas.removeEventListener('touchstart', this.touchStart);
+            this.canvas.removeEventListener('touchend', this.touchEnd);
+        }
     }
 
     moveFrog(direction) {

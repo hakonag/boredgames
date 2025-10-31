@@ -59,6 +59,7 @@ class Game1010 {
         this.score = 0;
         this.lines = 0;
         this.selectedPiece = null;
+        this.draggingPiece = null;
         this.dragOffset = { x: 0, y: 0 };
         this.pieces = [];
         this.setupControls();
@@ -128,20 +129,21 @@ class Game1010 {
         piece.placed = true;
         this.score += piece.shape.flat().filter(x => x === 1).length * 10;
         this.clearLines();
-        this.updateDisplay();
-
-        // Check if game over
+        
+        // Generate new pieces if all are placed
         if (this.pieces.every(p => p.placed)) {
             this.generatePieces();
         }
 
-        // Check if no moves possible
-        if (!this.canPlaceAnyPiece()) {
-            setTimeout(() => {
-                alert('Spill over! Ingen flere trekk mulig.');
+        this.updateDisplay();
+
+        // Check if no moves possible (after generating new pieces)
+        setTimeout(() => {
+            if (!this.canPlaceAnyPiece()) {
+                alert('Spill over! Ingen flere trekk mulig. Final score: ' + this.score.toLocaleString());
                 this.newGame();
-            }, 100);
-        }
+            }
+        }, 100);
 
         return true;
     }
@@ -232,6 +234,7 @@ class Game1010 {
                 pieceEl.style.width = `${piece.shape[0].length * 30}px`;
                 pieceEl.style.height = `${piece.shape.length * 30}px`;
                 pieceEl.draggable = true;
+                pieceEl.touchAction = 'none';
 
                 piece.shape.forEach((row, i) => {
                     row.forEach((cell, j) => {
@@ -243,13 +246,65 @@ class Game1010 {
                     });
                 });
 
+                // Drag handlers
                 pieceEl.addEventListener('dragstart', (e) => {
                     this.selectedPiece = piece;
+                    this.draggingPiece = piece;
                     e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('text/plain', ''); // Required for some browsers
+                    pieceEl.classList.add('dragging');
+                    
+                    // Create ghost preview
+                    this.createDragPreview(piece, e);
                 });
 
-                pieceEl.addEventListener('click', () => {
+                pieceEl.addEventListener('dragend', (e) => {
+                    pieceEl.classList.remove('dragging');
+                    this.removeDragPreview();
+                    this.selectedPiece = null;
+                    this.draggingPiece = null;
+                    this.clearBoardPreview();
+                });
+
+                // Touch support
+                let touchStartX = 0;
+                let touchStartY = 0;
+                pieceEl.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
                     this.selectedPiece = piece;
+                    this.draggingPiece = piece;
+                    const touch = e.touches[0];
+                    touchStartX = touch.clientX;
+                    touchStartY = touch.clientY;
+                    pieceEl.classList.add('dragging');
+                }, { passive: false });
+
+                pieceEl.addEventListener('touchmove', (e) => {
+                    e.preventDefault();
+                    if (!this.selectedPiece) return;
+                    const touch = e.touches[0];
+                    const deltaX = touch.clientX - touchStartX;
+                    const deltaY = touch.clientY - touchStartY;
+                    pieceEl.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+                }, { passive: false });
+
+                pieceEl.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    pieceEl.classList.remove('dragging');
+                    pieceEl.style.transform = '';
+                    this.selectedPiece = null;
+                    this.draggingPiece = null;
+                }, { passive: false });
+
+                pieceEl.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.selectedPiece = piece;
+                    pieceEl.classList.add('selected');
+                    // Remove selection from other pieces
+                    piecesEl.querySelectorAll('.piece-1010').forEach(p => {
+                        if (p !== pieceEl) p.classList.remove('selected');
+                    });
                 });
 
                 piecesEl.appendChild(pieceEl);
@@ -259,31 +314,134 @@ class Game1010 {
         // Add drop handlers to board cells
         if (boardEl) {
             boardEl.querySelectorAll('.cell-1010').forEach(cell => {
+                // Prevent zoom on mobile
+                cell.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                }, { passive: false });
+
                 cell.addEventListener('dragover', (e) => {
                     e.preventDefault();
+                    e.stopPropagation();
                     e.dataTransfer.dropEffect = 'move';
+                    
+                    if (this.draggingPiece) {
+                        const row = parseInt(cell.dataset.row);
+                        const col = parseInt(cell.dataset.col);
+                        this.showBoardPreview(this.draggingPiece, row, col);
+                    }
+                });
+
+                cell.addEventListener('dragleave', (e) => {
+                    e.preventDefault();
+                    this.clearBoardPreview();
                 });
 
                 cell.addEventListener('drop', (e) => {
                     e.preventDefault();
+                    e.stopPropagation();
+                    this.clearBoardPreview();
                     if (this.selectedPiece) {
                         const row = parseInt(cell.dataset.row);
                         const col = parseInt(cell.dataset.col);
                         this.placePiece(this.selectedPiece.id, row, col);
                         this.selectedPiece = null;
+                        this.draggingPiece = null;
                     }
                 });
 
-                cell.addEventListener('click', () => {
+                cell.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
                     if (this.selectedPiece) {
                         const row = parseInt(cell.dataset.row);
                         const col = parseInt(cell.dataset.col);
-                        this.placePiece(this.selectedPiece.id, row, col);
-                        this.selectedPiece = null;
+                        const placed = this.placePiece(this.selectedPiece.id, row, col);
+                        if (placed) {
+                            this.selectedPiece = null;
+                            // Clear selection
+                            piecesEl.querySelectorAll('.piece-1010').forEach(p => {
+                                p.classList.remove('selected');
+                            });
+                        }
                     }
                 });
             });
         }
+    }
+    
+    createDragPreview(piece, e) {
+        // Ghost preview is handled by CSS drag image
+        const dragImg = document.createElement('div');
+        dragImg.style.position = 'absolute';
+        dragImg.style.top = '-1000px';
+        dragImg.style.opacity = '0.5';
+        dragImg.style.pointerEvents = 'none';
+        dragImg.className = 'piece-1010 preview';
+        dragImg.style.gridTemplateColumns = `repeat(${piece.shape[0].length}, 1fr)`;
+        dragImg.style.gridTemplateRows = `repeat(${piece.shape.length}, 1fr)`;
+        dragImg.style.width = `${piece.shape[0].length * 30}px`;
+        dragImg.style.height = `${piece.shape.length * 30}px`;
+        
+        piece.shape.forEach((row, i) => {
+            row.forEach((cell, j) => {
+                if (cell === 1) {
+                    const block = document.createElement('div');
+                    block.className = 'piece-block-1010';
+                    dragImg.appendChild(block);
+                }
+            });
+        });
+        
+        document.body.appendChild(dragImg);
+        e.dataTransfer.setDragImage(dragImg, dragImg.offsetWidth / 2, dragImg.offsetHeight / 2);
+    }
+    
+    removeDragPreview() {
+        const preview = document.querySelector('.piece-1010.preview');
+        if (preview) preview.remove();
+    }
+    
+    showBoardPreview(piece, row, col) {
+        // Clear previous preview
+        this.clearBoardPreview();
+        
+        // Check if piece can fit
+        let canFit = true;
+        for (let i = 0; i < piece.shape.length; i++) {
+            for (let j = 0; j < piece.shape[i].length; j++) {
+                if (piece.shape[i][j] === 1) {
+                    const r = row + i;
+                    const c = col + j;
+                    if (r < 0 || r >= this.size || c < 0 || c >= this.size || this.board[r][c] !== 0) {
+                        canFit = false;
+                        break;
+                    }
+                }
+            }
+            if (!canFit) break;
+        }
+        
+        if (canFit) {
+            // Show preview on board
+            for (let i = 0; i < piece.shape.length; i++) {
+                for (let j = 0; j < piece.shape[i].length; j++) {
+                    if (piece.shape[i][j] === 1) {
+                        const r = row + i;
+                        const c = col + j;
+                        const cell = document.querySelector(`.cell-1010[data-row="${r}"][data-col="${c}"]`);
+                        if (cell && !cell.classList.contains('filled')) {
+                            cell.classList.add('preview');
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    clearBoardPreview() {
+        document.querySelectorAll('.cell-1010.preview').forEach(cell => {
+            cell.classList.remove('preview');
+        });
     }
 
     setupControls() {
@@ -358,9 +516,15 @@ function getGameSpecificStyles() {
             background: #fff;
             border-radius: 0;
             aspect-ratio: 1;
+            touch-action: none;
+            -webkit-tap-highlight-color: transparent;
         }
         .cell-1010.filled {
             background: #4a90e2;
+        }
+        .cell-1010.preview {
+            background: #9ec8f0;
+            border: 2px dashed #4a90e2;
         }
         .game-1010-pieces {
             display: flex;
@@ -378,9 +542,24 @@ function getGameSpecificStyles() {
             background: #f8f9fa;
             border-radius: 0;
             border: 2px solid #dee2e6;
+            transition: all 0.2s ease;
+            touch-action: none;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
         }
         .piece-1010:hover {
             border-color: #4a90e2;
+            transform: scale(1.05);
+        }
+        .piece-1010.selected {
+            border-color: #4a90e2;
+            border-width: 3px;
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.3);
+        }
+        .piece-1010.dragging {
+            opacity: 0.5;
+            cursor: grabbing;
+            transform: scale(0.9);
         }
         .piece-1010:active {
             cursor: grabbing;
@@ -422,7 +601,23 @@ function getGameSpecificStyles() {
                 max-width: 100%;
             }
             .piece-1010 {
-                transform: scale(0.8);
+                transform: scale(0.9);
+            }
+            .piece-1010:hover {
+                transform: scale(0.95);
+            }
+            .piece-1010.selected {
+                transform: scale(1);
+            }
+            
+            /* Prevent zoom on double tap */
+            * {
+                touch-action: manipulation;
+            }
+            
+            .cell-1010, .piece-1010 {
+                -webkit-user-select: none;
+                user-select: none;
             }
         }
     `;

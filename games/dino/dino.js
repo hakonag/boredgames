@@ -1,12 +1,13 @@
 // Chrome Dino Game Module
+import { createBackButton, setupScrollPrevention, removeScrollPrevention, setupHardReset } from '../../core/gameUtils.js';
+import { injectGameStyles, removeGameStyles } from '../../core/gameStyles.js';
 import { displayHighScores, showScoreModal } from '../../core/highScores.js';
 
 let dinoGame = null;
 
 export function init() {
     const gameContent = document.getElementById('game-content');
-    gameContent.innerHTML = `
-        createBackButton() + `
+    gameContent.innerHTML = createBackButton() + `
         <div class="dino-wrap">
             <div class="dino-main">
                 <div class="dino-header">
@@ -117,7 +118,8 @@ class DinoGame {
 
     setupControls() {
         this.keys = {};
-        if ([' ', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
+        this.keyHandler = setupHardReset('dino', (e) => {
+            if ([' ', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
                 e.preventDefault();
                 if (e.type === 'keydown') {
                     if (e.key === ' ' || e.key === 'ArrowUp') {
@@ -131,7 +133,7 @@ class DinoGame {
                     this.duck(false);
                 }
             }
-        };
+        });
         document.addEventListener('keydown', this.keyHandler);
         document.addEventListener('keyup', this.keyHandler);
     }

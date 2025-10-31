@@ -79,12 +79,46 @@ export function init() {
 		speedMs: 110,
 		running: true,
 		preventKeys,
+		touchStart,
+		touchEnd,
 		rafId: 0,
 	};
 
 	updateScore();
 	document.getElementById('snake-restart').onclick = () => restart();
 	window.addEventListener('keydown', onKey);
+	
+	// Touch/swipe controls for mobile
+	let touchStartX, touchStartY;
+	const touchStart = (e) => {
+		touchStartX = e.touches[0].clientX;
+		touchStartY = e.touches[0].clientY;
+	};
+	const touchEnd = (e) => {
+		if (!touchStartX || !touchStartY) return;
+		const touchEndX = e.changedTouches[0].clientX;
+		const touchEndY = e.changedTouches[0].clientY;
+		const diffX = touchEndX - touchStartX;
+		const diffY = touchEndY - touchStartY;
+		const absX = Math.abs(diffX);
+		const absY = Math.abs(diffY);
+		
+		if (Math.max(absX, absY) > 30) {
+			if (absX > absY) {
+				// Horizontal swipe
+				if (diffX > 0 && state.dir.x !== -1) state.nextDir = { x: 1, y: 0 };
+				else if (diffX < 0 && state.dir.x !== 1) state.nextDir = { x: -1, y: 0 };
+			} else {
+				// Vertical swipe
+				if (diffY > 0 && state.dir.y !== -1) state.nextDir = { x: 0, y: 1 };
+				else if (diffY < 0 && state.dir.y !== 1) state.nextDir = { x: 0, y: -1 };
+			}
+		}
+		touchStartX = touchStartY = null;
+	};
+	canvas.addEventListener('touchstart', touchStart, { passive: true });
+	canvas.addEventListener('touchend', touchEnd, { passive: true });
+	
 	state.rafId = requestAnimationFrame(loop);
 
 	function spawnFood() {
@@ -209,6 +243,12 @@ export function cleanup() {
 		if (state) {
 			cancelAnimationFrame(state.rafId);
 			window.removeEventListener('keydown', state.preventKeys);
+			const canvas = document.getElementById('snake-canvas');
+			if (canvas) {
+				// Remove touch listeners if they exist
+				canvas.removeEventListener('touchstart', state.touchStart);
+				canvas.removeEventListener('touchend', state.touchEnd);
+			}
 		}
 	} catch {}
 	const style = document.getElementById('snake-styles');

@@ -1,11 +1,12 @@
 // Battleship Game Module
+import { createBackButton, setupScrollPrevention, removeScrollPrevention, setupHardReset } from '../../core/gameUtils.js';
+import { injectGameStyles, removeGameStyles } from '../../core/gameStyles.js';
 
 let battleshipGame = null;
 
 export function init() {
     const gameContent = document.getElementById('game-content');
-    gameContent.innerHTML = `
-        createBackButton() + `
+    gameContent.innerHTML = createBackButton() + `
         <div class="battleship-wrap">
             <div class="battleship-main">
                 <div class="battleship-header">

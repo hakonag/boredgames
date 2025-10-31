@@ -95,11 +95,35 @@ class PongGame {
         });
         document.addEventListener('keydown', this.keyHandler);
         document.addEventListener('keyup', this.keyHandler);
+        
+        // Touch controls for mobile - paddle follows touch position
+        this.touchHandler = (e) => {
+            if (!this.isRunning || this.isPaused) return;
+            const rect = this.canvas.getBoundingClientRect();
+            const touch = e.touches ? e.touches[0] : e;
+            const touchY = touch.clientY - rect.top;
+            const touchX = touch.clientX - rect.left;
+            
+            // Determine which paddle to move based on touch position
+            if (touchX < this.width / 2) {
+                // Left side - move paddle 1
+                this.paddle1.y = Math.max(0, Math.min(this.height - this.paddle1.height, touchY - this.paddle1.height / 2));
+            } else {
+                // Right side - move paddle 2
+                this.paddle2.y = Math.max(0, Math.min(this.height - this.paddle2.height, touchY - this.paddle2.height / 2));
+            }
+        };
+        this.canvas.addEventListener('touchmove', this.touchHandler, { passive: true });
+        this.canvas.addEventListener('mousemove', this.touchHandler);
     }
 
     removeControls() {
         document.removeEventListener('keydown', this.keyHandler);
         document.removeEventListener('keyup', this.keyHandler);
+        if (this.canvas && this.touchHandler) {
+            this.canvas.removeEventListener('touchmove', this.touchHandler);
+            this.canvas.removeEventListener('mousemove', this.touchHandler);
+        }
     }
 
     start() {

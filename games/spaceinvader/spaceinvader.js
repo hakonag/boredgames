@@ -1,4 +1,5 @@
 // Space Invader MVP
+import { injectGameStyles, removeGameStyles } from '../../core/gameStyles.js';
 
 let invader = null;
 
@@ -88,6 +89,24 @@ class SpaceInvader {
         this.onKeyUp = (e) => this.keys.delete(e.key);
         document.addEventListener('keydown', this.onKeyDown, { passive: false });
         document.addEventListener('keyup', this.onKeyUp, { passive: false });
+        
+        // Touch controls for mobile
+        this.touchHandler = (e) => {
+            if (!this.running || this.paused) return;
+            const rect = this.canvas.getBoundingClientRect();
+            const touch = e.touches ? e.touches[0] : e;
+            const touchX = touch.clientX - rect.left;
+            
+            // Move player to touch position
+            this.player.x = Math.max(this.player.w/2, Math.min(this.w - this.player.w/2, touchX));
+        };
+        this.canvas.addEventListener('touchmove', this.touchHandler, { passive: true });
+        this.canvas.addEventListener('touchend', () => {
+            // Shoot on touch end
+            if (this.running && !this.paused) {
+                this.shoot();
+            }
+        }, { passive: true });
     }
 
     start() {
@@ -114,6 +133,9 @@ class SpaceInvader {
         if (this.req) cancelAnimationFrame(this.req);
         document.removeEventListener('keydown', this.onKeyDown);
         document.removeEventListener('keyup', this.onKeyUp);
+        if (this.canvas && this.touchHandler) {
+            this.canvas.removeEventListener('touchmove', this.touchHandler);
+        }
     }
 
     buildInvaders() {

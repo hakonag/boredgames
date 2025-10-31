@@ -1,11 +1,12 @@
 // Asteroids Game Module
+import { createBackButton, setupScrollPrevention, removeScrollPrevention, setupHardReset } from '../../core/gameUtils.js';
+import { injectGameStyles, removeGameStyles } from '../../core/gameStyles.js';
 
 let asteroidsGame = null;
 
 export function init() {
     const gameContent = document.getElementById('game-content');
-    gameContent.innerHTML = `
-        createBackButton() + `
+    gameContent.innerHTML = createBackButton() + `
         <div class="asteroids-wrap">
             <div class="asteroids-main">
                 <div class="asteroids-header">
@@ -104,14 +105,54 @@ class AsteroidsGame {
                     this.shoot();
                 }
             }
-        };
+        });
         document.addEventListener('keydown', this.keyHandler);
         document.addEventListener('keyup', this.keyHandler);
+        
+        // Touch controls for mobile - swipe for rotation/movement
+        let touchStartX, touchStartY;
+        this.touchStart = (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        };
+        this.touchMove = (e) => {
+            if (!touchStartX || !touchStartY || !this.isRunning) return;
+            const touch = e.touches[0];
+            const diffX = touch.clientX - touchStartX;
+            const diffY = touch.clientY - touchStartY;
+            
+            // Rotate ship based on horizontal swipe
+            if (Math.abs(diffX) > 10) {
+                this.ship.angle += diffX > 0 ? 0.05 : -0.05;
+            }
+            // Thrust based on vertical swipe up
+            if (diffY < -20) {
+                this.keys['ArrowUp'] = true;
+            }
+            touchStartX = touch.clientX;
+            touchStartY = touch.clientY;
+        };
+        this.touchEnd = (e) => {
+            // Shoot on touch end
+            if (this.isRunning) {
+                this.shoot();
+            }
+            this.keys['ArrowUp'] = false;
+            touchStartX = touchStartY = null;
+        };
+        this.canvas.addEventListener('touchstart', this.touchStart, { passive: true });
+        this.canvas.addEventListener('touchmove', this.touchMove, { passive: true });
+        this.canvas.addEventListener('touchend', this.touchEnd, { passive: true });
     }
 
     removeControls() {
         document.removeEventListener('keydown', this.keyHandler);
         document.removeEventListener('keyup', this.keyHandler);
+        if (this.canvas && this.touchStart && this.touchMove && this.touchEnd) {
+            this.canvas.removeEventListener('touchstart', this.touchStart);
+            this.canvas.removeEventListener('touchmove', this.touchMove);
+            this.canvas.removeEventListener('touchend', this.touchEnd);
+        }
     }
 
     initAsteroids() {

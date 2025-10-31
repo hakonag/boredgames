@@ -25,6 +25,16 @@
             <p class="subtitle">Games to play when you are bored!</p>
         </header>
 
+        <div class="search-sort-container">
+            <div class="search-wrapper">
+                <input type="text" id="game-search" class="game-search" placeholder="Søk etter spill...">
+                <i data-lucide="search" class="search-icon"></i>
+            </div>
+            <button id="sort-toggle" class="sort-button" title="Sorter A-Z / Z-A">
+                <i data-lucide="arrow-up-down" id="sort-icon"></i>
+            </button>
+        </div>
+
         <main class="games-grid">
             <!-- Game cards will be dynamically generated from game registry -->
         </main>

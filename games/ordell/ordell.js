@@ -303,7 +303,7 @@ class OrdellGame {
             } else if (e.key === 'Enter') {
                 this.submitGuess();
             }
-        };
+        });
         document.addEventListener('keydown', this.keyHandler);
     }
     

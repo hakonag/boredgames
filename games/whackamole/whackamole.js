@@ -1,11 +1,12 @@
 // Whack-a-Mole Game Module
+import { createBackButton, setupScrollPrevention, removeScrollPrevention, setupHardReset } from '../../core/gameUtils.js';
+import { injectGameStyles, removeGameStyles } from '../../core/gameStyles.js';
 
 let whackamoleGame = null;
 
 export function init() {
     const gameContent = document.getElementById('game-content');
-    gameContent.innerHTML = `
-        createBackButton() + `
+    gameContent.innerHTML = createBackButton() + `
         <div class="whackamole-wrap">
             <div class="whackamole-main">
                 <div class="whackamole-header">
@@ -74,7 +75,9 @@ class WhackAMoleGame {
     }
 
     setupControls() {
-        };
+        this.keyHandler = setupHardReset('whackamole', (e) => {
+            // Game-specific controls if needed
+        });
         document.addEventListener('keydown', this.keyHandler);
     }
 

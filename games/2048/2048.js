@@ -74,6 +74,8 @@ class Game2048 {
         this.board = [];
         this.score = 0;
         this.best = parseInt(localStorage.getItem('2048-best') || '0');
+        this.prevBoard = null;
+        this.moving = false;
         this.setupControls();
         this.newGame();
     }
@@ -100,7 +102,10 @@ class Game2048 {
     }
 
     move(direction) {
+        if (this.moving) return; // Prevent moves during animation
         const oldBoard = this.board.map(row => [...row]);
+        this.prevBoard = oldBoard.map(row => [...row]);
+        this.moving = true;
 
         if (direction === 'left') {
             for (let i = 0; i < this.size; i++) {
@@ -172,9 +177,15 @@ class Game2048 {
 
         const moved = JSON.stringify(oldBoard) !== JSON.stringify(this.board);
         if (moved) {
-            this.addRandomTile();
-            this.updateDisplay();
-            this.checkGameOver();
+            this.updateDisplayWithAnimation();
+            setTimeout(() => {
+                this.addRandomTile();
+                this.updateDisplay();
+                this.moving = false;
+                this.checkGameOver();
+            }, 150);
+        } else {
+            this.moving = false;
         }
     }
 
@@ -219,6 +230,91 @@ class Game2048 {
                 this.newGame();
             }, 100);
         }
+    }
+
+    updateDisplayWithAnimation() {
+        const boardEl = document.getElementById('board-2048');
+        if (!boardEl) return;
+
+        boardEl.innerHTML = '';
+        
+        // Create cell grid structure
+        for (let i = 0; i < this.size; i++) {
+            for (let j = 0; j < this.size; j++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell-2048';
+                cell.dataset.row = i;
+                cell.dataset.col = j;
+                boardEl.appendChild(cell);
+            }
+        }
+
+        // Add tiles with animation
+        requestAnimationFrame(() => {
+            for (let i = 0; i < this.size; i++) {
+                for (let j = 0; j < this.size; j++) {
+                    if (this.board[i][j] !== 0) {
+                        const cell = boardEl.querySelector(`.cell-2048[data-row="${i}"][data-col="${j}"]`);
+                        if (!cell) continue;
+                        
+                        const tile = document.createElement('div');
+                        tile.className = `tile-2048 tile-${this.board[i][j]}`;
+                        tile.textContent = this.board[i][j];
+                        
+                        // Find source position in previous board
+                        let foundSource = false;
+                        if (this.prevBoard) {
+                            let fromRow = i, fromCol = j;
+                            
+                            // Search for matching tile in previous board
+                            for (let oldI = 0; oldI < this.size; oldI++) {
+                                for (let oldJ = 0; oldJ < this.size; oldJ++) {
+                                    const prevValue = this.prevBoard[oldI][oldJ];
+                                    const currValue = this.board[i][j];
+                                    
+                                    // Check if this is a direct move (same value)
+                                    if (prevValue === currValue && (oldI !== i || oldJ !== j)) {
+                                        // Verify it's in the correct direction
+                                        if ((oldI === i && ((oldJ < j) || (oldJ > j))) || 
+                                            (oldJ === j && ((oldI < i) || (oldI > i)))) {
+                                            fromRow = oldI;
+                                            fromCol = oldJ;
+                                            foundSource = true;
+                                        }
+                                    }
+                                    // Check if this is a merged tile
+                                    else if (prevValue === currValue / 2 && (oldI !== i || oldJ !== j)) {
+                                        // Could be one of the merged tiles
+                                        if ((oldI === i && ((oldJ < j) || (oldJ > j))) || 
+                                            (oldJ === j && ((oldI < i) || (oldI > i)))) {
+                                            fromRow = oldI;
+                                            fromCol = oldJ;
+                                            foundSource = true;
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            // Set animation properties if tile moved
+                            if (foundSource && (fromRow !== i || fromCol !== j)) {
+                                const deltaRow = i - fromRow;
+                                const deltaCol = j - fromCol;
+                                tile.style.setProperty('--delta-row', deltaRow);
+                                tile.style.setProperty('--delta-col', deltaCol);
+                                tile.classList.add('tile-sliding');
+                            }
+                        }
+                        
+                        cell.appendChild(tile);
+                        
+                        // Mark as new tile if no source was found (randomly added)
+                        if (!foundSource) {
+                            tile.classList.add('tile-new');
+                        }
+                    }
+                }
+            }
+        });
     }
 
     updateDisplay() {
@@ -345,7 +441,22 @@ function getGameSpecificStyles() {
             aspect-ratio: 1;
             margin-bottom: 20px;
         }
+        .game-2048-board {
+            position: relative;
+        }
+        
+        .cell-2048 {
+            position: relative;
+            background: #cdc1b4;
+            border-radius: 0;
+        }
+        
         .tile-2048 {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background: #eee4da;
             border-radius: 0;
             display: flex;
@@ -354,10 +465,53 @@ function getGameSpecificStyles() {
             font-size: 2rem;
             font-weight: 800;
             color: #776e65;
+            z-index: 1;
+            transition: transform 0.15s ease-out;
         }
+        
         .tile-2048.tile-empty {
             background: #cdc1b4;
+            position: static;
+            z-index: 0;
         }
+        
+        .tile-sliding {
+            transform: translate(
+                calc(var(--delta-col, 0) * (100% + 10px)),
+                calc(var(--delta-row, 0) * (100% + 10px))
+            );
+            animation: slideIn 0.15s ease-out forwards;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translate(
+                    calc(var(--delta-col, 0) * (100% + 10px)),
+                    calc(var(--delta-row, 0) * (100% + 10px))
+                );
+            }
+            to {
+                transform: translate(0, 0);
+            }
+        }
+        
+        .tile-2048.tile-new {
+            animation: popIn 0.15s ease-out;
+        }
+        
+        @keyframes popIn {
+            0% {
+                transform: scale(0);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        
+        /* Classic 2048 colors */
         .tile-2 { background: #eee4da; color: #776e65; font-size: 2rem; }
         .tile-4 { background: #ede0c8; color: #776e65; font-size: 2rem; }
         .tile-8 { background: #f2b179; color: #f9f6f2; font-size: 2rem; }
@@ -369,6 +523,13 @@ function getGameSpecificStyles() {
         .tile-512 { background: #edc850; color: #f9f6f2; font-size: 1.5rem; }
         .tile-1024 { background: #edc53f; color: #f9f6f2; font-size: 1.2rem; }
         .tile-2048 { background: #edc22e; color: #f9f6f2; font-size: 1.2rem; }
+        
+        /* Higher tiles */
+        .tile-2048[class*="tile-"]:not(.tile-empty):not(.tile-2):not(.tile-4):not(.tile-8):not(.tile-16):not(.tile-32):not(.tile-64):not(.tile-128):not(.tile-256):not(.tile-512):not(.tile-1024) {
+            background: #3c3a32;
+            color: #f9f6f2;
+            font-size: 1.1rem;
+        }
         .game-2048-controls {
             text-align: center;
         }

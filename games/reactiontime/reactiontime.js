@@ -199,13 +199,18 @@ function getGameSpecificStyles() {
         .reactiontime-wrap {
             width: 100%;
             max-width: min(700px, 95vw);
+            max-height: calc(100vh - 20px);
             display: flex;
             flex-direction: column;
             align-items: center;
+            overflow: hidden;
+            min-height: 0;
+            box-sizing: border-box;
         }
         .reactiontime-header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
+            flex-shrink: 0;
         }
         .reactiontime-header h1 {
             font-size: 2.5rem;
@@ -243,7 +248,12 @@ function getGameSpecificStyles() {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 30px;
+            gap: 15px;
+            flex: 1 1 auto;
+            min-height: 0;
+            max-height: 100%;
+            overflow: hidden;
+            box-sizing: border-box;
         }
         .reactiontime-instructions {
             text-align: center;
@@ -258,6 +268,9 @@ function getGameSpecificStyles() {
             height: 400px;
             max-width: min(400px, calc(95vw - 40px));
             max-height: min(400px, calc(95vw - 40px));
+            min-width: 0;
+            min-height: 0;
+            flex-shrink: 0;
             border-radius: 0;
             display: flex;
             align-items: center;
@@ -265,6 +278,7 @@ function getGameSpecificStyles() {
             cursor: pointer;
             transition: background-color 0.3s ease;
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            box-sizing: border-box;
         }
         #box-text {
             font-size: 2rem;
@@ -275,8 +289,11 @@ function getGameSpecificStyles() {
         .reactiontime-history {
             width: 100%;
             max-width: 400px;
-            max-height: 150px;
+            max-height: 180px;
+            min-height: 0;
+            flex-shrink: 1;
             overflow-y: auto;
+            overflow-x: hidden;
             background: #f8f9fa;
             border: 2px solid #dee2e6;
             border-radius: 0;
@@ -285,6 +302,20 @@ function getGameSpecificStyles() {
             flex-wrap: wrap;
             gap: 10px;
             justify-content: center;
+            align-content: flex-start;
+            box-sizing: border-box;
+        }
+        .reactiontime-history::-webkit-scrollbar {
+            width: 6px;
+        }
+        .reactiontime-history::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .reactiontime-history::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+        }
+        .reactiontime-history::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
         }
         .history-entry {
             padding: 8px 16px;
@@ -292,11 +323,14 @@ function getGameSpecificStyles() {
             border-radius: 0;
             font-weight: 600;
             color: #495057;
+            flex-shrink: 0;
+            white-space: nowrap;
         }
         .reactiontime-buttons {
             display: flex;
             gap: 10px;
             justify-content: center;
+            flex-shrink: 0;
         }
         .btn-secondary {
             padding: 12px 24px;
@@ -321,21 +355,36 @@ function getGameSpecificStyles() {
             height: 16px;
         }
         @media (max-width: 768px) {
+            .reactiontime-wrap {
+                max-width: 100%;
+                padding: 0 10px;
+            }
             .reactiontime-header h1 {
                 font-size: 2rem;
+                margin-bottom: 15px;
             }
             .reactiontime-stats {
                 flex-direction: column;
                 gap: 10px;
+                margin-bottom: 15px;
             }
             .stat-box {
                 width: 100%;
+            }
+            .reactiontime-game {
+                gap: 15px;
             }
             .reactiontime-box {
                 width: 100%;
                 height: 300px;
                 max-width: calc(100vw - 40px);
                 max-height: calc(100vw - 40px);
+                aspect-ratio: 1;
+            }
+            .reactiontime-history {
+                max-width: 100%;
+                max-height: 150px;
+                padding: 12px;
             }
         }
     `;

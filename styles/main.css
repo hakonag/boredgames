@@ -92,6 +92,82 @@ header h1 {
     font-weight: 400;
 }
 
+.search-sort-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin: 30px auto;
+    max-width: 1200px;
+    padding: 0 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.search-wrapper {
+    position: relative;
+    flex: 1;
+    max-width: 400px;
+    min-width: 250px;
+}
+
+.game-search {
+    width: 100%;
+    padding: 12px 16px 12px 44px;
+    border: 2px solid #dee2e6;
+    border-radius: 0;
+    font-size: 1rem;
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+    background: white;
+    color: #111;
+    font-weight: 500;
+}
+
+.game-search:focus {
+    outline: none;
+    border-color: #111;
+}
+
+.game-search::placeholder {
+    color: #9ca3af;
+}
+
+.search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    color: #6c757d;
+    pointer-events: none;
+}
+
+.sort-button {
+    padding: 12px 16px;
+    border: 2px solid #dee2e6;
+    border-radius: 0;
+    background: white;
+    color: #111;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+    transition: border-color 0.2s ease;
+    min-width: 48px;
+    min-height: 48px;
+}
+
+.sort-button:hover {
+    border-color: #111;
+}
+
+.sort-button i {
+    width: 18px;
+    height: 18px;
+    stroke-width: 2;
+}
+
 .games-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -107,7 +183,6 @@ header h1 {
     padding: 30px 20px;
     text-align: center;
     cursor: pointer;
-    transition: all 0.2s ease;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     min-height: 200px;
     display: flex;
@@ -118,12 +193,12 @@ header h1 {
 }
 
 .game-card:hover {
-    transform: none;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     border-color: #adb5bd;
 }
 
-.game-card:active { transform: none; }
+.game-card:active {
+    border-color: #111;
+}
 
 .game-card.coming-soon {
     border-color: #d0d0d0;
@@ -147,11 +222,6 @@ header h1 {
     font-size: 4rem;
     margin-bottom: 20px;
     display: block;
-    transition: transform 0.2s ease;
-}
-
-.game-card:hover .game-icon {
-    transform: scale(1.05);
 }
 
 .game-card h2 {
@@ -191,16 +261,11 @@ header h1 {
     font-size: 1rem;
     cursor: pointer;
     margin-bottom: 20px;
-    transition: all 0.2s ease;
     font-weight: 600;
 }
 
 .back-button:hover {
     background: #5568d3;
-}
-
-.back-button:active {
-    transform: translateY(1px);
 }
 
 #game-content {
@@ -276,12 +341,15 @@ canvas {
     border: 2px solid #dee2e6;
     border-radius: 0;
     background: white;
-    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
     font-size: 0.9375rem;
     font-weight: 600;
 }
 
-.github-link:hover { color:#212529; border-color:#adb5bd; background:#f8f9fa; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+.github-link:hover {
+    color: #212529;
+    border-color: #adb5bd;
+    background: #f8f9fa;
+}
 
 .github-link i {
     width: 18px;
@@ -291,43 +359,133 @@ canvas {
 
 /* Responsive */
 @media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+    
+    header {
+        padding: 20px 15px;
+        margin-bottom: 30px;
+    }
+    
     header h1 {
-        font-size: 1.8rem;
+        font-size: 2rem;
+    }
+    
+    .search-sort-container {
+        margin: 20px auto;
+        padding: 0 15px;
+        gap: 12px;
+    }
+    
+    .search-wrapper {
+        max-width: 100%;
+        min-width: 200px;
+    }
+    
+    .game-search {
+        padding: 10px 14px 10px 40px;
+        font-size: 0.9375rem;
+    }
+    
+    .search-icon {
+        width: 16px;
+        height: 16px;
+        left: 12px;
+    }
+    
+    .sort-button {
+        padding: 10px 14px;
+        min-width: 44px;
+        min-height: 44px;
+    }
+    
+    .sort-button i {
+        width: 16px;
+        height: 16px;
     }
 
     .games-grid {
-        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-        gap: 20px;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 15px;
+        margin-top: 30px;
     }
 
     .game-card {
-        min-height: 220px;
-        padding: 30px 20px;
+        min-height: 180px;
+        padding: 20px 15px;
     }
 
     .game-icon {
-        font-size: 3.5rem;
+        font-size: 3rem;
     }
 
     .game-card h2 {
-        font-size: 1.2rem;
+        font-size: 1.1rem;
+    }
+
+    .game-card p {
+        font-size: 0.875rem;
     }
 
     .game-container {
-        padding: 20px;
+        padding: 15px;
     }
 
     .footer-content {
         flex-direction: column;
-        gap: 20px;
+        gap: 15px;
         text-align: center;
+        padding: 0 15px;
     }
 
     .footer-text {
         order: 2;
+        font-size: 0.875rem;
     }
 
     .footer-links {
         order: 1;
+    }
+}
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+    body {
+        padding: 8px;
+    }
+    
+    header {
+        padding: 15px 10px;
+    }
+    
+    header h1 {
+        font-size: 1.75rem;
+    }
+    
+    .subtitle {
+        font-size: 1rem;
+    }
+
+    .games-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 12px;
+    }
+
+    .game-card {
+        min-height: 160px;
+        padding: 18px 12px;
+    }
+
+    .game-icon {
+        font-size: 2.5rem;
+    }
+
+    .game-card h2 {
+        font-size: 1rem;
+    }
+    
+    .main-footer {
+        padding: 20px 0;
     }
 }

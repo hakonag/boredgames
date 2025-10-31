@@ -1,12 +1,13 @@
 // Two-player Tennis (Pong-style) MVP
+import { createBackButton, setupScrollPrevention, removeScrollPrevention, setupHardReset } from '../../core/gameUtils.js';
+import { injectGameStyles, removeGameStyles } from '../../core/gameStyles.js';
 
 let tennis = null;
 
 export function init() {
     const root = document.getElementById('game-content');
     if (!root) return;
-    root.innerHTML = `
-        createBackButton() + `
+    root.innerHTML = createBackButton() + `
         <div class="tennis-wrap">
             <div class="tennis-left">
                 <canvas id="tennis-canvas" width="800" height="500"></canvas>
@@ -90,6 +91,26 @@ class TennisGame {
         this.keyUp = (e) => this.keys.delete(e.key);
         document.addEventListener('keydown', this.keyDown, { passive: false });
         document.addEventListener('keyup', this.keyUp, { passive: false });
+        
+        // Touch controls for mobile - paddles follow touch position
+        this.touchHandler = (e) => {
+            if (!this.running || this.paused) return;
+            const rect = this.canvas.getBoundingClientRect();
+            const touch = e.touches ? e.touches[0] : e;
+            const touchY = touch.clientY - rect.top;
+            const touchX = touch.clientX - rect.left;
+            
+            // Determine which paddle to move based on touch position
+            if (touchX < this.width / 2) {
+                // Left side - move paddle 1 (player 1)
+                this.left.y = Math.max(0, Math.min(this.height - this.left.h, touchY - this.left.h / 2));
+            } else {
+                // Right side - move paddle 2 (player 2)
+                this.right.y = Math.max(0, Math.min(this.height - this.right.h, touchY - this.right.h / 2));
+            }
+        };
+        this.canvas.addEventListener('touchmove', this.touchHandler, { passive: true });
+        this.canvas.addEventListener('mousemove', this.touchHandler);
     }
 
     start() {
@@ -122,6 +143,10 @@ class TennisGame {
         if (this.req) cancelAnimationFrame(this.req);
         document.removeEventListener('keydown', this.keyDown);
         document.removeEventListener('keyup', this.keyUp);
+        if (this.canvas && this.touchHandler) {
+            this.canvas.removeEventListener('touchmove', this.touchHandler);
+            this.canvas.removeEventListener('mousemove', this.touchHandler);
+        }
     }
 
     loop(ts) {

@@ -13,6 +13,18 @@ export function getBaseGameStyles(gameId) {
             font-family: 'Space Grotesk', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol" !important;
             color: #111;
         }
+        /* Mobile-friendly touch targets */
+        * {
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+        }
+        button, .btn-primary, .btn-secondary, a, [role="button"] {
+            touch-action: manipulation;
+            -webkit-user-select: none;
+            user-select: none;
+            min-height: 44px;
+            min-width: 44px;
+        }
         body {
             overflow: hidden !important;
             position: fixed !important;
@@ -56,6 +68,7 @@ export function getBaseGameStyles(gameId) {
             background: transparent;
             border-radius: 0;
             box-shadow: none;
+            min-height: 0;
         }
         .back-button-shared {
             position: fixed;
@@ -87,17 +100,21 @@ export function getBaseGameStyles(gameId) {
         }
         /* Standard button styles - squares */
         .btn-primary, .btn-secondary {
-            padding: 10px 20px;
+            padding: 12px 24px;
             border-radius: 0;
             font-size: 0.9375rem;
             font-weight: 600;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
             border: 2px solid;
             transition: all 0.2s ease;
             font-family: 'Space Grotesk', system-ui, sans-serif;
+            min-height: 44px;
+            min-width: 44px;
+            touch-action: manipulation;
         }
         .btn-primary {
             background: #111;
@@ -238,16 +255,76 @@ export function getBaseGameStyles(gameId) {
                 height: 100vh;
                 max-height: 100vh;
                 margin: 0;
-                padding: 5px;
+                padding: 8px;
             }
             .back-button-shared {
                 top: 8px;
                 left: 8px;
-                padding: 6px 10px;
-                font-size: 0.8125rem;
+                padding: 10px 14px;
+                font-size: 0.875rem;
+                min-height: 44px;
+                min-width: 44px;
             }
             .game-container #game-content h1 {
                 font-size: 2rem;
+                margin-bottom: 15px;
+            }
+            .btn-primary, .btn-secondary {
+                padding: 14px 20px;
+                font-size: 1rem;
+                min-height: 48px;
+            }
+            .stat-box {
+                padding: 14px 16px;
+                min-width: 80px;
+            }
+            .stat-value {
+                font-size: 1.75rem;
+            }
+            .stat-label {
+                font-size: 0.75rem;
+            }
+            /* Improve touch targets for mobile */
+            input[type="text"],
+            input[type="number"],
+            select,
+            textarea {
+                min-height: 44px;
+                font-size: 16px; /* Prevents zoom on iOS */
+            }
+            /* Score modal mobile adjustments */
+            .score-modal-content {
+                padding: 30px 20px;
+                margin: 20px;
+            }
+            .score-modal-content input {
+                min-height: 48px;
+                font-size: 16px;
+            }
+            .score-modal-content button {
+                min-height: 48px;
+                padding: 14px 20px;
+                font-size: 1rem;
+            }
+        }
+        /* Small mobile devices */
+        @media (max-width: 480px) {
+            .game-container #game-content {
+                padding: 5px;
+            }
+            .game-container #game-content h1 {
+                font-size: 1.75rem;
+                margin-bottom: 12px;
+            }
+            .stat-box {
+                padding: 12px 14px;
+            }
+            .stat-value {
+                font-size: 1.5rem;
+            }
+            .btn-primary, .btn-secondary {
+                padding: 12px 18px;
+                font-size: 0.9375rem;
             }
         }
     `;

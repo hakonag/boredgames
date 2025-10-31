@@ -92,6 +92,7 @@ class FlappyBirdGame {
     }
 
     setupControls() {
+        // Click/touch handler for mobile
         this.clickHandler = (e) => {
             if (this.isGameOver) return;
             if (!this.isRunning) {
@@ -100,8 +101,11 @@ class FlappyBirdGame {
             this.jump();
         };
         this.canvas.addEventListener('click', this.clickHandler);
+        this.canvas.addEventListener('touchend', this.clickHandler, { passive: true });
         
-        if (e.key === ' ') {
+        // Keyboard handler
+        this.keyHandler = setupHardReset('flappybird', (e) => {
+            if (e.key === ' ') {
                 e.preventDefault();
                 if (this.isGameOver) return;
                 if (!this.isRunning) {
@@ -109,12 +113,13 @@ class FlappyBirdGame {
                 }
                 this.jump();
             }
-        };
+        });
         document.addEventListener('keydown', this.keyHandler);
     }
 
     removeControls() {
         this.canvas.removeEventListener('click', this.clickHandler);
+        this.canvas.removeEventListener('touchend', this.clickHandler);
         document.removeEventListener('keydown', this.keyHandler);
     }
 

@@ -1,4 +1,5 @@
 // Casino MVP - Simple Slots
+import { injectGameStyles, removeGameStyles } from '../../core/gameStyles.js';
 let slotsHandlers = [];
 let spinTimeout = null;
 
