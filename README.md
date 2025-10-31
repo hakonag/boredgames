@@ -1,5 +1,7 @@
 # BOREDGAMES
 
+https://hakonag.github.io/boredgames/
+
 Fast, modern, no-login browser games — built to beat boredom in seconds.
 
 Hit play, drop into a game, and chase the leaderboard. Minimal friction, maximum fun.
