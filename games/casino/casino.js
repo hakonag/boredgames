@@ -8,7 +8,7 @@ export function init() {
     if (!gameContent) return;
     gameContent.innerHTML = `
         <button class="back-button-tetris" onclick="window.goHome()">
-            <i data-lucide=\"arrow-left\"></i> Tilbake
+            <i data-lucide=\"arrow-left\"></i> boredgames
         </button>
         <div class="slots-wrap">
             <div class="slots-machine">

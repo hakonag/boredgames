@@ -5,7 +5,7 @@ let state = null;
 export function init() {
 	const gameContent = document.getElementById('game-content');
 	gameContent.innerHTML = `
-		<button class="back-button-tetris" onclick="window.goHome()">← Tilbake</button>
+		<button class="back-button-tetris" onclick="window.goHome()">← boredgames</button>
 		<div class="snake-root">
 			<canvas id="snake-canvas"></canvas>
 			<div class="snake-hud">

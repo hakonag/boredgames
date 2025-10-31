@@ -7,7 +7,7 @@ export function init() {
     const gameContent = document.getElementById('game-content');
     gameContent.innerHTML = `
         <button class="back-button-tetris" onclick="window.location.href='https://hakonag.github.io/boredgames/'">
-            <i data-lucide="house"></i> Tilbake
+            <i data-lucide="house"></i> boredgames
         </button>
         <div class="solitaire-game solitaire-layout">
             <div class="solitaire-board">

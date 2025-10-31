@@ -7,7 +7,7 @@ export function init() {
     const gameContent = document.getElementById('game-content');
     gameContent.innerHTML = `
         <button class="back-button-tetris" onclick="window.location.href='https://hakonag.github.io/boredgames/'">
-            <i data-lucide="house"></i> Tilbake
+            <i data-lucide="house"></i> boredgames
         </button>
         <div class="tetris-game">
             <div id="tetris-fps" class="fps-indicator">60 fps</div>
@@ -1464,19 +1464,34 @@ class TetrisGame {
         this.drawPreviews();
         this.updateMuteButton();
         this.stopBackgroundMusic();
+        // Load a new random music track for the next game
+        this.setupAudio();
     }
     
     setupAudio() {
+        // List of available music files
+        const musicFiles = [
+            'games/tetris/assets/tetris-theme.wav',
+            'games/tetris/assets/tetris-music (1).wav',
+            'games/tetris/assets/tetris-music (2).mp3',
+            'games/tetris/assets/tetris-music (3).mp3',
+            'games/tetris/assets/tetris-music (4).mp3',
+            'games/tetris/assets/tetris-music (5).mp3'
+        ];
+        
+        // Randomly select a music file
+        const randomMusicFile = musicFiles[Math.floor(Math.random() * musicFiles.length)];
+        
         // Try to load background music
         try {
-            this.backgroundMusic = new Audio('games/tetris/assets/tetris-theme.wav');
+            this.backgroundMusic = new Audio(randomMusicFile);
             this.backgroundMusic.loop = true;
             this.backgroundMusic.volume = 0.3; // 30% volume for background music
             this.backgroundMusic.preload = 'auto';
             
             // Handle errors gracefully (file might not exist yet)
             this.backgroundMusic.addEventListener('error', (e) => {
-                console.log('Background music file not found. You can add a file at games/tetris/assets/tetris-theme.wav');
+                console.log(`Background music file not found: ${randomMusicFile}`);
                 this.backgroundMusic = null;
             });
         } catch (error) {

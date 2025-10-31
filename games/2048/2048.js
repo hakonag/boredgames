@@ -331,14 +331,30 @@ class Game2048 {
 
         if (boardEl) {
             boardEl.innerHTML = '';
+            
+            // Create cell grid structure first
             for (let i = 0; i < this.size; i++) {
                 for (let j = 0; j < this.size; j++) {
-                    const tile = document.createElement('div');
-                    tile.className = `tile-2048 tile-${this.board[i][j] || 'empty'}`;
+                    const cell = document.createElement('div');
+                    cell.className = 'cell-2048';
+                    cell.dataset.row = i;
+                    cell.dataset.col = j;
+                    boardEl.appendChild(cell);
+                }
+            }
+            
+            // Add tiles inside cells
+            for (let i = 0; i < this.size; i++) {
+                for (let j = 0; j < this.size; j++) {
                     if (this.board[i][j] !== 0) {
-                        tile.textContent = this.board[i][j];
+                        const cell = boardEl.querySelector(`.cell-2048[data-row="${i}"][data-col="${j}"]`);
+                        if (cell) {
+                            const tile = document.createElement('div');
+                            tile.className = `tile-2048 tile-${this.board[i][j]}`;
+                            tile.textContent = this.board[i][j];
+                            cell.appendChild(tile);
+                        }
                     }
-                    boardEl.appendChild(tile);
                 }
             }
         }

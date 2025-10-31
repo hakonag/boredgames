@@ -206,31 +206,44 @@ class CrosswordGame {
 
 function getGameSpecificStyles() {
     return `
-.crossword-wrap {
+        .crossword-wrap {
             width: 100%;
-            max-width: min(1000px, 95vw);
+            max-width: min(1200px, 95vw);
             display: flex;
             flex-direction: column;
             align-items: center;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        .crossword-main {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+        .crossword-header {
+            text-align: center;
+            width: 100%;
         }
         .crossword-header h1 {
             font-size: 2.5rem;
             font-weight: 800;
             color: #111;
-            margin: 0 0 20px 0;
+            margin: 0 0 15px 0;
             text-align: center;
         }
         .crossword-stats {
             display: flex;
             gap: 20px;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
             justify-content: center;
         }
         .stat-box {
             background: #f8f9fa;
             border: 2px solid #dee2e6;
             border-radius: 0;
-            padding: 15px 30px;
+            padding: 12px 24px;
             text-align: center;
             min-width: 120px;
         }
@@ -238,19 +251,21 @@ function getGameSpecificStyles() {
             color: #6c757d;
             font-size: 0.85rem;
             font-weight: 600;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
         .stat-value {
             color: #212529;
-            font-size: 2rem;
+            font-size: 1.75rem;
             font-weight: 800;
         }
         .crossword-game-area {
             width: 100%;
             display: flex;
-            gap: 20px;
+            gap: 30px;
             justify-content: center;
-            margin-bottom: 20px;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
         }
         .crossword-board {
             display: grid;
@@ -261,9 +276,10 @@ function getGameSpecificStyles() {
             border-radius: 0;
             padding: 4px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            max-width: min(500px, calc(95vw - 40px));
+            max-width: min(500px, calc(100vw - 100px));
             width: 100%;
             aspect-ratio: 1;
+            flex-shrink: 0;
         }
         .crossword-cell {
             aspect-ratio: 1;
@@ -271,7 +287,7 @@ function getGameSpecificStyles() {
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1rem;
+            font-size: 0.85rem;
             font-weight: 700;
             color: #fff;
         }
@@ -292,28 +308,35 @@ function getGameSpecificStyles() {
             background: #f8f9fa;
             border: 2px solid #dee2e6;
             border-radius: 0;
-            padding: 15px;
-            max-width: min(400px, calc(95vw - 40px));
-            max-height: 60vh;
+            padding: 20px;
+            max-width: min(400px, calc(100vw - 100px));
+            width: 100%;
+            max-height: min(500px, calc(100vh - 300px));
             overflow-y: auto;
+            flex-shrink: 0;
         }
         .crossword-clues h3 {
-            margin: 0 0 10px 0;
-            font-size: 1rem;
+            margin: 0 0 15px 0;
+            font-size: 1.1rem;
             font-weight: 700;
             color: #111;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #dee2e6;
         }
         .clue-item {
-            padding: 8px 0;
+            padding: 10px 0;
             font-size: 0.9rem;
             color: #495057;
-            border-bottom: 1px solid #dee2e6;
+            border-bottom: 1px solid #e9ecef;
+            line-height: 1.4;
         }
         .clue-item:last-child {
             border-bottom: none;
         }
         .crossword-controls {
             text-align: center;
+            width: 100%;
+            max-width: 600px;
         }
         .crossword-status {
             color: #111;
@@ -348,21 +371,63 @@ function getGameSpecificStyles() {
             width: 14px;
             height: 14px;
         }
-        @media (max-width: 768px) {
-            .crossword-header h1 {
-                font-size: 2rem;
-            }
+        @media (max-width: 968px) {
             .crossword-game-area {
                 flex-direction: column;
+                gap: 20px;
             }
             .crossword-board {
-                max-width: 100%;
+                max-width: min(500px, calc(100vw - 40px));
             }
             .crossword-clues {
-                max-width: 100%;
+                max-width: min(500px, calc(100vw - 40px));
+                max-height: 400px;
+            }
+        }
+        @media (max-width: 768px) {
+            .crossword-wrap {
+                padding: 5px;
+            }
+            .crossword-header h1 {
+                font-size: 2rem;
+                margin: 0 0 12px 0;
+            }
+            .crossword-stats {
+                margin-bottom: 8px;
+            }
+            .stat-box {
+                padding: 10px 20px;
+            }
+            .stat-value {
+                font-size: 1.5rem;
+            }
+            .crossword-game-area {
+                gap: 15px;
+                margin-bottom: 10px;
+            }
+            .crossword-board {
+                max-width: calc(100vw - 20px);
+            }
+            .crossword-clues {
+                max-width: calc(100vw - 20px);
+                max-height: 300px;
+                padding: 15px;
+            }
+            .crossword-clues h3 {
+                font-size: 1rem;
+                margin: 0 0 12px 0;
+            }
+            .clue-item {
+                font-size: 0.85rem;
+                padding: 8px 0;
             }
             .crossword-cell {
-                font-size: 0.75rem;
+                font-size: 0.7rem;
+            }
+        }
+        @media (max-height: 800px) {
+            .crossword-clues {
+                max-height: 300px;
             }
         }
     `;

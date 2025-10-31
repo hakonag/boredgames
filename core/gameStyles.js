@@ -117,19 +117,20 @@ export function getBaseGameStyles(gameId) {
             touch-action: manipulation;
         }
         .btn-primary {
-            background: #111;
-            color: #fff;
+            background: #ffffff;
+            color: #111;
             border-color: #111;
         }
         .btn-primary:hover:not(:disabled) {
-            background: #333;
-            border-color: #333;
+            background: #f8f9fa;
+            border-color: #111;
         }
         .btn-primary:disabled {
-            background: #9ca3af;
-            border-color: #9ca3af;
+            background: #f8f9fa;
+            border-color: #dee2e6;
             cursor: not-allowed;
             opacity: 0.6;
+            color: #9ca3af;
         }
         .btn-secondary {
             background: #6c757d;
@@ -150,6 +151,12 @@ export function getBaseGameStyles(gameId) {
             width: 18px;
             height: 18px;
             stroke-width: 2;
+        }
+        .btn-primary i,
+        .btn-primary svg,
+        .btn-primary [data-lucide] {
+            color: #111;
+            stroke: #111;
         }
         /* Standard stat box styles */
         .stat-box {

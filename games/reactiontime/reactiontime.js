@@ -1,6 +1,7 @@
 // Reaction Time Game Module
 import { createBackButton, setupScrollPrevention, removeScrollPrevention, setupHardReset } from '../../core/gameUtils.js';
 import { injectGameStyles, removeGameStyles } from '../../core/gameStyles.js';
+import { getHighScores } from '../../core/highScores.js';
 
 let reactionTimeGame = null;
 
@@ -39,6 +40,12 @@ export function init() {
                     </button>
                 </div>
             </div>
+            <div class="reactiontime-leaderboard">
+                <h3>Toppresultater</h3>
+                <div class="high-scores">
+                    <div id="reactiontime-high-scores"></div>
+                </div>
+            </div>
         </div>
     `;
 
@@ -57,6 +64,9 @@ export function init() {
     if (best) {
         document.getElementById('best-time-reactiontime').textContent = `${best}ms`;
     }
+    
+    // Load leaderboard
+    displayReactionTimeScores('reactiontime-high-scores', 'reactiontime', 30).catch(() => {});
 }
 
 export function cleanup() {
@@ -118,7 +128,7 @@ class ReactionTimeGame {
         }, delay);
     }
     
-    clickBox() {
+    async clickBox() {
         if (this.state === 'waiting') {
             this.startTest();
         } else if (this.state === 'go') {
@@ -128,6 +138,78 @@ class ReactionTimeGame {
             if (reactionTime < this.best) {
                 this.best = reactionTime;
                 localStorage.setItem('reactiontime-best', String(this.best));
+                
+                // Check if this is a new high score (lower time = better)
+                const scores = await getHighScores('reactiontime');
+                const minHighScore = scores.length > 0 ? Math.min(...scores.map(s => Math.abs(s.score))) : 9999;
+                // Store times as negative values so sorting works (lower time = higher negative score)
+                if (scores.length < 30 || reactionTime < minHighScore) {
+                    // Create custom modal for reaction time
+                    const modal = document.createElement('div');
+                    modal.className = 'score-modal';
+                    modal.innerHTML = `
+                        <div class="score-modal-content">
+                            <h3>Ny best tid!</h3>
+                            <p>Din tid: ${reactionTime}ms</p>
+                            <p>Skriv inn navnet ditt:</p>
+                            <input type="text" id="score-name-input" maxlength="20" placeholder="Ditt navn" autofocus>
+                            <div style="display: flex; gap: 10px; justify-content: center;">
+                                <button id="submit-score-btn" class="btn-primary" onclick="window.currentScoreSubmit(${-reactionTime})">Lagre</button>
+                                <button class="btn-secondary" onclick="window.currentScoreSkip()">Hopp over</button>
+                            </div>
+                            <p id="save-status" style="margin-top: 10px; color: #666; font-size: 0.9rem;"></p>
+                        </div>
+                    `;
+                    
+                    document.body.appendChild(modal);
+                    
+                    const input = document.getElementById('score-name-input');
+                    const submitBtn = document.getElementById('submit-score-btn');
+                    const status = document.getElementById('save-status');
+                    
+                    window.currentScoreSubmit = async (scoreValue) => {
+                        if (submitBtn.disabled) return;
+                        const name = input ? input.value.trim() : '';
+                        submitBtn.disabled = true;
+                        submitBtn.textContent = 'Lagrer...';
+                        status.textContent = 'Lagrer score...';
+                        
+                        try {
+                            const { saveHighScore } = await import('../../core/highScores.js');
+                            await saveHighScore('reactiontime', name, scoreValue);
+                            status.textContent = 'Score lagret!';
+                            status.style.color = '#4caf50';
+                            setTimeout(() => {
+                                modal.remove();
+                                window.currentScoreSubmit = null;
+                                window.currentScoreSkip = null;
+                                displayReactionTimeScores('reactiontime-high-scores', 'reactiontime', 30);
+                            }, 500);
+                        } catch (error) {
+                            console.error('Error saving score:', error);
+                            status.textContent = 'Feil ved lagring. Prøv igjen.';
+                            status.style.color = '#f44336';
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = 'Lagre';
+                        }
+                    };
+                    
+                    window.currentScoreSkip = () => {
+                        modal.remove();
+                        window.currentScoreSubmit = null;
+                        window.currentScoreSkip = null;
+                        displayReactionTimeScores('reactiontime-high-scores', 'reactiontime', 30);
+                    };
+                    
+                    if (input) {
+                        input.addEventListener('keypress', async (e) => {
+                            if (e.key === 'Enter' && !submitBtn.disabled) {
+                                await window.currentScoreSubmit(-reactionTime);
+                            }
+                        });
+                        input.focus();
+                    }
+                }
             }
             
             this.updateDisplay();
@@ -194,18 +276,48 @@ class ReactionTimeGame {
     }
 }
 
+// Custom display function for reaction time scores (stored as negative values)
+async function displayReactionTimeScores(containerId, gameId, limit = 30) {
+    const scoresContainer = document.getElementById(containerId);
+    if (!scoresContainer) return Promise.resolve();
+    
+    return getHighScores(gameId).then(scores => {
+        if (scores.length === 0) {
+            scoresContainer.innerHTML = '<p style="color: #999; font-size: 0.85rem;">Ingen scores ennå</p>';
+            return;
+        }
+        
+        // Show up to limit scores, display as positive times with ms
+        const displayScores = scores.slice(0, limit);
+        scoresContainer.innerHTML = displayScores.map((entry, index) => {
+            const timeMs = Math.abs(entry.score); // Convert negative back to positive
+            return `
+                <div class="score-entry">
+                    <div class="score-name">${index + 1}. ${entry.name}</div>
+                    <div class="score-value">${timeMs}ms</div>
+                </div>
+            `;
+        }).join('');
+    }).catch(err => {
+        console.error('Error displaying scores:', err);
+        scoresContainer.innerHTML = '<p style="color: #999; font-size: 0.85rem;">Kunne ikke laste scores</p>';
+    });
+}
+
 function getGameSpecificStyles() {
     return `
         .reactiontime-wrap {
             width: 100%;
-            max-width: min(700px, 95vw);
+            max-width: min(900px, 95vw);
             max-height: calc(100vh - 20px);
             display: flex;
             flex-direction: column;
             align-items: center;
-            overflow: hidden;
+            overflow-y: auto;
+            overflow-x: hidden;
             min-height: 0;
             box-sizing: border-box;
+            padding: 10px;
         }
         .reactiontime-header {
             text-align: center;
@@ -249,10 +361,7 @@ function getGameSpecificStyles() {
             flex-direction: column;
             align-items: center;
             gap: 15px;
-            flex: 1 1 auto;
-            min-height: 0;
-            max-height: 100%;
-            overflow: hidden;
+            flex-shrink: 0;
             box-sizing: border-box;
         }
         .reactiontime-instructions {
@@ -331,6 +440,7 @@ function getGameSpecificStyles() {
             gap: 10px;
             justify-content: center;
             flex-shrink: 0;
+            margin-bottom: 20px;
         }
         .btn-secondary {
             padding: 12px 24px;
@@ -353,6 +463,45 @@ function getGameSpecificStyles() {
         .btn-secondary i {
             width: 16px;
             height: 16px;
+        }
+        .reactiontime-leaderboard {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 0;
+            width: 100%;
+            max-width: min(400px, calc(95vw - 40px));
+            flex-shrink: 0;
+        }
+        .reactiontime-leaderboard h3 {
+            margin: 0 0 12px 0;
+            font-size: 1rem;
+            color: #111;
+            text-align: center;
+            font-weight: 600;
+        }
+        .reactiontime-leaderboard .high-scores {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .reactiontime-leaderboard .score-entry {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 0.9rem;
+        }
+        .reactiontime-leaderboard .score-entry:last-child {
+            border-bottom: none;
+        }
+        .reactiontime-leaderboard .score-name {
+            color: #495057;
+            font-weight: 500;
+        }
+        .reactiontime-leaderboard .score-value {
+            color: #212529;
+            font-weight: 600;
         }
         @media (max-width: 768px) {
             .reactiontime-wrap {
@@ -385,6 +534,9 @@ function getGameSpecificStyles() {
                 max-width: 100%;
                 max-height: 150px;
                 padding: 12px;
+            }
+            .reactiontime-leaderboard {
+                max-width: calc(100vw - 40px);
             }
         }
     `;

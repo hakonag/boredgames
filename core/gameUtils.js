@@ -8,7 +8,7 @@
 export function createBackButton() {
     return `
         <button class="back-button-shared" onclick="window.location.href='https://hakonag.github.io/boredgames/'">
-            <i data-lucide="house"></i> Tilbake
+            <i data-lucide="house"></i> boredgames
         </button>
     `;
 }

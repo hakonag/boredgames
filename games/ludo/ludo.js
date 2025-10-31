@@ -4,7 +4,7 @@
 export function init() {
     const gameContent = document.getElementById('game-content');
     gameContent.innerHTML = `
-        <button onclick="window.goHome()">← Tilbake</button>
+        <button onclick="window.goHome()">← boredgames</button>
         <h2>🏁 Ludo</h2>
         <div style="padding: 40px; text-align: center;">
             <p style="font-size: 1.2rem; color: #6c757d;">Dette spillet kommer snart!</p>

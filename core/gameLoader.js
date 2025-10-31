@@ -60,7 +60,7 @@ export function loadGame(gameId) {
             await new Promise(r => setTimeout(r, waitMs));
             console.error(`Failed to load game ${gameId}:`, error);
             gameContent.innerHTML = `
-                <button onclick="window.goHome()">← Tilbake</button>
+                <button onclick="window.goHome()">← boredgames</button>
                 <h2>Feil</h2>
                 <p>Kunne ikke laste spillet. ${error.message}</p>
             `;

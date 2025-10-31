@@ -107,20 +107,19 @@ class BreakoutGame {
 
     setupControls() {
         this.keys = {};
-        this.keyHandler = setupHardReset('breakout', (e) => {
+        const keyHandlerFn = (e) => {
             // Don't process shortcuts if user is typing in an input field
             const activeElement = document.activeElement;
             if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
                 return;
             }
             
-            
-            
             if (['ArrowLeft', 'ArrowRight'].includes(e.key)) {
                 e.preventDefault();
                 this.keys[e.key] = e.type === 'keydown';
             }
-        });
+        };
+        this.keyHandler = setupHardReset('breakout', keyHandlerFn);
         document.addEventListener('keydown', this.keyHandler);
         document.addEventListener('keyup', this.keyHandler);
         

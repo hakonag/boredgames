@@ -8,7 +8,7 @@ export function init() {
     if (!root) return;
     root.innerHTML = `
         <button class="back-button-tetris" onclick="window.location.href='https://hakonag.github.io/boredgames/'">
-            <i data-lucide=\"house\"></i> Tilbake
+            <i data-lucide=\"house\"></i> boredgames
         </button>
         <div class="si-wrap">
             <div class="si-left">
