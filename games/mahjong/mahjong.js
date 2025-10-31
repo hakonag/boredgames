@@ -118,10 +118,26 @@ class MahjongGame {
     }
 
     setupControls() {
-        // Controls handled in updateDisplay
+        this.keyHandler = (e) => {
+            // Don't process shortcuts if user is typing in an input field
+            const activeElement = document.activeElement;
+            if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
+                return;
+            }
+            
+            // Handle restart (R)
+            if (e.key === 'r' || e.key === 'R') {
+                window.location.href = 'https://hakonag.github.io/boredgames/?game=mahjong';
+                return;
+            }
+        };
+        document.addEventListener('keydown', this.keyHandler);
     }
 
     removeControls() {
+        if (this.keyHandler) {
+            document.removeEventListener('keydown', this.keyHandler);
+        }
         if (this.timer) clearInterval(this.timer);
     }
 
@@ -314,7 +330,7 @@ function injectStyles() {
         }
         .mahjong-wrap {
             width: 100%;
-            max-width: 900px;
+            max-width: min(900px, 95vw);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -368,7 +384,7 @@ function injectStyles() {
             border-radius: 8px;
             padding: 8px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            max-width: 800px;
+            max-width: min(800px, calc(95vw - 40px));
             width: 100%;
         }
         .mahjong-cell {

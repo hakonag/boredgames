@@ -90,6 +90,22 @@ export function init() {
     };
     const showResult = (t) => { $("roul-result").textContent = t; };
 
+    // R shortcut for hard refresh
+    const rHandler = (e) => {
+        // Don't process shortcuts if user is typing in an input field
+        const activeElement = document.activeElement;
+        if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
+            return;
+        }
+        
+        // Handle restart (R)
+        if (e.key === 'r' || e.key === 'R') {
+            window.location.href = 'https://hakonag.github.io/boredgames/?game=roulette';
+            return;
+        }
+    };
+    addHandler(document, 'keydown', rHandler);
+    
     // UI handlers
     const spinBtn = $("spin-btn");
     addHandler(spinBtn, 'click', () => spin());
@@ -119,7 +135,7 @@ function injectStyles() {
     const style = document.createElement('style');
     style.id = 'roulette-style';
     style.textContent = `
-    .roulette-wrap { display:flex; gap:20px; align-items:center; justify-content:center; width:100%; max-width:1100px; }
+    .roulette-wrap { display:flex; gap:20px; align-items:center; justify-content:center; width:100%; max-width:min(1100px, 95vw); }
     .roulette-left { display:flex; flex-direction:column; align-items:center; gap:12px; }
     .roulette-right { width:200px; background:#f8f9fa; border:2px solid #dee2e6; border-radius:12px; padding:12px; }
     .roulette-right h3 { margin:0 0 8px 0; font-size:.9rem; color:#495057; text-align:center; }

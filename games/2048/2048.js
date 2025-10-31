@@ -392,7 +392,7 @@ function injectStyles() {
         }
         .game-2048-wrap {
             width: 100%;
-            max-width: 500px;
+            max-width: min(500px, 95vw);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -504,7 +504,7 @@ function injectStyles() {
             border: 2px solid #bbada0;
             border-radius: 8px;
             width: 100%;
-            max-width: 500px;
+            max-width: min(500px, 95vw);
         }
         .game-2048-leaderboard h3 {
             margin: 0 0 12px 0;

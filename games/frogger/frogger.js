@@ -98,6 +98,18 @@ class FroggerGame {
     setupControls() {
         this.keys = {};
         this.keyHandler = (e) => {
+            // Don't process shortcuts if user is typing in an input field
+            const activeElement = document.activeElement;
+            if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
+                return;
+            }
+            
+            // Handle restart (R)
+            if ((e.key === 'r' || e.key === 'R') && e.type === 'keydown') {
+                window.location.href = 'https://hakonag.github.io/boredgames/?game=frogger';
+                return;
+            }
+            
             if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
                 e.preventDefault();
                 if (e.type === 'keydown') {
@@ -382,7 +394,7 @@ function injectStyles() {
         }
         .frogger-wrap {
             width: 100%;
-            max-width: 650px;
+            max-width: min(650px, 95vw);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -430,7 +442,7 @@ function injectStyles() {
         #frogger-canvas {
             display: block;
             width: 100%;
-            max-width: 620px;
+            max-width: min(620px, calc(95vw - 40px));
             height: auto;
             aspect-ratio: 1;
         }

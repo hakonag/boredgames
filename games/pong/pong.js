@@ -100,6 +100,18 @@ class PongGame {
 
     setupControls() {
         this.keyHandler = (e) => {
+            // Don't process shortcuts if user is typing in an input field
+            const activeElement = document.activeElement;
+            if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
+                return;
+            }
+            
+            // Handle restart (R)
+            if ((e.key === 'r' || e.key === 'R') && e.type === 'keydown') {
+                window.location.href = 'https://hakonag.github.io/boredgames/?game=pong';
+                return;
+            }
+            
             this.keys[e.key] = e.type === 'keydown';
             if (e.key === ' ' && e.type === 'keydown') {
                 e.preventDefault();
@@ -330,7 +342,7 @@ function injectStyles() {
         }
         .pong-wrap {
             width: 100%;
-            max-width: 900px;
+            max-width: min(900px, 95vw);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -378,7 +390,7 @@ function injectStyles() {
         #pong-canvas {
             display: block;
             width: 100%;
-            max-width: 820px;
+            max-width: min(820px, calc(95vw - 40px));
             height: auto;
             aspect-ratio: 8/5;
         }

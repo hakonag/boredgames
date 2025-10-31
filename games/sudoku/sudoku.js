@@ -189,6 +189,18 @@ class SudokuGame {
 
     setupControls() {
         this.keyHandler = (e) => {
+            // Don't process shortcuts if user is typing in an input field
+            const activeElement = document.activeElement;
+            if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
+                return;
+            }
+            
+            // Handle restart (R)
+            if (e.key === 'r' || e.key === 'R') {
+                window.location.href = 'https://hakonag.github.io/boredgames/?game=sudoku';
+                return;
+            }
+            
             if (this.selectedCell && /^[1-9]$/.test(e.key)) {
                 const num = parseInt(e.key);
                 this.placeNumber(num);
@@ -360,7 +372,7 @@ function injectStyles() {
         }
         .sudoku-wrap {
             width: 100%;
-            max-width: 800px;
+            max-width: min(800px, 95vw);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -402,7 +414,7 @@ function injectStyles() {
             gap: 20px;
             align-items: flex-start;
             width: 100%;
-            max-width: 800px;
+            max-width: min(800px, 95vw);
         }
         .sudoku-board {
             display: grid;
@@ -413,7 +425,7 @@ function injectStyles() {
             border: 3px solid #333;
             padding: 2px;
             width: 100%;
-            max-width: 500px;
+            max-width: min(500px, calc(95vw - 40px));
             aspect-ratio: 1;
         }
         .sudoku-cell {

@@ -108,6 +108,18 @@ class CrosswordGame {
 
     setupControls() {
         this.keyHandler = (e) => {
+            // Don't process shortcuts if user is typing in an input field
+            const activeElement = document.activeElement;
+            if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
+                return;
+            }
+            
+            // Handle restart (R)
+            if (e.key === 'r' || e.key === 'R') {
+                window.location.href = 'https://hakonag.github.io/boredgames/?game=crossword';
+                return;
+            }
+            
             if (this.selectedCell && /^[A-ZÆØÅa-zæøå]$/.test(e.key)) {
                 const letter = e.key.toUpperCase();
                 this.placeLetter(letter);
@@ -293,7 +305,7 @@ function injectStyles() {
         }
         .crossword-wrap {
             width: 100%;
-            max-width: 1000px;
+            max-width: min(1000px, 95vw);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -346,7 +358,7 @@ function injectStyles() {
             border-radius: 8px;
             padding: 4px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            max-width: 500px;
+            max-width: min(500px, calc(95vw - 40px));
             width: 100%;
             aspect-ratio: 1;
         }
@@ -378,7 +390,7 @@ function injectStyles() {
             border: 2px solid #dee2e6;
             border-radius: 8px;
             padding: 15px;
-            max-width: 400px;
+            max-width: min(400px, calc(95vw - 40px));
             max-height: 60vh;
             overflow-y: auto;
         }

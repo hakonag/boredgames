@@ -123,6 +123,18 @@ class ArkanoidGame {
     setupControls() {
         this.keys = {};
         this.keyHandler = (e) => {
+            // Don't process shortcuts if user is typing in an input field
+            const activeElement = document.activeElement;
+            if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
+                return;
+            }
+            
+            // Handle restart (R)
+            if ((e.key === 'r' || e.key === 'R') && e.type === 'keydown') {
+                window.location.href = 'https://hakonag.github.io/boredgames/?game=arkanoid';
+                return;
+            }
+            
             if (['ArrowLeft', 'ArrowRight'].includes(e.key)) {
                 e.preventDefault();
                 this.keys[e.key] = e.type === 'keydown';
@@ -344,7 +356,7 @@ function injectStyles() {
         }
         .arkanoid-wrap {
             width: 100%;
-            max-width: 650px;
+            max-width: min(650px, 95vw);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -392,7 +404,7 @@ function injectStyles() {
         #arkanoid-canvas {
             display: block;
             width: 100%;
-            max-width: 620px;
+            max-width: min(620px, calc(95vw - 40px));
             height: auto;
             aspect-ratio: 1;
         }

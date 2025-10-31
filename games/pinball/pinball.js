@@ -103,6 +103,18 @@ class PinballGame {
     setupControls() {
         this.keys = {};
         this.keyHandler = (e) => {
+            // Don't process shortcuts if user is typing in an input field
+            const activeElement = document.activeElement;
+            if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
+                return;
+            }
+            
+            // Handle restart (R)
+            if ((e.key === 'r' || e.key === 'R') && e.type === 'keydown') {
+                window.location.href = 'https://hakonag.github.io/boredgames/?game=pinball';
+                return;
+            }
+            
             if (['ArrowLeft', 'ArrowRight', ' '].includes(e.key)) {
                 e.preventDefault();
                 this.keys[e.key] = e.type === 'keydown';
@@ -361,7 +373,7 @@ function injectStyles() {
         }
         .pinball-wrap {
             width: 100%;
-            max-width: 550px;
+            max-width: min(550px, 95vw);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -409,7 +421,7 @@ function injectStyles() {
         #pinball-canvas {
             display: block;
             width: 100%;
-            max-width: 520px;
+            max-width: min(520px, calc(95vw - 40px));
             height: auto;
             aspect-ratio: 5/7;
         }

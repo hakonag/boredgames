@@ -91,12 +91,16 @@ class PacmanGame {
         this.isRunning = false;
         this.animationFrame = null;
         
-        this.pacman = { x: 1, y: 1, direction: 'right', nextDirection: 'right', mouthOpen: 0 };
+        this.pacman = { x: 1, y: 1, direction: 'right', nextDirection: null, mouthOpen: 0 };
         this.ghosts = [
             { x: 9, y: 9, direction: 'left', color: '#ff0000' },
             { x: 10, y: 9, direction: 'up', color: '#ffb8ff' },
             { x: 9, y: 10, direction: 'down', color: '#00ffff' }
         ];
+        
+        this.moveCounter = 0;
+        this.moveDelay = 12; // Move every 12 frames (~5 moves per second at 60fps)
+        this.currentKey = null; // Track which key is currently pressed
         
         this.initMaze();
         this.setupControls();
@@ -154,7 +158,12 @@ class PacmanGame {
                 e.preventDefault();
                 const dir = e.key.replace('Arrow', '').toLowerCase();
                 if (e.type === 'keydown') {
+                    this.currentKey = dir;
                     this.pacman.nextDirection = dir;
+                } else if (e.type === 'keyup' && this.currentKey === dir) {
+                    // Stop moving when key is released
+                    this.currentKey = null;
+                    this.pacman.nextDirection = null;
                 }
             }
         };
@@ -181,7 +190,7 @@ class PacmanGame {
             this.animationFrame = null;
         }
         this.isRunning = false;
-        this.pacman = { x: 1, y: 1, direction: 'right', nextDirection: 'right', mouthOpen: 0 };
+        this.pacman = { x: 1, y: 1, direction: 'right', nextDirection: null, mouthOpen: 0 };
         this.ghosts = [
             { x: 9, y: 9, direction: 'left', color: '#ff0000' },
             { x: 10, y: 9, direction: 'up', color: '#ffb8ff' },
@@ -189,6 +198,8 @@ class PacmanGame {
         ];
         this.score = 0;
         this.lives = 3;
+        this.moveCounter = 0;
+        this.currentKey = null;
         this.initMaze();
         document.getElementById('score-pacman').textContent = '0';
         document.getElementById('lives-pacman').textContent = '3';
@@ -206,25 +217,53 @@ class PacmanGame {
     }
 
     update() {
-        // Move pacman
+        this.moveCounter++;
+        
+        // Only update movement every N frames to slow down the game
+        if (this.moveCounter < this.moveDelay) {
+            // Still animate mouth and move ghosts (but slower)
+            if (this.moveCounter % 3 === 0) {
+                this.pacman.mouthOpen = (this.pacman.mouthOpen + 0.1) % 1;
+            }
+            // Move ghosts less frequently
+            if (this.moveCounter % 6 === 0) {
+                this.moveGhosts();
+            }
+            return;
+        }
+        
+        this.moveCounter = 0;
+        
+        // Move pacman only if a key is pressed
+        if (!this.pacman.nextDirection) {
+            // No key pressed, don't move
+            this.pacman.mouthOpen = (this.pacman.mouthOpen + 0.1) % 1;
+            this.moveGhosts();
+            return;
+        }
+        
         const directions = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
         
         // Try to change direction
-        const nextDir = directions[this.pacman.nextDirection];
-        const nextX = this.pacman.x + nextDir[0];
-        const nextY = this.pacman.y + nextDir[1];
-        if (this.canMove(nextX, nextY)) {
-            this.pacman.direction = this.pacman.nextDirection;
+        if (this.pacman.nextDirection) {
+            const nextDir = directions[this.pacman.nextDirection];
+            const nextX = this.pacman.x + nextDir[0];
+            const nextY = this.pacman.y + nextDir[1];
+            if (this.canMove(nextX, nextY)) {
+                this.pacman.direction = this.pacman.nextDirection;
+            }
         }
         
-        // Move in current direction
-        const dir = directions[this.pacman.direction];
-        const newX = this.pacman.x + dir[0];
-        const newY = this.pacman.y + dir[1];
-        
-        if (this.canMove(newX, newY)) {
-            this.pacman.x = newX;
-            this.pacman.y = newY;
+        // Move in current direction (only if key is pressed)
+        if (this.pacman.direction && this.currentKey) {
+            const dir = directions[this.pacman.direction];
+            const newX = this.pacman.x + dir[0];
+            const newY = this.pacman.y + dir[1];
+            
+            if (this.canMove(newX, newY)) {
+                this.pacman.x = newX;
+                this.pacman.y = newY;
+            }
         }
         
         // Collect pellets
@@ -237,7 +276,21 @@ class PacmanGame {
             return true;
         });
         
-        // Move ghosts (simple AI)
+        // Move ghosts and check collisions
+        this.moveGhosts();
+        
+        // Check win
+        if (this.pellets.length === 0) {
+            alert('Gratulerer! Du samlet alle pellets! Score: ' + this.score);
+            this.reset();
+        }
+        
+        // Animate mouth
+        this.pacman.mouthOpen = (this.pacman.mouthOpen + 0.1) % 1;
+    }
+    
+    moveGhosts() {
+        const directions = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
         this.ghosts.forEach(ghost => {
             const dirs = ['up', 'down', 'left', 'right'];
             const validDirs = dirs.filter(d => {
@@ -263,18 +316,12 @@ class PacmanGame {
                 } else {
                     this.pacman.x = 1;
                     this.pacman.y = 1;
+                    this.pacman.direction = 'right';
+                    this.pacman.nextDirection = null;
+                    this.currentKey = null;
                 }
             }
         });
-        
-        // Check win
-        if (this.pellets.length === 0) {
-            alert('Gratulerer! Du samlet alle pellets! Score: ' + this.score);
-            this.reset();
-        }
-        
-        // Animate mouth
-        this.pacman.mouthOpen = (this.pacman.mouthOpen + 0.2) % 1;
     }
 
     canMove(x, y) {
@@ -410,7 +457,7 @@ function injectStyles() {
         }
         .pacman-wrap {
             width: 100%;
-            max-width: 650px;
+            max-width: min(650px, 95vw);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -458,7 +505,7 @@ function injectStyles() {
         #pacman-canvas {
             display: block;
             width: 100%;
-            max-width: 620px;
+            max-width: min(620px, calc(95vw - 40px));
             height: auto;
             aspect-ratio: 1;
         }

@@ -399,7 +399,7 @@ function injectStyles() {
         }
         .flappy-wrap {
             width: 100%;
-            max-width: 650px;
+            max-width: min(650px, 95vw);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -447,7 +447,7 @@ function injectStyles() {
         #flappy-canvas {
             display: block;
             width: 100%;
-            max-width: 620px;
+            max-width: min(620px, calc(95vw - 40px));
             height: auto;
             aspect-ratio: 6/5;
         }
@@ -502,7 +502,7 @@ function injectStyles() {
             border: 2px solid #dee2e6;
             border-radius: 8px;
             width: 100%;
-            max-width: 650px;
+            max-width: min(650px, calc(95vw - 40px));
         }
         .flappy-leaderboard h3 {
             margin: 0 0 12px 0;

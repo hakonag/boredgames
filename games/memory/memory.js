@@ -102,11 +102,26 @@ class MemoryGame {
     }
 
     setupControls() {
-        // Controls handled in updateDisplay
+        this.keyHandler = (e) => {
+            // Don't process shortcuts if user is typing in an input field
+            const activeElement = document.activeElement;
+            if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
+                return;
+            }
+            
+            // Handle restart (R)
+            if ((e.key === 'r' || e.key === 'R') && e.type === 'keydown') {
+                window.location.href = 'https://hakonag.github.io/boredgames/?game=memory';
+                return;
+            }
+        };
+        document.addEventListener('keydown', this.keyHandler);
     }
 
     removeControls() {
-        // Cleanup handled by DOM removal
+        if (this.keyHandler) {
+            document.removeEventListener('keydown', this.keyHandler);
+        }
     }
 
     reset() {
@@ -270,7 +285,7 @@ function injectStyles() {
         }
         .memory-wrap {
             width: 100%;
-            max-width: 700px;
+            max-width: min(700px, 95vw);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -317,7 +332,7 @@ function injectStyles() {
             display: grid;
             grid-template-columns: repeat(6, 1fr);
             gap: 10px;
-            max-width: 600px;
+            max-width: min(600px, calc(95vw - 40px));
             width: 100%;
         }
         .memory-card {

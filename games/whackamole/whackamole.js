@@ -90,10 +90,26 @@ class WhackAMoleGame {
     }
 
     setupControls() {
-        // Controls handled in updateDisplay
+        this.keyHandler = (e) => {
+            // Don't process shortcuts if user is typing in an input field
+            const activeElement = document.activeElement;
+            if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
+                return;
+            }
+            
+            // Handle restart (R)
+            if (e.key === 'r' || e.key === 'R') {
+                window.location.href = 'https://hakonag.github.io/boredgames/?game=whackamole';
+                return;
+            }
+        };
+        document.addEventListener('keydown', this.keyHandler);
     }
 
     removeControls() {
+        if (this.keyHandler) {
+            document.removeEventListener('keydown', this.keyHandler);
+        }
         if (this.gameInterval) clearInterval(this.gameInterval);
         if (this.timerInterval) clearInterval(this.timerInterval);
     }
@@ -298,7 +314,7 @@ function injectStyles() {
         }
         .whackamole-wrap {
             width: 100%;
-            max-width: 500px;
+            max-width: min(500px, 95vw);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -350,7 +366,7 @@ function injectStyles() {
             border-radius: 8px;
             padding: 20px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            max-width: 400px;
+            max-width: min(400px, calc(95vw - 40px));
             width: 100%;
             aspect-ratio: 1;
         }

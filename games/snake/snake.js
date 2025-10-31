@@ -18,7 +18,7 @@ export function init() {
 	const style = document.createElement('style');
 	style.id = 'snake-styles';
 	style.textContent = `
-		.snake-root { position: relative; width: 100%; max-width: 640px; aspect-ratio: 1 / 1; margin: 0 auto; display: grid; place-items: center; }
+		.snake-root { position: relative; width: 100%; max-width: min(640px, 95vw); aspect-ratio: 1 / 1; margin: 0 auto; display: grid; place-items: center; }
 		#snake-canvas { width: 100%; height: 100%; background: #111; border: 2px solid #333; border-radius: 8px; image-rendering: pixelated; }
 		.snake-hud { position: absolute; top: 10px; left: 10px; display: flex; gap: 10px; align-items: center; background: rgba(0,0,0,0.4); color: #fff; padding: 6px 10px; border-radius: 6px; }
 		.snake-hud button { background: #0d6efd; color: #fff; border: 1px solid #0b5ed7; border-radius: 4px; padding: 4px 8px; cursor: pointer; }
@@ -99,6 +99,19 @@ export function init() {
 
 	function onKey(e) {
 		const k = e.key;
+		
+		// Don't process shortcuts if user is typing in an input field
+		const activeElement = document.activeElement;
+		if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
+			return;
+		}
+		
+		// Handle restart (R) - hard refresh
+		if (k === 'r' || k === 'R') {
+			window.location.href = 'https://hakonag.github.io/boredgames/?game=snake';
+			return;
+		}
+		
 		if (k === 'ArrowUp' && state.dir.y !== 1) state.nextDir = { x: 0, y: -1 };
 		else if (k === 'ArrowDown' && state.dir.y !== -1) state.nextDir = { x: 0, y: 1 };
 		else if (k === 'ArrowLeft' && state.dir.x !== 1) state.nextDir = { x: -1, y: 0 };

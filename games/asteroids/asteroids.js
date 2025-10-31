@@ -466,7 +466,7 @@ function injectStyles() {
         }
         .asteroids-wrap {
             width: 100%;
-            max-width: 850px;
+            max-width: min(850px, 95vw);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -514,7 +514,7 @@ function injectStyles() {
         #asteroids-canvas {
             display: block;
             width: 100%;
-            max-width: 820px;
+            max-width: min(820px, calc(95vw - 40px));
             height: auto;
             aspect-ratio: 4/3;
         }

@@ -352,7 +352,7 @@ function injectStyles() {
         }
         .breakout-wrap {
             width: 100%;
-            max-width: 650px;
+            max-width: min(650px, 95vw);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -400,7 +400,7 @@ function injectStyles() {
         #breakout-canvas {
             display: block;
             width: 100%;
-            max-width: 620px;
+            max-width: min(620px, calc(95vw - 40px));
             height: auto;
             aspect-ratio: 1;
         }

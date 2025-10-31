@@ -247,11 +247,26 @@ class BattleshipGame {
     }
 
     setupControls() {
-        // Controls handled in updateDisplay
+        this.keyHandler = (e) => {
+            // Don't process shortcuts if user is typing in an input field
+            const activeElement = document.activeElement;
+            if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
+                return;
+            }
+            
+            // Handle restart (R)
+            if (e.key === 'r' || e.key === 'R') {
+                window.location.href = 'https://hakonag.github.io/boredgames/?game=battleship';
+                return;
+            }
+        };
+        document.addEventListener('keydown', this.keyHandler);
     }
 
     removeControls() {
-        // Cleanup handled by DOM removal
+        if (this.keyHandler) {
+            document.removeEventListener('keydown', this.keyHandler);
+        }
     }
 
     updateDisplay() {
@@ -397,7 +412,7 @@ function injectStyles() {
         }
         .battleship-wrap {
             width: 100%;
-            max-width: 1000px;
+            max-width: min(1000px, 95vw);
             display: flex;
             flex-direction: column;
             align-items: center;

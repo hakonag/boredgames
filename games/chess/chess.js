@@ -125,11 +125,26 @@ class ChessGame {
     }
 
     setupControls() {
-        // Controls handled in updateDisplay
+        this.keyHandler = (e) => {
+            // Don't process shortcuts if user is typing in an input field
+            const activeElement = document.activeElement;
+            if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
+                return;
+            }
+            
+            // Handle restart (R)
+            if (e.key === 'r' || e.key === 'R') {
+                window.location.href = 'https://hakonag.github.io/boredgames/?game=chess';
+                return;
+            }
+        };
+        document.addEventListener('keydown', this.keyHandler);
     }
 
     removeControls() {
-        // Cleanup handled by DOM removal
+        if (this.keyHandler) {
+            document.removeEventListener('keydown', this.keyHandler);
+        }
     }
 
     reset() {
@@ -315,7 +330,7 @@ function injectStyles() {
         }
         .chess-wrap {
             width: 100%;
-            max-width: 700px;
+            max-width: min(700px, 95vw);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -368,7 +383,7 @@ function injectStyles() {
             border-radius: 8px;
             padding: 4px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            max-width: 500px;
+            max-width: min(500px, calc(95vw - 40px));
             width: 100%;
             aspect-ratio: 1;
         }

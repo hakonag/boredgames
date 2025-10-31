@@ -121,6 +121,18 @@ class HangmanGame {
 
     setupControls() {
         this.keyHandler = (e) => {
+            // Don't process shortcuts if user is typing in an input field
+            const activeElement = document.activeElement;
+            if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
+                return;
+            }
+            
+            // Handle restart (R)
+            if (e.key === 'r' || e.key === 'R') {
+                window.location.href = 'https://hakonag.github.io/boredgames/?game=hangman';
+                return;
+            }
+            
             if (this.gameOver) return;
             const letter = e.key.toUpperCase();
             if (/^[A-ZÆØÅ]$/.test(letter)) {
@@ -317,7 +329,7 @@ function injectStyles() {
         }
         .hangman-wrap {
             width: 100%;
-            max-width: 800px;
+            max-width: min(800px, 95vw);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -387,7 +399,7 @@ function injectStyles() {
             flex-wrap: wrap;
             gap: 8px;
             justify-content: center;
-            max-width: 600px;
+            max-width: min(600px, calc(95vw - 40px));
         }
         .letter-btn {
             width: 40px;

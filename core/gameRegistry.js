@@ -253,6 +253,60 @@ export const gameRegistry = [
         category: 'arcade',
         initFunction: 'initDino',
         enabled: true
+    },
+    {
+        id: 'numberguess',
+        name: 'Gjett Tallet',
+        icon: '🎯',
+        description: 'Klassisk tallgjetting',
+        category: 'puzzle',
+        initFunction: 'initNumberGuess',
+        enabled: true
+    },
+    {
+        id: 'rockpaperscissors',
+        name: 'Stein Saks Papir',
+        icon: '✂️',
+        description: 'Klassisk stein saks papir',
+        category: 'arcade',
+        initFunction: 'initRockPaperScissors',
+        enabled: true
+    },
+    {
+        id: 'higherlower',
+        name: 'Høyere Lavere',
+        icon: '📊',
+        description: 'Gjett om neste tall er høyere eller lavere',
+        category: 'arcade',
+        initFunction: 'initHigherLower',
+        enabled: true
+    },
+    {
+        id: 'reactiontime',
+        name: 'Reaksjonstid',
+        icon: '⚡',
+        description: 'Test din reaksjonstid',
+        category: 'arcade',
+        initFunction: 'initReactionTime',
+        enabled: true
+    },
+    {
+        id: 'clickcounter',
+        name: 'Klikk Teller',
+        icon: '🖱️',
+        description: 'Klikk så raskt som mulig',
+        category: 'arcade',
+        initFunction: 'initClickCounter',
+        enabled: true
+    },
+    {
+        id: 'ordell',
+        name: 'Ordell',
+        icon: '📝',
+        description: 'Gjett 5-bokstavs ord',
+        category: 'puzzle',
+        initFunction: 'initOrdell',
+        enabled: true
     }
 ];
 

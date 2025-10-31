@@ -136,6 +136,12 @@ function showGameLoader(gameId) {
         gameId === 'reversi' ? '#228b22' :
         gameId === 'whackamole' ? '#8b4513' :
         gameId === 'dino' ? '#ffffff' :
+        gameId === 'numberguess' ? '#f59e0b' :
+        gameId === 'rockpaperscissors' ? '#ef4444' :
+        gameId === 'higherlower' ? '#3b82f6' :
+        gameId === 'reactiontime' ? '#22c55e' :
+        gameId === 'clickcounter' ? '#a855f7' :
+        gameId === 'ordell' ? '#06b6d4' :
         '#339af0'
     );
     const blocks = gameId === 'tetris' ? 8 : 6;

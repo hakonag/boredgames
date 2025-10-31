@@ -225,7 +225,7 @@ export function init() {
             justify-content: center;
             align-items: stretch;
             width: 100%;
-            max-width: 1200px;
+            max-width: min(1200px, 95vw);
             height: 100%;
             padding: 0;
             box-sizing: border-box;
@@ -338,7 +338,7 @@ export function init() {
             display: block;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             width: 100%;
-            max-width: min(300px, calc(100vw - 500px));
+            max-width: min(300px, calc(95vw - 400px));
             height: auto;
             aspect-ratio: 1 / 2;
         }
@@ -590,7 +590,7 @@ export function init() {
             border: 2px solid #dee2e6;
             padding: 40px;
             border-radius: 15px;
-            max-width: 400px;
+            max-width: min(400px, calc(95vw - 40px));
             width: 90%;
             text-align: center;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);

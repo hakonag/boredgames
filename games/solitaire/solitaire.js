@@ -65,7 +65,7 @@ export function init() {
         .game-container { position: fixed; inset: 0; background:#fff; border-radius:0; box-shadow:none; padding:0; display:flex; align-items:center; justify-content:center; }
         .game-container #game-content { width:100%; height:90vh; max-height:90vh; margin-top:5vh; margin-bottom:5vh; display:flex; flex-direction:column; align-items:center; justify-content:center; background:transparent; }
 
-        .solitaire-layout { display:grid; grid-template-columns: 4fr 1fr; gap:16px; align-items:stretch; width:100%; max-width:1200px; height:100%; padding:0 10px; box-sizing:border-box; }
+        .solitaire-layout { display:grid; grid-template-columns: 4fr 1fr; gap:16px; align-items:stretch; width:100%; max-width:min(1200px, 95vw); height:100%; padding:0 10px; box-sizing:border-box; }
         .solitaire-board { --card-w:76px; --card-h:108px; --pile-gap:18px; background:
             radial-gradient(1200px 800px at 50% 0%, rgba(255,255,255,0.06), rgba(255,255,255,0) 60%),
             linear-gradient(180deg, #0e8747 0%, #0c7a41 40%, #096f3b 100%);

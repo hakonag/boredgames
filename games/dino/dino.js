@@ -503,7 +503,7 @@ function injectStyles() {
         }
         .dino-wrap {
             width: 100%;
-            max-width: 850px;
+            max-width: min(850px, 95vw);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -551,7 +551,7 @@ function injectStyles() {
         #dino-canvas {
             display: block;
             width: 100%;
-            max-width: 820px;
+            max-width: min(820px, calc(95vw - 40px));
             height: auto;
             aspect-ratio: 4/1;
         }
@@ -606,7 +606,7 @@ function injectStyles() {
             border: 2px solid #dee2e6;
             border-radius: 8px;
             width: 100%;
-            max-width: 850px;
+            max-width: min(850px, calc(95vw - 40px));
         }
         .dino-leaderboard h3 {
             margin: 0 0 12px 0;
