@@ -110,40 +110,8 @@ function showGameLoader(gameId) {
     const game = (gameRegistry || []).find(g => g.id === gameId);
     const icon = game?.icon || '🎮';
     const name = game?.name || gameId;
-    // Simple theme color by game
-    const theme = (
-        gameId === 'tetris' ? '#4dabf7' :
-        gameId === 'solitaire' ? '#20c997' :
-        gameId === 'yatzy' ? '#845ef7' :
-        gameId === 'ludo' ? '#f59f00' :
-        gameId === 'roulette' ? '#fa5252' :
-        gameId === 'casino' ? '#fcc419' :
-        gameId === '2048' ? '#776e65' :
-        gameId === '1010' ? '#4a90e2' :
-        gameId === 'pong' ? '#0d6efd' :
-        gameId === 'breakout' ? '#ef4444' :
-        gameId === 'pacman' ? '#ffff00' :
-        gameId === 'flappybird' ? '#ffd700' :
-        gameId === 'sudoku' ? '#495057' :
-        gameId === 'arkanoid' ? '#ef4444' :
-        gameId === 'checkers' ? '#dc3545' :
-        gameId === 'chess' ? '#000000' :
-        gameId === 'pinball' ? '#1a1a1a' :
-        gameId === 'tictactoe' ? '#6c757d' :
-        gameId === 'mahjong' ? '#8b4513' :
-        gameId === 'crossword' ? '#495057' :
-        gameId === 'memory' ? '#0d6efd' :
-        gameId === 'reversi' ? '#228b22' :
-        gameId === 'whackamole' ? '#8b4513' :
-        gameId === 'dino' ? '#ffffff' :
-        gameId === 'numberguess' ? '#f59e0b' :
-        gameId === 'rockpaperscissors' ? '#ef4444' :
-        gameId === 'higherlower' ? '#3b82f6' :
-        gameId === 'reactiontime' ? '#22c55e' :
-        gameId === 'clickcounter' ? '#a855f7' :
-        gameId === 'ordell' ? '#06b6d4' :
-        '#339af0'
-    );
+    // Get theme color from registry
+    const theme = game?.themeColor || '#339af0';
     const blocks = gameId === 'tetris' ? 8 : 6;
     const blocksHtml = Array.from({ length: blocks }).map(() => `<span class="game-block" style="background:${theme}"></span>`).join('');
     overlay.innerHTML = `

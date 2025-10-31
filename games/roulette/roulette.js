@@ -35,8 +35,7 @@ export function init() {
             </div>
         </div>
     `;
-
-    injectStyles();
+    injectGameStyles('roulette', getGameSpecificStyles());
     if (typeof lucide !== 'undefined') lucide.createIcons();
 
     const segments = buildSegments();
@@ -98,11 +97,7 @@ export function init() {
             return;
         }
         
-        // Handle restart (R)
-        if (e.key === 'r' || e.key === 'R') {
-            window.location.href = 'https://hakonag.github.io/boredgames/?game=roulette';
-            return;
-        }
+        
     };
     addHandler(document, 'keydown', rHandler);
     
@@ -127,15 +122,12 @@ export function cleanup() {
     rouletteHandlers = [];
     // remove injected style
     const s = document.getElementById('roulette-style');
-    if (s) s.remove();
+        removeGameStyles('roulette');
 }
 
-function injectStyles() {
-    if (document.getElementById('roulette-style')) return;
-    const style = document.createElement('style');
-    style.id = 'roulette-style';
-    style.textContent = `
-    .roulette-wrap { display:flex; gap:20px; align-items:center; justify-content:center; width:100%; max-width:min(1100px, 95vw); }
+function getGameSpecificStyles() {
+    return `
+.roulette-wrap { display:flex; gap:20px; align-items:center; justify-content:center; width:100%; max-width:min(1100px, 95vw); }
     .roulette-left { display:flex; flex-direction:column; align-items:center; gap:12px; }
     .roulette-right { width:200px; background:#f8f9fa; border:2px solid #dee2e6; border-radius:12px; padding:12px; }
     .roulette-right h3 { margin:0 0 8px 0; font-size:.9rem; color:#495057; text-align:center; }
@@ -158,12 +150,7 @@ function injectStyles() {
     #bet-number { width:130px; padding:6px 8px; border:2px solid #dee2e6; border-radius:6px; }
     .result-line { text-align:center; color:#495057; min-height:20px; font-weight:600; }
     @media (max-width: 768px) {
-        .game-container #game-content {
-            height: 100vh;
-            max-height: 100vh;
-            margin: 0;
-            padding: 10px;
-        }
+        
         .roulette-wrap {
             flex-direction: column;
             gap: 12px;
@@ -227,7 +214,6 @@ function injectStyles() {
         }
     }
     `;
-    document.head.appendChild(style);
 }
 
 function buildSegments() {

@@ -33,8 +33,7 @@ export function init() {
             </div>
         </div>
     `;
-
-    injectStyles();
+    injectGameStyles('spaceinvader', getGameSpecificStyles());
     if (typeof lucide !== 'undefined') lucide.createIcons();
     invader = new SpaceInvader();
     document.getElementById('si-start').onclick = () => invader.start();
@@ -199,15 +198,9 @@ class SpaceInvader {
     }
 }
 
-function injectStyles() {
-    if (document.getElementById('si-style')) return;
-    const style = document.createElement('style'); style.id = 'si-style';
-    style.textContent = `
-    .game-container #game-content, .game-container #game-content * { font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol" !important; }
-    .game-container { position: fixed; inset:0; background:#fff; display:flex; align-items:center; justify-content:center; }
-    .game-container #game-content { width:100%; height:90vh; max-height:90vh; margin-top:5vh; margin-bottom:5vh; display:flex; align-items:center; justify-content:center; }
-    .back-button-tetris { position: fixed; top: 15px; left: 15px; background: #f8f9fa; color: #333; border: 1px solid #dee2e6; padding: 6px 10px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; transition: background-color .15s ease, border-color .15s ease, color .15s ease; z-index: 10000; display: flex; align-items: center; gap: 6px; font-weight: 600; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
-    .si-wrap { width:100%; max-width:min(1200px, 95vw); height:100%; display:flex; gap:16px; align-items:stretch; padding:0 10px; box-sizing:border-box; }
+function getGameSpecificStyles() {
+    return `
+.si-wrap { width:100%; max-width:min(1200px, 95vw); height:100%; display:flex; gap:16px; align-items:stretch; padding:0 10px; box-sizing:border-box; }
     .si-left { flex: 1; display:flex; align-items:center; justify-content:center; }
     #si-canvas { width:100%; height:auto; max-width:min(820px, calc(95vw - 240px)); border:4px solid #6c757d; border-radius:10px; box-shadow:0 8px 20px rgba(0,0,0,0.12); }
     .si-right { width:220px; flex-shrink:0; display:flex; flex-direction:column; gap:12px; }
@@ -217,18 +210,8 @@ function injectStyles() {
     .buttons { display:flex; flex-direction:column; gap:6px; }
     .panel { background:#fff; border:2px solid #dee2e6; border-radius:10px; padding:10px; display:flex; flex-direction:column; gap:6px; }
     @media (max-width: 768px) {
-        .game-container #game-content {
-            height: 100vh;
-            max-height: 100vh;
-            margin: 0;
-            padding: 10px;
-        }
-        .back-button-tetris {
-            top: 10px;
-            left: 10px;
-            padding: 8px 10px;
-            font-size: 0.7rem;
-        }
+        
+        
         .si-wrap {
             flex-direction: column;
             gap: 12px;
@@ -270,7 +253,6 @@ function injectStyles() {
         }
     }
     `;
-    document.head.appendChild(style);
 }
 
 

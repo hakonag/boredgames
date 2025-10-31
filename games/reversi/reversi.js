@@ -5,9 +5,7 @@ let reversiGame = null;
 export function init() {
     const gameContent = document.getElementById('game-content');
     gameContent.innerHTML = `
-        <button class="back-button-tetris" onclick="window.location.href='https://hakonag.github.io/boredgames/'">
-            <i data-lucide="house"></i> Tilbake
-        </button>
+        createBackButton() + `
         <div class="reversi-wrap">
             <div class="reversi-main">
                 <div class="reversi-header">
@@ -41,18 +39,10 @@ export function init() {
             </div>
         </div>
     `;
-
-    injectStyles();
+    injectGameStyles('reversi', getGameSpecificStyles());
     if (typeof lucide !== 'undefined') lucide.createIcons();
     
-    // Prevent wheel scrolling
-    const preventScroll = (e) => {
-        e.preventDefault();
-        return false;
-    };
-    window.addEventListener('wheel', preventScroll, { passive: false });
-    window.addEventListener('touchmove', preventScroll, { passive: false });
-    window.reversiScrollPrevent = { wheel: preventScroll, touchmove: preventScroll };
+    setupScrollPrevention('reversi');
     
     reversiGame = new ReversiGame();
     window.reversiGame = reversiGame;
@@ -64,14 +54,8 @@ export function cleanup() {
         reversiGame.removeControls();
         reversiGame = null;
     }
-    // Remove scroll prevention
-    if (window.reversiScrollPrevent) {
-        window.removeEventListener('wheel', window.reversiScrollPrevent.wheel);
-        window.removeEventListener('touchmove', window.reversiScrollPrevent.touchmove);
-        delete window.reversiScrollPrevent;
-    }
-    const styleEl = document.getElementById('reversi-style');
-    if (styleEl) styleEl.remove();
+        removeScrollPrevention('reversi');
+        removeGameStyles('reversi');
 }
 
 class ReversiGame {
@@ -92,18 +76,14 @@ class ReversiGame {
     }
 
     setupControls() {
-        this.keyHandler = (e) => {
+        this.keyHandler = setupHardReset('reversi', (e) => {
             // Don't process shortcuts if user is typing in an input field
             const activeElement = document.activeElement;
             if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
                 return;
             }
             
-            // Handle restart (R)
-            if ((e.key === 'r' || e.key === 'R') && e.type === 'keydown') {
-                window.location.href = 'https://hakonag.github.io/boredgames/?game=reversi';
-                return;
-            }
+            
         };
         document.addEventListener('keydown', this.keyHandler);
     }
@@ -266,79 +246,9 @@ class ReversiGame {
     }
 }
 
-function injectStyles() {
-    if (document.getElementById('reversi-style')) return;
-    const style = document.createElement('style');
-    style.id = 'reversi-style';
-    style.textContent = `
-        .game-container #game-content, .game-container #game-content * {
-            font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol" !important;
-        }
-        body {
-            overflow: hidden !important;
-            position: fixed !important;
-            width: 100% !important;
-        }
-        html {
-            overflow: hidden !important;
-        }
-        .game-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            overflow: hidden !important;
-            max-width: 100vw;
-            max-height: 100vh;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            box-sizing: border-box;
-            background: #ffffff;
-        }
-        .game-container #game-content {
-            position: relative;
-            width: 100%;
-            height: 90vh;
-            max-height: 90vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            max-width: 100%;
-            overflow: hidden;
-            box-sizing: border-box;
-            padding: 10px;
-            margin-top: 5vh;
-            margin-bottom: 5vh;
-            background: transparent;
-            border-radius: 0;
-            box-shadow: none;
-        }
-        .back-button-tetris {
-            position: fixed;
-            top: 15px;
-            left: 15px;
-            background: #f8f9fa;
-            color: #333;
-            border: 1px solid #dee2e6;
-            padding: 6px 10px;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            z-index: 10000;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-weight: 600;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        .reversi-wrap {
+function getGameSpecificStyles() {
+    return `
+.reversi-wrap {
             width: 100%;
             max-width: min(700px, 95vw);
             display: flex;
@@ -475,6 +385,5 @@ function injectStyles() {
             }
         }
     `;
-    document.head.appendChild(style);
 }
 

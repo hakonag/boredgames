@@ -26,8 +26,7 @@ export function init() {
             </div>
         </div>
     `;
-
-    injectStyles();
+    injectGameStyles('casino', getGameSpecificStyles());
     if (typeof lucide !== 'undefined') lucide.createIcons();
 
     const symbols = ['🍒','🍋','🍇','🔔','⭐','7️⃣'];
@@ -74,11 +73,7 @@ export function init() {
             return;
         }
         
-        // Handle restart (R)
-        if (e.key === 'r' || e.key === 'R') {
-            window.location.href = 'https://hakonag.github.io/boredgames/?game=casino';
-            return;
-        }
+        
     };
     addHandler(document, 'keydown', rHandler);
 
@@ -90,15 +85,12 @@ export function cleanup() {
     slotsHandlers = [];
     clearTimeout(spinTimeout);
     const s = document.getElementById('slots-style');
-    if (s) s.remove();
+        removeGameStyles('casino');
 }
 
-function injectStyles() {
-    if (document.getElementById('slots-style')) return;
-    const style = document.createElement('style');
-    style.id = 'slots-style';
-    style.textContent = `
-    .slots-wrap { display:flex; gap:20px; align-items:center; justify-content:center; width:100%; max-width:min(900px, 95vw); }
+function getGameSpecificStyles() {
+    return `
+.slots-wrap { display:flex; gap:20px; align-items:center; justify-content:center; width:100%; max-width:min(900px, 95vw); }
     .slots-machine { display:grid; grid-template-columns: repeat(3, 100px); gap:10px; background:#000; padding:14px; border:6px solid #6c757d; border-radius:12px; box-shadow:0 6px 20px rgba(0,0,0,.15); }
     .reel { width:100px; height:100px; display:flex; align-items:center; justify-content:center; background:#111; color:#fff; font-size:48px; border-radius:8px; border:2px solid #343a40; }
     .slots-controls { display:flex; flex-direction:column; gap:10px; width:240px; }
@@ -107,12 +99,7 @@ function injectStyles() {
     #slots-amount { width:100px; padding:6px 8px; border:2px solid #dee2e6; border-radius:6px; }
     .result-line { text-align:center; color:#495057; min-height:20px; font-weight:600; }
     @media (max-width: 768px) {
-        .game-container #game-content {
-            height: 100vh;
-            max-height: 100vh;
-            margin: 0;
-            padding: 10px;
-        }
+        
         .slots-wrap {
             flex-direction: column;
             gap: 12px;
@@ -153,6 +140,5 @@ function injectStyles() {
         }
     }
     `;
-    document.head.appendChild(style);
 }
 

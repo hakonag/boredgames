@@ -9,6 +9,7 @@ export const gameRegistry = [
         description: 'Klassisk solitær',
         category: 'card',
         initFunction: 'initSolitaire',
+        themeColor: '#20c997',
         enabled: true
     },
     {
@@ -18,6 +19,7 @@ export const gameRegistry = [
         description: 'Spis, voks, unngå deg selv',
         category: 'arcade',
         initFunction: 'initSnake',
+        themeColor: '#339af0',
         enabled: true
     },
     {
@@ -27,6 +29,7 @@ export const gameRegistry = [
         description: 'Finn bombene – ikke spreng!',
         category: 'puzzle',
         initFunction: 'initMinesweeper',
+        themeColor: '#339af0',
         enabled: true
     },
     {
@@ -36,6 +39,7 @@ export const gameRegistry = [
         description: 'Terningklassiker',
         category: 'dice',
         initFunction: 'initYatzy',
+        themeColor: '#845ef7',
         enabled: false // Placeholder game
     },
     {
@@ -45,6 +49,7 @@ export const gameRegistry = [
         description: 'Brettspillklassiker',
         category: 'board',
         initFunction: 'initLudo',
+        themeColor: '#f59f00',
         enabled: false // Placeholder game
     },
     {
@@ -54,6 +59,7 @@ export const gameRegistry = [
         description: 'Puslespillklassiker',
         category: 'puzzle',
         initFunction: 'initTetris',
+        themeColor: '#4dabf7',
         enabled: true
     },
     {
@@ -63,6 +69,7 @@ export const gameRegistry = [
         description: 'Casinoklassiker',
         category: 'casino',
         initFunction: 'initRoulette',
+        themeColor: '#fa5252',
         enabled: true
     },
     {
@@ -72,6 +79,7 @@ export const gameRegistry = [
         description: 'Casinospillsamling',
         category: 'casino',
         initFunction: 'initCasino',
+        themeColor: '#fcc419',
         enabled: true
     },
     {
@@ -81,6 +89,7 @@ export const gameRegistry = [
         description: '2-spiller klassisk tennis',
         category: 'sports',
         initFunction: 'initTennis',
+        themeColor: '#339af0',
         enabled: true
     },
     {
@@ -90,6 +99,7 @@ export const gameRegistry = [
         description: 'Klassisk space shooter',
         category: 'arcade',
         initFunction: 'initSpaceInvader',
+        themeColor: '#339af0',
         enabled: true
     },
     {
@@ -99,6 +109,7 @@ export const gameRegistry = [
         description: 'Slidende tall-puslespill',
         category: 'puzzle',
         initFunction: 'init2048',
+        themeColor: '#776e65',
         enabled: true
     },
     {
@@ -108,6 +119,7 @@ export const gameRegistry = [
         description: 'Blokk-puslespill',
         category: 'puzzle',
         initFunction: 'init1010',
+        themeColor: '#4a90e2',
         enabled: true
     },
     {
@@ -117,6 +129,7 @@ export const gameRegistry = [
         description: 'Klassisk 2-spiller pong',
         category: 'arcade',
         initFunction: 'initPong',
+        themeColor: '#0d6efd',
         enabled: true
     },
     {
@@ -126,6 +139,7 @@ export const gameRegistry = [
         description: 'Klassisk breakout',
         category: 'arcade',
         initFunction: 'initBreakout',
+        themeColor: '#ef4444',
         enabled: true
     },
     {
@@ -135,6 +149,7 @@ export const gameRegistry = [
         description: 'Klassisk pacman',
         category: 'arcade',
         initFunction: 'initPacman',
+        themeColor: '#ffff00',
         enabled: true
     },
     {
@@ -144,6 +159,7 @@ export const gameRegistry = [
         description: 'Flappy bird klassiker',
         category: 'arcade',
         initFunction: 'initFlappyBird',
+        themeColor: '#ffd700',
         enabled: true
     },
     {
@@ -153,6 +169,7 @@ export const gameRegistry = [
         description: 'Klassisk sudoku',
         category: 'puzzle',
         initFunction: 'initSudoku',
+        themeColor: '#495057',
         enabled: true
     },
     {
@@ -162,6 +179,7 @@ export const gameRegistry = [
         description: 'Klassisk arkanoid',
         category: 'arcade',
         initFunction: 'initArkanoid',
+        themeColor: '#ef4444',
         enabled: true
     },
     {
@@ -171,6 +189,7 @@ export const gameRegistry = [
         description: 'Klassisk dam',
         category: 'strategy',
         initFunction: 'initCheckers',
+        themeColor: '#dc3545',
         enabled: true
     },
     {
@@ -180,6 +199,7 @@ export const gameRegistry = [
         description: 'Klassisk sjakk',
         category: 'strategy',
         initFunction: 'initChess',
+        themeColor: '#000000',
         enabled: true
     },
     {
@@ -189,6 +209,7 @@ export const gameRegistry = [
         description: 'Klassisk pinball',
         category: 'arcade',
         initFunction: 'initPinball',
+        themeColor: '#1a1a1a',
         enabled: true
     },
     {
@@ -198,6 +219,7 @@ export const gameRegistry = [
         description: 'Tre på rad',
         category: 'strategy',
         initFunction: 'initTictactoe',
+        themeColor: '#6c757d',
         enabled: true
     },
     {
@@ -207,6 +229,7 @@ export const gameRegistry = [
         description: 'Mahjong solitaire',
         category: 'puzzle',
         initFunction: 'initMahjong',
+        themeColor: '#8b4513',
         enabled: true
     },
     {
@@ -216,6 +239,7 @@ export const gameRegistry = [
         description: 'Kryssord',
         category: 'puzzle',
         initFunction: 'initCrossword',
+        themeColor: '#495057',
         enabled: true
     },
     {
@@ -225,6 +249,7 @@ export const gameRegistry = [
         description: 'Minne-spill',
         category: 'puzzle',
         initFunction: 'initMemory',
+        themeColor: '#0d6efd',
         enabled: true
     },
     {
@@ -234,6 +259,7 @@ export const gameRegistry = [
         description: 'Klassisk reversi',
         category: 'strategy',
         initFunction: 'initReversi',
+        themeColor: '#228b22',
         enabled: true
     },
     {
@@ -243,6 +269,7 @@ export const gameRegistry = [
         description: 'Slå muldvarp',
         category: 'arcade',
         initFunction: 'initWhackamole',
+        themeColor: '#8b4513',
         enabled: true
     },
     {
@@ -252,6 +279,7 @@ export const gameRegistry = [
         description: 'Chrome dino jump',
         category: 'arcade',
         initFunction: 'initDino',
+        themeColor: '#ffffff',
         enabled: true
     },
     {
@@ -261,6 +289,7 @@ export const gameRegistry = [
         description: 'Klassisk tallgjetting',
         category: 'puzzle',
         initFunction: 'initNumberGuess',
+        themeColor: '#f59e0b',
         enabled: true
     },
     {
@@ -270,6 +299,7 @@ export const gameRegistry = [
         description: 'Klassisk stein saks papir',
         category: 'arcade',
         initFunction: 'initRockPaperScissors',
+        themeColor: '#ef4444',
         enabled: true
     },
     {
@@ -279,6 +309,7 @@ export const gameRegistry = [
         description: 'Gjett om neste tall er høyere eller lavere',
         category: 'arcade',
         initFunction: 'initHigherLower',
+        themeColor: '#3b82f6',
         enabled: true
     },
     {
@@ -288,6 +319,7 @@ export const gameRegistry = [
         description: 'Test din reaksjonstid',
         category: 'arcade',
         initFunction: 'initReactionTime',
+        themeColor: '#22c55e',
         enabled: true
     },
     {
@@ -297,6 +329,7 @@ export const gameRegistry = [
         description: 'Klikk så raskt som mulig',
         category: 'arcade',
         initFunction: 'initClickCounter',
+        themeColor: '#a855f7',
         enabled: true
     },
     {
@@ -306,6 +339,7 @@ export const gameRegistry = [
         description: 'Gjett 5-bokstavs ord',
         category: 'puzzle',
         initFunction: 'initOrdell',
+        themeColor: '#06b6d4',
         enabled: true
     }
 ];

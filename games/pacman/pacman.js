@@ -1,13 +1,12 @@
 // Pacman Game Module
+import { createBackButton, setupScrollPrevention, removeScrollPrevention, setupHardReset } from '../../core/gameUtils.js';
+import { injectGameStyles, removeGameStyles } from '../../core/gameStyles.js';
 
 let pacmanGame = null;
 
 export function init() {
     const gameContent = document.getElementById('game-content');
-    gameContent.innerHTML = `
-        <button class="back-button-tetris" onclick="window.location.href='https://hakonag.github.io/boredgames/'">
-            <i data-lucide="house"></i> Tilbake
-        </button>
+    gameContent.innerHTML = createBackButton() + `
         <div class="pacman-wrap">
             <div class="pacman-main">
                 <div class="pacman-header">
@@ -40,18 +39,10 @@ export function init() {
             </div>
         </div>
     `;
-
-    injectStyles();
+    injectGameStyles('pacman', getGameSpecificStyles());
     if (typeof lucide !== 'undefined') lucide.createIcons();
     
-    // Prevent wheel scrolling
-    const preventScroll = (e) => {
-        e.preventDefault();
-        return false;
-    };
-    window.addEventListener('wheel', preventScroll, { passive: false });
-    window.addEventListener('touchmove', preventScroll, { passive: false });
-    window.pacmanScrollPrevent = { wheel: preventScroll, touchmove: preventScroll };
+    setupScrollPrevention('pacman');
     
     pacmanGame = new PacmanGame();
     window.pacmanGame = pacmanGame;
@@ -64,14 +55,8 @@ export function cleanup() {
         pacmanGame.removeControls();
         pacmanGame = null;
     }
-    // Remove scroll prevention
-    if (window.pacmanScrollPrevent) {
-        window.removeEventListener('wheel', window.pacmanScrollPrevent.wheel);
-        window.removeEventListener('touchmove', window.pacmanScrollPrevent.touchmove);
-        delete window.pacmanScrollPrevent;
-    }
-    const styleEl = document.getElementById('pacman-style');
-    if (styleEl) styleEl.remove();
+        removeScrollPrevention('pacman');
+        removeGameStyles('pacman');
 }
 
 class PacmanGame {
@@ -141,19 +126,7 @@ class PacmanGame {
 
     setupControls() {
         this.keys = {};
-        this.keyHandler = (e) => {
-            // Don't process shortcuts if user is typing in an input field
-            const activeElement = document.activeElement;
-            if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
-                return;
-            }
-            
-            // Handle restart (R)
-            if ((e.key === 'r' || e.key === 'R') && e.type === 'keydown') {
-                window.location.href = 'https://hakonag.github.io/boredgames/?game=pacman';
-                return;
-            }
-            
+        this.keyHandler = setupHardReset('pacman', (e) => {
             if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
                 e.preventDefault();
                 const dir = e.key.replace('Arrow', '').toLowerCase();
@@ -383,79 +356,9 @@ class PacmanGame {
     }
 }
 
-function injectStyles() {
-    if (document.getElementById('pacman-style')) return;
-    const style = document.createElement('style');
-    style.id = 'pacman-style';
-    style.textContent = `
-        .game-container #game-content, .game-container #game-content * {
-            font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol" !important;
-        }
-        body {
-            overflow: hidden !important;
-            position: fixed !important;
-            width: 100% !important;
-        }
-        html {
-            overflow: hidden !important;
-        }
-        .game-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            overflow: hidden !important;
-            max-width: 100vw;
-            max-height: 100vh;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            box-sizing: border-box;
-            background: #ffffff;
-        }
-        .game-container #game-content {
-            position: relative;
-            width: 100%;
-            height: 90vh;
-            max-height: 90vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            max-width: 100%;
-            overflow: hidden;
-            box-sizing: border-box;
-            padding: 10px;
-            margin-top: 5vh;
-            margin-bottom: 5vh;
-            background: transparent;
-            border-radius: 0;
-            box-shadow: none;
-        }
-        .back-button-tetris {
-            position: fixed;
-            top: 15px;
-            left: 15px;
-            background: #f8f9fa;
-            color: #333;
-            border: 1px solid #dee2e6;
-            padding: 6px 10px;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            z-index: 10000;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-weight: 600;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        .pacman-wrap {
+function getGameSpecificStyles() {
+    return `
+.pacman-wrap {
             width: 100%;
             max-width: min(650px, 95vw);
             display: flex;
@@ -575,6 +478,5 @@ function injectStyles() {
             }
         }
     `;
-    document.head.appendChild(style);
 }
 

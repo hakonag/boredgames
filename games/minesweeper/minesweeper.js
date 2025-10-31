@@ -1,14 +1,13 @@
 import { displayHighScores, showScoreModal } from '../../core/highScores.js';
+import { createBackButton, setupScrollPrevention, removeScrollPrevention, setupHardReset } from '../../core/gameUtils.js';
+import { injectGameStyles, removeGameStyles } from '../../core/gameStyles.js';
 // Minesweeper MVP
 let msHandlers = [];
 
 export function init() {
     const root = document.getElementById('game-content');
     if (!root) return;
-    root.innerHTML = `
-        <button class="back-button-tetris" onclick="window.location.href='https://hakonag.github.io/boredgames/'">
-            <i data-lucide="house"></i> Tilbake
-        </button>
+    root.innerHTML = createBackButton() + `
         <div class="ms-wrap">
             <div class="ms-top">
                 <div class="ms-info">⏱️ <span id="ms-time">0</span>s</div>
@@ -34,31 +33,10 @@ export function init() {
             <div id="ms-status" class="ms-status"></div>
         </div>
     `;
-
-    injectStyles();
+    injectGameStyles('minesweeper', getGameSpecificStyles());
     if (typeof lucide !== 'undefined') lucide.createIcons();
 
-    // Lock scrolling and make game full-page similar to Tetris
-    document.body.style.overflow = 'hidden';
-    document.body.style.position = 'fixed';
-    document.body.style.width = '100%';
-    document.body.style.height = '100%';
-    document.documentElement.style.overflow = 'hidden';
-    const preventScroll = (e) => { e.preventDefault(); return false; };
-    window.addEventListener('wheel', preventScroll, { passive: false });
-    window.addEventListener('touchmove', preventScroll, { passive: false });
-    window.tetrisScrollPrevent = { wheel: preventScroll, touchmove: preventScroll };
-
-    // Inject page-level override styles to remove container chrome
-    const style = document.createElement('style');
-    style.id = 'game-specific-styles';
-    style.textContent = `
-        body { overflow:hidden !important; position:fixed !important; width:100% !important; }
-        html { overflow:hidden !important; }
-        .game-container { position: fixed; inset: 0; overflow:hidden !important; max-width: 100vw; max-height: 100vh; margin:0; padding:0; display:flex; flex-direction:column; align-items:center; justify-content:center; box-sizing:border-box; background:#ffffff; border-radius:0; box-shadow:none; }
-        .game-container #game-content { position: relative; width:100%; height:90%; max-height:90vh; display:flex; flex-direction:column; align-items:center; justify-content:center; max-width:100%; overflow:hidden; box-sizing:border-box; padding:20px; background:#ffffff; }
-    `;
-    document.head.appendChild(style);
+    setupScrollPrevention('minesweeper');
 
     const $ = (id) => document.getElementById(id);
     let size = parseInt($("ms-size").value, 10);
@@ -230,18 +208,16 @@ export function init() {
 export function cleanup() {
     msHandlers.forEach(([el, evt, fn]) => { try { el.removeEventListener(evt, fn); } catch {} });
     msHandlers = [];
-    const s = document.getElementById('ms-style'); if (s) s.remove();
+    removeScrollPrevention('minesweeper');
+    removeGameStyles('minesweeper');
 }
 
-function injectStyles() {
-    if (document.getElementById('ms-style')) return;
-    const style = document.createElement('style');
-    style.id = 'ms-style';
-    style.textContent = `
-    /* Page framing similar to Tetris (5/90/5) and grotesk font */
-    .game-container #game-content, .game-container #game-content * { font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol" !important; color:#111; }
-    .game-container #game-content { width:100%; height:90vh; max-height:90vh; margin-top:5vh; margin-bottom:5vh; background:transparent; display:flex; flex-direction:column; align-items:center; justify-content:center; }
-    body { background:#fff; }
+function getGameSpecificStyles() {
+    return `
+/* Page framing similar to Tetris (5/90/5) and grotesk font */
+    
+    
+    
     
     .ms-wrap { display:flex; flex-direction:column; align-items:center; gap:14px; }
     .ms-top { display:flex; align-items:center; justify-content:space-between; gap:16px; width:min(560px, 100%); }
@@ -259,22 +235,12 @@ function injectStyles() {
     .ms-cell.flag::after { content:'🚩'; }
     .ms-status { min-height:20px; color:#495057; font-weight:700; }
     
-    .back-button-tetris { position: fixed; top: 15px; left: 15px; background: #f8f9fa; color: #333; border: 1px solid #dee2e6; padding: 6px 10px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; transition: all 0.2s ease; z-index: 10000; display: flex; align-items: center; gap: 6px; font-weight: 600; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
-    .back-button-tetris:hover { background: #e9ecef; border-color: #adb5bd; }
-    .back-button-tetris i { width:14px; height:14px; }
+    
+    
+    
     @media (max-width: 768px) {
-        .game-container #game-content {
-            height: 100vh;
-            max-height: 100vh;
-            margin: 0;
-            padding: 10px;
-        }
-        .back-button-tetris {
-            top: 10px;
-            left: 10px;
-            padding: 8px 10px;
-            font-size: 0.7rem;
-        }
+        
+        
         .ms-wrap {
             width: 100%;
             gap: 10px;
@@ -318,7 +284,6 @@ function injectStyles() {
         }
     }
     `;
-    document.head.appendChild(style);
 }
 
 
