@@ -85,8 +85,15 @@ function renderGameCards(filteredGames = null) {
         `;
         
         // Always allow click to attempt load; visual style still reflects coming-soon
-        card.addEventListener('click', () => {
-            loadGame(game.id);
+        card.addEventListener('click', (e) => {
+            // Check for Ctrl+Click (or Cmd+Click on Mac) to open in new tab
+            if (e.ctrlKey || e.metaKey) {
+                const url = new URL(window.location.href);
+                url.searchParams.set('game', game.id);
+                window.open(url.toString(), '_blank');
+            } else {
+                loadGame(game.id);
+            }
         });
         if (!game.enabled) {
             card.style.cursor = 'pointer';

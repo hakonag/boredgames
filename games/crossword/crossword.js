@@ -92,11 +92,12 @@ class CrosswordGame {
     }
 
     setupControls() {
-        if (this.selectedCell && /^[A-ZÆØÅa-zæøå]$/.test(e.key)) {
+        this.keyHandler = setupHardReset('crossword', (e) => {
+            if (this.selectedCell && /^[A-ZÆØÅa-zæøå]$/.test(e.key)) {
                 const letter = e.key.toUpperCase();
                 this.placeLetter(letter);
             }
-        };
+        });
         document.addEventListener('keydown', this.keyHandler);
     }
 

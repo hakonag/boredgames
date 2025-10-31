@@ -96,7 +96,9 @@ class CheckersGame {
     }
 
     setupControls() {
-        };
+        this.keyHandler = setupHardReset('checkers', () => {
+            // Key handling can be added here if needed
+        });
         document.addEventListener('keydown', this.keyHandler);
     }
 

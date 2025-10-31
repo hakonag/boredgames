@@ -95,7 +95,7 @@ class MemoryGame {
             }
             
             
-        };
+        });
         document.addEventListener('keydown', this.keyHandler);
     }
 

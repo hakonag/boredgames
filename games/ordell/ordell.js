@@ -322,23 +322,29 @@ function getGameSpecificStyles() {
             display: flex;
             flex-direction: column;
             align-items: center;
+            max-height: 100%;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 10px;
+            box-sizing: border-box;
         }
         .ordell-header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 15px;
+            flex-shrink: 0;
         }
         .ordell-header h1 {
             font-size: 2.5rem;
             font-weight: 800;
             color: #111;
-            margin: 0 0 20px 0;
+            margin: 0 0 15px 0;
             letter-spacing: 4px;
         }
         .ordell-stats {
             display: flex;
             gap: 20px;
             justify-content: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         .stat-box {
             background: #f8f9fa;
@@ -364,7 +370,8 @@ function getGameSpecificStyles() {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 30px;
+            gap: 20px;
+            flex-shrink: 0;
         }
         .ordell-board {
             display: flex;
@@ -477,11 +484,13 @@ function getGameSpecificStyles() {
             font-weight: 600;
             color: #495057;
             padding: 10px;
+            flex-shrink: 0;
         }
         .ordell-buttons {
             display: flex;
             gap: 10px;
             justify-content: center;
+            flex-shrink: 0;
         }
         .btn-secondary {
             padding: 12px 24px;
@@ -506,15 +515,30 @@ function getGameSpecificStyles() {
             height: 16px;
         }
         @media (max-width: 768px) {
+            .ordell-wrap {
+                padding: 5px;
+            }
+            .ordell-header {
+                margin-bottom: 10px;
+            }
             .ordell-header h1 {
                 font-size: 2rem;
+                margin: 0 0 10px 0;
             }
             .ordell-stats {
                 flex-direction: column;
                 gap: 10px;
+                margin-bottom: 10px;
             }
             .stat-box {
                 width: 100%;
+                padding: 12px 20px;
+            }
+            .stat-value {
+                font-size: 1.75rem;
+            }
+            .ordell-game {
+                gap: 15px;
             }
             .ordell-cell {
                 width: 50px;
@@ -536,6 +560,81 @@ function getGameSpecificStyles() {
             }
             .key-back {
                 min-width: 50px;
+            }
+            .ordell-message {
+                min-height: 35px;
+                font-size: 1rem;
+                padding: 8px;
+            }
+        }
+        @media (max-height: 800px) {
+            .ordell-header {
+                margin-bottom: 10px;
+            }
+            .ordell-header h1 {
+                font-size: 2rem;
+                margin: 0 0 10px 0;
+            }
+            .ordell-stats {
+                margin-bottom: 10px;
+            }
+            .stat-box {
+                padding: 12px 20px;
+            }
+            .stat-value {
+                font-size: 1.75rem;
+            }
+            .ordell-game {
+                gap: 15px;
+            }
+            .ordell-cell {
+                width: 50px;
+                height: 50px;
+                font-size: 1.5rem;
+            }
+            .keyboard-key {
+                padding: 8px 10px;
+                height: 45px;
+            }
+        }
+        @media (max-height: 650px) {
+            .ordell-header h1 {
+                font-size: 1.75rem;
+                margin: 0 0 8px 0;
+            }
+            .ordell-header {
+                margin-bottom: 8px;
+            }
+            .ordell-stats {
+                margin-bottom: 8px;
+            }
+            .stat-box {
+                padding: 8px 16px;
+            }
+            .stat-value {
+                font-size: 1.5rem;
+            }
+            .stat-label {
+                font-size: 0.75rem;
+                margin-bottom: 4px;
+            }
+            .ordell-game {
+                gap: 12px;
+            }
+            .ordell-cell {
+                width: 45px;
+                height: 45px;
+                font-size: 1.3rem;
+            }
+            .keyboard-key {
+                padding: 6px 8px;
+                height: 40px;
+                font-size: 0.8rem;
+            }
+            .ordell-message {
+                min-height: 30px;
+                font-size: 0.95rem;
+                padding: 5px;
             }
         }
     `;

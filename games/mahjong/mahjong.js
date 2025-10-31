@@ -103,8 +103,7 @@ class MahjongGame {
     }
 
     setupControls() {
-        };
-        document.addEventListener('keydown', this.keyHandler);
+        // Keyboard controls can be added here if needed
     }
 
     removeControls() {

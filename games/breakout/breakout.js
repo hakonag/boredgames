@@ -120,7 +120,7 @@ class BreakoutGame {
                 e.preventDefault();
                 this.keys[e.key] = e.type === 'keydown';
             }
-        };
+        });
         document.addEventListener('keydown', this.keyHandler);
         document.addEventListener('keyup', this.keyHandler);
         
