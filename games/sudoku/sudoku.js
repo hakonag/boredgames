@@ -279,9 +279,9 @@ function getGameSpecificStyles() {
             align-items: center;
         }
         .sudoku-header h1 {
-            font-size: 3rem;
+            font-size: 2.5rem;
             font-weight: 800;
-            color: #333;
+            color: #111;
             margin: 0 0 20px 0;
             text-align: center;
         }
@@ -294,7 +294,7 @@ function getGameSpecificStyles() {
         .stat-box {
             background: #f8f9fa;
             border: 2px solid #dee2e6;
-            border-radius: 8px;
+            border-radius: 0;
             padding: 15px 30px;
             text-align: center;
             min-width: 120px;
@@ -353,7 +353,7 @@ function getGameSpecificStyles() {
         }
         .sudoku-cell.given {
             font-weight: 800;
-            color: #000;
+            color: #111;
         }
         .sudoku-controls-panel {
             display: flex;
@@ -369,7 +369,7 @@ function getGameSpecificStyles() {
         .numpad-btn {
             background: #f8f9fa;
             border: 2px solid #dee2e6;
-            border-radius: 6px;
+            border-radius: 0;
             padding: 12px;
             font-size: 1.2rem;
             font-weight: 700;
@@ -387,7 +387,7 @@ function getGameSpecificStyles() {
         }
         .btn-primary, .btn-secondary {
             padding: 10px 20px;
-            border-radius: 6px;
+            border-radius: 0;
             font-size: 0.9rem;
             cursor: pointer;
             font-weight: 600;

@@ -7,7 +7,7 @@
  */
 export function createBackButton() {
     return `
-        <button class="back-button-tetris" onclick="window.location.href='https://hakonag.github.io/boredgames/'">
+        <button class="back-button-shared" onclick="window.location.href='https://hakonag.github.io/boredgames/'">
             <i data-lucide="house"></i> Tilbake
         </button>
     `;

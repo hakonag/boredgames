@@ -201,9 +201,9 @@ function getGameSpecificStyles() {
             align-items: center;
         }
         .memory-header h1 {
-            font-size: 3rem;
+            font-size: 2.5rem;
             font-weight: 800;
-            color: #333;
+            color: #111;
             margin: 0 0 20px 0;
             text-align: center;
         }
@@ -216,7 +216,7 @@ function getGameSpecificStyles() {
         .stat-box {
             background: #f8f9fa;
             border: 2px solid #dee2e6;
-            border-radius: 8px;
+            border-radius: 0;
             padding: 15px 30px;
             text-align: center;
             min-width: 120px;
@@ -249,7 +249,7 @@ function getGameSpecificStyles() {
             aspect-ratio: 1;
             background: #0d6efd;
             border: 3px solid #0a58ca;
-            border-radius: 8px;
+            border-radius: 0;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -266,7 +266,7 @@ function getGameSpecificStyles() {
         }
         .memory-card.flipped {
             background: #fff;
-            color: #333;
+            color: #111;
             border-color: #0d6efd;
         }
         .memory-card.matched {
@@ -279,7 +279,7 @@ function getGameSpecificStyles() {
             text-align: center;
         }
         .memory-status {
-            color: #333;
+            color: #111;
             font-size: 1rem;
             font-weight: 600;
             margin-bottom: 15px;
@@ -292,7 +292,7 @@ function getGameSpecificStyles() {
         }
         .btn-secondary {
             padding: 10px 20px;
-            border-radius: 6px;
+            border-radius: 0;
             font-size: 0.9rem;
             cursor: pointer;
             font-weight: 600;

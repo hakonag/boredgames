@@ -320,9 +320,9 @@ function getGameSpecificStyles() {
             align-items: center;
         }
         .battleship-header h1 {
-            font-size: 3rem;
+            font-size: 2.5rem;
             font-weight: 800;
-            color: #333;
+            color: #111;
             margin: 0 0 20px 0;
             text-align: center;
         }
@@ -335,7 +335,7 @@ function getGameSpecificStyles() {
         .stat-box {
             background: #f8f9fa;
             border: 2px solid #dee2e6;
-            border-radius: 8px;
+            border-radius: 0;
             padding: 15px 30px;
             text-align: center;
             min-width: 120px;
@@ -369,7 +369,7 @@ function getGameSpecificStyles() {
         .battleship-board-section h3 {
             font-size: 1.2rem;
             font-weight: 700;
-            color: #333;
+            color: #111;
             margin-bottom: 10px;
         }
         .battleship-board {
@@ -378,7 +378,7 @@ function getGameSpecificStyles() {
             gap: 2px;
             background: #1976d2;
             padding: 8px;
-            border-radius: 8px;
+            border-radius: 0;
             border: 3px solid #1565c0;
         }
         .battleship-cell {
@@ -407,13 +407,13 @@ function getGameSpecificStyles() {
         }
         .battleship-cell.miss {
             background: #e0e0e0;
-            color: #666;
+            color: #6c757d;
         }
         .battleship-controls {
             text-align: center;
         }
         .battleship-status {
-            color: #333;
+            color: #111;
             font-size: 1rem;
             font-weight: 600;
             margin-bottom: 15px;
@@ -426,7 +426,7 @@ function getGameSpecificStyles() {
         }
         .btn-primary, .btn-secondary {
             padding: 10px 20px;
-            border-radius: 6px;
+            border-radius: 0;
             font-size: 0.9rem;
             cursor: pointer;
             font-weight: 600;

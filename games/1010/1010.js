@@ -311,9 +311,9 @@ function getGameSpecificStyles() {
             align-items: center;
         }
         .game-1010-header h1 {
-            font-size: 3rem;
+            font-size: 2.5rem;
             font-weight: 800;
-            color: #333;
+            color: #111;
             margin: 0 0 20px 0;
             text-align: center;
         }
@@ -324,7 +324,7 @@ function getGameSpecificStyles() {
         }
         .stat-box {
             background: #4a90e2;
-            border-radius: 8px;
+            border-radius: 0;
             padding: 10px 20px;
             text-align: center;
             flex: 1;
@@ -343,7 +343,7 @@ function getGameSpecificStyles() {
         }
         .game-1010-board {
             background: #ddd;
-            border-radius: 8px;
+            border-radius: 0;
             padding: 10px;
             display: grid;
             grid-template-columns: repeat(10, 1fr);
@@ -356,7 +356,7 @@ function getGameSpecificStyles() {
         }
         .cell-1010 {
             background: #fff;
-            border-radius: 4px;
+            border-radius: 0;
             aspect-ratio: 1;
         }
         .cell-1010.filled {
@@ -376,7 +376,7 @@ function getGameSpecificStyles() {
             cursor: grab;
             padding: 5px;
             background: #f8f9fa;
-            border-radius: 6px;
+            border-radius: 0;
             border: 2px solid #dee2e6;
         }
         .piece-1010:hover {
@@ -387,7 +387,7 @@ function getGameSpecificStyles() {
         }
         .piece-block-1010 {
             background: #4a90e2;
-            border-radius: 4px;
+            border-radius: 0;
             min-width: 28px;
             min-height: 28px;
         }
@@ -399,7 +399,7 @@ function getGameSpecificStyles() {
             color: white;
             border: none;
             padding: 12px 24px;
-            border-radius: 6px;
+            border-radius: 0;
             font-size: 0.9rem;
             cursor: pointer;
             font-weight: 600;

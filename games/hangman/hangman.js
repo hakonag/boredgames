@@ -236,9 +236,9 @@ function getGameSpecificStyles() {
             align-items: center;
         }
         .hangman-header h1 {
-            font-size: 3rem;
+            font-size: 2.5rem;
             font-weight: 800;
-            color: #333;
+            color: #111;
             margin: 0 0 20px 0;
             text-align: center;
         }
@@ -251,7 +251,7 @@ function getGameSpecificStyles() {
         .stat-box {
             background: #f8f9fa;
             border: 2px solid #dee2e6;
-            border-radius: 8px;
+            border-radius: 0;
             padding: 15px 30px;
             text-align: center;
             min-width: 120px;
@@ -285,7 +285,7 @@ function getGameSpecificStyles() {
             font-size: 2.5rem;
             font-weight: 800;
             letter-spacing: 10px;
-            color: #333;
+            color: #111;
             text-align: center;
         }
         .word-letter {
@@ -307,7 +307,7 @@ function getGameSpecificStyles() {
             height: 40px;
             background: #f8f9fa;
             border: 2px solid #dee2e6;
-            border-radius: 6px;
+            border-radius: 0;
             font-size: 1rem;
             font-weight: 700;
             cursor: pointer;
@@ -334,7 +334,7 @@ function getGameSpecificStyles() {
             text-align: center;
         }
         .hangman-status {
-            color: #333;
+            color: #111;
             font-size: 1rem;
             font-weight: 600;
             margin-bottom: 15px;
@@ -347,7 +347,7 @@ function getGameSpecificStyles() {
         }
         .btn-primary {
             padding: 10px 20px;
-            border-radius: 6px;
+            border-radius: 0;
             font-size: 0.9rem;
             cursor: pointer;
             font-weight: 600;

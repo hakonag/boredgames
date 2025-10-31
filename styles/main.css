@@ -1,5 +1,5 @@
-/* Subtle Retro Arcade Theme - Balanced between simple and retro */
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+/* Grotesk Typography Theme */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 
 * {
     margin: 0;
@@ -8,11 +8,11 @@
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    font-family: 'Space Grotesk', system-ui, -apple-system, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     background: white;
     min-height: 100vh;
     padding: 20px;
-    color: #333;
+    color: #111;
 }
 
 /* Loading overlays */
@@ -63,8 +63,8 @@ header {
     margin-bottom: 50px;
     padding: 30px 20px;
     background: white;
-    border: 2px solid #e0e0e0;
-    border-radius: 12px;
+    border: 2px solid #dee2e6;
+    border-radius: 0;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
@@ -74,7 +74,7 @@ header h1 {
     margin-bottom: 20px;
     text-transform: lowercase;
     letter-spacing: -1px;
-    color: #000;
+    color: #111;
 }
 
 .divider {
@@ -86,8 +86,8 @@ header h1 {
 }
 
 .subtitle {
-    font-size: 1.1rem;
-    color: #000;
+    font-size: 1.125rem;
+    color: #111;
     margin-top: 15px;
     font-weight: 400;
 }
@@ -103,7 +103,7 @@ header h1 {
 .game-card {
     background: #f8f9fa;
     border: 2px solid #dee2e6;
-    border-radius: 12px;
+    border-radius: 0;
     padding: 30px 20px;
     text-align: center;
     cursor: pointer;
@@ -138,8 +138,8 @@ header h1 {
     background: #6c757d;
     color: white;
     padding: 4px 8px;
-    font-size: 0.65rem;
-    border-radius: 4px;
+    font-size: 0.6875rem;
+    border-radius: 0;
     font-weight: 600;
 }
 
@@ -155,15 +155,15 @@ header h1 {
 }
 
 .game-card h2 {
-    font-size: 1.6rem;
+    font-size: 1.5rem;
     margin-bottom: 10px;
-    color: #000;
+    color: #111;
     font-weight: 600;
 }
 
 .game-card p {
-    color: #666;
-    font-size: 0.95rem;
+    color: #6c757d;
+    font-size: 0.9375rem;
     margin: 0;
     line-height: 1.5;
 }
@@ -238,9 +238,9 @@ canvas {
 .main-footer {
     margin-top: 60px;
     padding: 30px 0;
-    border-top: 1px solid #e0e0e0;
+    border-top: 2px solid #dee2e6;
     background: #f8f9fa;
-    border-radius: 12px;
+    border-radius: 0;
 }
 
 .footer-content {
@@ -274,11 +274,11 @@ canvas {
     text-decoration: none;
     padding: 8px 16px;
     border: 2px solid #dee2e6;
-    border-radius: 8px;
+    border-radius: 0;
     background: white;
     transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
-    font-size: 0.9rem;
-    font-weight: 500;
+    font-size: 0.9375rem;
+    font-weight: 600;
 }
 
 .github-link:hover { color:#212529; border-color:#adb5bd; background:#f8f9fa; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
@@ -286,6 +286,7 @@ canvas {
 .github-link i {
     width: 18px;
     height: 18px;
+    stroke-width: 2;
 }
 
 /* Responsive */

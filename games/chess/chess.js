@@ -238,9 +238,9 @@ function getGameSpecificStyles() {
             align-items: center;
         }
         .chess-header h1 {
-            font-size: 3rem;
+            font-size: 2.5rem;
             font-weight: 800;
-            color: #333;
+            color: #111;
             margin: 0 0 20px 0;
             text-align: center;
         }
@@ -254,7 +254,7 @@ function getGameSpecificStyles() {
         .stat-box {
             background: #f8f9fa;
             border: 2px solid #dee2e6;
-            border-radius: 8px;
+            border-radius: 0;
             padding: 12px 20px;
             text-align: center;
             min-width: 100px;
@@ -282,7 +282,7 @@ function getGameSpecificStyles() {
             gap: 0;
             background: #8b4513;
             border: 4px solid #654321;
-            border-radius: 8px;
+            border-radius: 0;
             padding: 4px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             max-width: min(500px, calc(95vw - 40px));
@@ -325,7 +325,7 @@ function getGameSpecificStyles() {
             text-align: center;
         }
         .chess-status {
-            color: #333;
+            color: #111;
             font-size: 1rem;
             font-weight: 600;
             margin-bottom: 15px;
@@ -338,7 +338,7 @@ function getGameSpecificStyles() {
         }
         .btn-secondary {
             padding: 10px 20px;
-            border-radius: 6px;
+            border-radius: 0;
             font-size: 0.9rem;
             cursor: pointer;
             font-weight: 600;

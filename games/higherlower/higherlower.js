@@ -177,9 +177,9 @@ function getGameSpecificStyles() {
             margin-bottom: 30px;
         }
         .higherlower-header h1 {
-            font-size: 3rem;
+            font-size: 2.5rem;
             font-weight: 800;
-            color: #333;
+            color: #111;
             margin: 0 0 20px 0;
         }
         .higherlower-stats {
@@ -191,7 +191,7 @@ function getGameSpecificStyles() {
         .stat-box {
             background: #f8f9fa;
             border: 2px solid #dee2e6;
-            border-radius: 8px;
+            border-radius: 0;
             padding: 15px 30px;
             text-align: center;
             min-width: 120px;
@@ -250,7 +250,7 @@ function getGameSpecificStyles() {
         .btn-choice {
             flex: 1;
             padding: 20px 30px;
-            border-radius: 12px;
+            border-radius: 0;
             font-size: 1.2rem;
             cursor: pointer;
             font-weight: 700;
@@ -297,13 +297,13 @@ function getGameSpecificStyles() {
             padding: 20px;
             background: #f8f9fa;
             border: 2px solid #dee2e6;
-            border-radius: 8px;
+            border-radius: 0;
             width: 100%;
             max-width: 500px;
         }
         .btn-secondary {
             padding: 12px 24px;
-            border-radius: 8px;
+            border-radius: 0;
             font-size: 1rem;
             cursor: pointer;
             font-weight: 600;

@@ -310,9 +310,9 @@ function getGameSpecificStyles() {
             align-items: center;
         }
         .frogger-header h1 {
-            font-size: 3rem;
+            font-size: 2.5rem;
             font-weight: 800;
-            color: #333;
+            color: #111;
             margin: 0 0 20px 0;
             text-align: center;
         }
@@ -325,7 +325,7 @@ function getGameSpecificStyles() {
         .stat-box {
             background: #f8f9fa;
             border: 2px solid #dee2e6;
-            border-radius: 8px;
+            border-radius: 0;
             padding: 15px 30px;
             text-align: center;
             min-width: 120px;
@@ -344,7 +344,7 @@ function getGameSpecificStyles() {
         .frogger-game-area {
             background: #000;
             border: 4px solid #6c757d;
-            border-radius: 8px;
+            border-radius: 0;
             padding: 10px;
             margin-bottom: 20px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -371,7 +371,7 @@ function getGameSpecificStyles() {
         }
         .btn-primary, .btn-secondary {
             padding: 10px 20px;
-            border-radius: 6px;
+            border-radius: 0;
             font-size: 0.9rem;
             cursor: pointer;
             font-weight: 600;

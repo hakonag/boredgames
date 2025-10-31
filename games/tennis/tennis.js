@@ -219,19 +219,19 @@ function getGameSpecificStyles() {
     return `
 .tennis-wrap { width:100%; max-width:min(1200px, 95vw); height:100%; display:flex; gap:16px; align-items:stretch; padding:0 10px; box-sizing:border-box; }
     .tennis-left { flex: 1 1 auto; display:flex; align-items:center; justify-content:center; }
-    #tennis-canvas { width: 100%; height: auto; max-width: min(820px, calc(95vw - 240px)); border: 4px solid #6c757d; border-radius: 10px; box-shadow: 0 8px 20px rgba(0,0,0,0.12); background:#fff; }
+    #tennis-canvas { width: 100%; height: auto; max-width: min(820px, calc(95vw - 240px)); border: 4px solid #6c757d; border-radius: 0; box-shadow: 0 8px 20px rgba(0,0,0,0.12); background:#fff; }
     .tennis-right { width:220px; flex-shrink:0; display:flex; flex-direction:column; gap:12px; }
-    .tennis-controls { background:#f8f9fa; border:2px solid #dee2e6; border-radius:10px; padding:12px; display:flex; flex-direction:column; gap:8px; }
+    .tennis-controls { background:#f8f9fa; border:2px solid #dee2e6; border-radius: 0; padding:12px; display:flex; flex-direction:column; gap:8px; }
     .tennis-controls h3 { margin:0 0 6px 0; font-size:.95rem; color:#495057; text-align:center; }
     .control-line { font-size:.9rem; color:#495057; }
     .buttons { display:flex; flex-direction:column; gap:6px; }
-    .btn-primary, .btn-secondary { display:flex; align-items:center; justify-content:center; gap:6px; padding:6px 10px; border-radius:6px; font-weight:700; cursor:pointer; }
+    .btn-primary, .btn-secondary { display:flex; align-items:center; justify-content:center; gap:6px; padding:6px 10px; border-radius: 0; font-weight:700; cursor:pointer; }
     .btn-primary { background:#007bff; color:#fff; border:2px solid #0056b3; }
     .btn-primary:hover { background:#0056b3; border-color:#004085; }
     .btn-secondary { background:#6c757d; color:#fff; border:2px solid #5a6268; }
     .btn-secondary:hover { background:#5a6268; border-color:#495057; }
     .scoreboard { display:flex; justify-content:space-between; gap:10px; margin-top:6px; }
-    .score { background:#fff; border:2px solid #dee2e6; border-radius:8px; padding:8px 10px; flex:1; display:flex; align-items:center; justify-content:space-between; font-size:1rem; }
+    .score { background:#fff; border:2px solid #dee2e6; border-radius: 0; padding:8px 10px; flex:1; display:flex; align-items:center; justify-content:space-between; font-size:1rem; }
     @media (max-width: 768px) {
         
         

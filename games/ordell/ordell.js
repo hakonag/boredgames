@@ -328,9 +328,9 @@ function getGameSpecificStyles() {
             margin-bottom: 30px;
         }
         .ordell-header h1 {
-            font-size: 3rem;
+            font-size: 2.5rem;
             font-weight: 800;
-            color: #333;
+            color: #111;
             margin: 0 0 20px 0;
             letter-spacing: 4px;
         }
@@ -343,7 +343,7 @@ function getGameSpecificStyles() {
         .stat-box {
             background: #f8f9fa;
             border: 2px solid #dee2e6;
-            border-radius: 8px;
+            border-radius: 0;
             padding: 15px 30px;
             text-align: center;
             min-width: 120px;
@@ -382,7 +382,7 @@ function getGameSpecificStyles() {
             max-height: min(60px, calc((95vw - 100px) / 5 - 8px));
             aspect-ratio: 1;
             border: 2px solid #dee2e6;
-            border-radius: 8px;
+            border-radius: 0;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -422,7 +422,7 @@ function getGameSpecificStyles() {
         .keyboard-key {
             padding: 12px 16px;
             border: 2px solid #dee2e6;
-            border-radius: 8px;
+            border-radius: 0;
             background: #f8f9fa;
             color: #212529;
             font-size: 1rem;
@@ -485,7 +485,7 @@ function getGameSpecificStyles() {
         }
         .btn-secondary {
             padding: 12px 24px;
-            border-radius: 8px;
+            border-radius: 0;
             font-size: 1rem;
             cursor: pointer;
             font-weight: 600;

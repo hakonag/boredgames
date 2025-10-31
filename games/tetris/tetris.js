@@ -197,10 +197,10 @@ export function init() {
             top: 15px;
             left: 15px;
             background: #f8f9fa;
-            color: #333;
+            color: #111;
             border: 1px solid #dee2e6;
             padding: 6px 10px;
-            border-radius: 6px;
+            border-radius: 0;
             font-size: 0.75rem;
             cursor: pointer;
             transition: all 0.2s ease;
@@ -237,7 +237,7 @@ export function init() {
             background: #f8f9fa;
             color: #6c757d;
             border: 2px solid #dee2e6;
-            border-radius: 8px;
+            border-radius: 0;
             padding: 6px 10px;
             font-size: 10px;
             line-height: 1;
@@ -262,7 +262,7 @@ export function init() {
             padding: 15px;
             background: #f8f9fa;
             border: 2px solid #dee2e6;
-            border-radius: 12px;
+            border-radius: 0;
             width: 180px;
             flex-shrink: 0;
             box-sizing: border-box;
@@ -273,7 +273,7 @@ export function init() {
             padding: 12px;
             background: #f8f9fa;
             border: 2px solid #dee2e6;
-            border-radius: 12px;
+            border-radius: 0;
             width: 180px;
             flex-shrink: 0;
             box-sizing: border-box;
@@ -285,7 +285,7 @@ export function init() {
         .preview-box {
             background: #f8f9fa;
             border: 2px solid #dee2e6;
-            border-radius: 8px;
+            border-radius: 0;
             padding: 8px;
             text-align: center;
             box-sizing: border-box;
@@ -301,7 +301,7 @@ export function init() {
         #hold-canvas, #next-canvas {
             background: #000;
             border: 2px solid #6c757d;
-            border-radius: 4px;
+            border-radius: 0;
             display: block;
             width: 100%;
             height: auto;
@@ -317,7 +317,7 @@ export function init() {
             background: #e9ecef;
             color: #495057;
             padding: 4px 8px;
-            border-radius: 4px;
+            border-radius: 0;
             font-size: 0.75rem;
             font-weight: bold;
             border: 1px solid #adb5bd;
@@ -349,7 +349,7 @@ export function init() {
             margin-top: 10px;
             padding: 8px;
             background: #f8f9fa;
-            border-radius: 6px;
+            border-radius: 0;
             border: 1px solid #dee2e6;
         }
         .info-item {
@@ -390,7 +390,7 @@ export function init() {
             gap: 6px;
             padding: 6px;
             background: #ffffff;
-            border-radius: 6px;
+            border-radius: 0;
             border: 1px solid #dee2e6;
         }
         .control-icons {
@@ -405,7 +405,7 @@ export function init() {
             justify-content: center;
             background: #e9ecef;
             border: 2px solid #adb5bd;
-            border-radius: 4px;
+            border-radius: 0;
             color: #495057;
         }
         .key-icon-large svg {
@@ -453,7 +453,7 @@ export function init() {
             color: white;
             border: 2px solid #0056b3;
             padding: 6px 12px;
-            border-radius: 6px;
+            border-radius: 0;
             font-size: 0.8rem;
             cursor: pointer;
             width: 100%;
@@ -477,7 +477,7 @@ export function init() {
             color: white;
             border: 2px solid #5a6268;
             padding: 6px 12px;
-            border-radius: 6px;
+            border-radius: 0;
             font-size: 0.8rem;
             cursor: pointer;
             width: 100%;
@@ -504,7 +504,7 @@ export function init() {
         .mode-toggle-btn {
             width: 100%;
             padding: 8px 12px;
-            border-radius: 6px;
+            border-radius: 0;
             font-size: 0.75rem;
             cursor: pointer;
             display: flex;
@@ -589,7 +589,7 @@ export function init() {
             background: #ffffff;
             border: 2px solid #dee2e6;
             padding: 40px;
-            border-radius: 15px;
+            border-radius: 0;
             max-width: min(400px, calc(95vw - 40px));
             width: 90%;
             text-align: center;
@@ -609,7 +609,7 @@ export function init() {
             padding: 12px;
             font-size: 1rem;
             border: 2px solid #dee2e6;
-            border-radius: 8px;
+            border-radius: 0;
             margin-bottom: 20px;
             box-sizing: border-box;
             background: #ffffff;
@@ -624,7 +624,7 @@ export function init() {
             color: white;
             border: 2px solid #0056b3;
             padding: 12px 24px;
-            border-radius: 8px;
+            border-radius: 0;
             font-size: 1rem;
             cursor: pointer;
             margin: 5px;

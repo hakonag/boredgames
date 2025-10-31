@@ -163,9 +163,9 @@ export function showScoreModal(gameId, score, onSubmit, onSkip) {
             <p>Du fikk ${score.toLocaleString()} poeng</p>
             <p>Skriv inn navnet ditt:</p>
             <input type="text" id="score-name-input" maxlength="20" placeholder="Ditt navn" autofocus>
-            <div>
-                <button id="submit-score-btn" onclick="window.currentScoreSubmit(${score})">Lagre</button>
-                <button onclick="window.currentScoreSkip()">Hopp over</button>
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <button id="submit-score-btn" class="btn-primary" onclick="window.currentScoreSubmit(${score})">Lagre</button>
+                <button class="btn-secondary" onclick="window.currentScoreSkip()">Hopp over</button>
             </div>
             <p id="save-status" style="margin-top: 10px; color: #666; font-size: 0.9rem;"></p>
         </div>

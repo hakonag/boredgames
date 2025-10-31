@@ -221,16 +221,16 @@ function getGameSpecificStyles() {
     
     .ms-wrap { display:flex; flex-direction:column; align-items:center; gap:14px; }
     .ms-top { display:flex; align-items:center; justify-content:space-between; gap:16px; width:min(560px, 100%); }
-    .ms-title { font-weight:800; letter-spacing:.5px; color:#000; }
-    .ms-info { background:#f8f9fa; border:2px solid #dee2e6; border-radius:8px; padding:6px 10px; font-weight:700; color:#495057; }
+    .ms-title { font-weight:800; letter-spacing:.5px; color: #111; }
+    .ms-info { background:#f8f9fa; border:2px solid #dee2e6; border-radius: 0; padding:6px 10px; font-weight:700; color:#495057; }
     .ms-controls { display:flex; gap:8px; align-items:center; }
-    .ms-controls select { padding:6px 8px; border:2px solid #dee2e6; border-radius:6px; background:#fff; color:#111; }
+    .ms-controls select { padding:6px 8px; border:2px solid #dee2e6; border-radius: 0; background:#fff; color:#111; }
     .ms-main { display:flex; gap:16px; align-items:flex-start; }
-    .ms-board { --ms-size: 9; display:grid; grid-template-columns: repeat(var(--ms-size), 28px); grid-auto-rows: 28px; gap:4px; background:#fff; padding:12px; border:2px solid #dee2e6; border-radius:10px; box-shadow:0 6px 20px rgba(0,0,0,.12); }
-    .ms-sidebar { width:200px; background:#f8f9fa; border:2px solid #dee2e6; border-radius:10px; padding:10px; }
+    .ms-board { --ms-size: 9; display:grid; grid-template-columns: repeat(var(--ms-size), 28px); grid-auto-rows: 28px; gap:4px; background:#fff; padding:12px; border:2px solid #dee2e6; border-radius: 0; box-shadow:0 6px 20px rgba(0,0,0,.12); }
+    .ms-sidebar { width:200px; background:#f8f9fa; border:2px solid #dee2e6; border-radius: 0; padding:10px; }
     .ms-sidebar h3 { margin:0 0 8px 0; font-size:.9rem; color:#495057; text-align:center; }
     .ms-highscores { max-height:320px; overflow:auto; }
-    .ms-cell { background:#f1f3f5; color:#111; border:2px solid #dee2e6; border-radius:6px; cursor:pointer; font-weight:800; display:flex; align-items:center; justify-content:center; }
+    .ms-cell { background:#f1f3f5; color:#111; border:2px solid #dee2e6; border-radius: 0; cursor:pointer; font-weight:800; display:flex; align-items:center; justify-content:center; }
     .ms-cell.open { background:#fff; }
     .ms-cell.flag::after { content:'🚩'; }
     .ms-status { min-height:20px; color:#495057; font-weight:700; }

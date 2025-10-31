@@ -202,13 +202,13 @@ function getGameSpecificStyles() {
     return `
 .si-wrap { width:100%; max-width:min(1200px, 95vw); height:100%; display:flex; gap:16px; align-items:stretch; padding:0 10px; box-sizing:border-box; }
     .si-left { flex: 1; display:flex; align-items:center; justify-content:center; }
-    #si-canvas { width:100%; height:auto; max-width:min(820px, calc(95vw - 240px)); border:4px solid #6c757d; border-radius:10px; box-shadow:0 8px 20px rgba(0,0,0,0.12); }
+    #si-canvas { width:100%; height:auto; max-width:min(820px, calc(95vw - 240px)); border:4px solid #6c757d; border-radius: 0; box-shadow:0 8px 20px rgba(0,0,0,0.12); }
     .si-right { width:220px; flex-shrink:0; display:flex; flex-direction:column; gap:12px; }
-    .si-controls { background:#f8f9fa; border:2px solid #dee2e6; border-radius:10px; padding:12px; display:flex; flex-direction:column; gap:8px; }
+    .si-controls { background:#f8f9fa; border:2px solid #dee2e6; border-radius: 0; padding:12px; display:flex; flex-direction:column; gap:8px; }
     .si-controls h3 { margin:0 0 6px 0; font-size:.95rem; color:#495057; text-align:center; }
     .control-line { font-size:.9rem; color:#495057; }
     .buttons { display:flex; flex-direction:column; gap:6px; }
-    .panel { background:#fff; border:2px solid #dee2e6; border-radius:10px; padding:10px; display:flex; flex-direction:column; gap:6px; }
+    .panel { background:#fff; border:2px solid #dee2e6; border-radius: 0; padding:10px; display:flex; flex-direction:column; gap:6px; }
     @media (max-width: 768px) {
         
         

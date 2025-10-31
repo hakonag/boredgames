@@ -69,7 +69,7 @@ export function init() {
         .solitaire-board { --card-w:76px; --card-h:108px; --pile-gap:18px; background:
             radial-gradient(1200px 800px at 50% 0%, rgba(255,255,255,0.06), rgba(255,255,255,0) 60%),
             linear-gradient(180deg, #0e8747 0%, #0c7a41 40%, #096f3b 100%);
-            border:2px solid #0b5e31; border-radius:10px; padding:16px; overflow:hidden; display:flex; flex-direction:column; min-height:0; margin:0; width:100%; height:100%; box-sizing:border-box; box-shadow:inset 0 0 0 2px rgba(255,255,255,0.06), 0 8px 24px rgba(0,0,0,.18); }
+            border:2px solid #0b5e31; border-radius: 0; padding:16px; overflow:hidden; display:flex; flex-direction:column; min-height:0; margin:0; width:100%; height:100%; box-sizing:border-box; box-shadow:inset 0 0 0 2px rgba(255,255,255,0.06), 0 8px 24px rgba(0,0,0,.18); }
         .solitaire-game { width:100%; height:100%; margin:0; padding:0; overflow:hidden; box-sizing:border-box; }
         /* Force grid on the combined class to override any flex defaults */
         .solitaire-game.solitaire-layout { display:grid !important; grid-template-columns: 4fr 1fr; }
@@ -101,7 +101,7 @@ export function init() {
             width: var(--card-w);
             height: var(--card-h);
             border: 2px dashed rgba(255,255,255,0.35);
-            border-radius: 8px;
+            border-radius: 0;
             position: relative;
             cursor: pointer;
         }
@@ -116,7 +116,7 @@ export function init() {
             height: var(--card-h);
             background: white;
             border: 2px solid #b0b6bb;
-            border-radius: 6px;
+            border-radius: 0;
             position: absolute;
             cursor: grab;
             user-select: none;
@@ -151,7 +151,7 @@ export function init() {
             background: rgba(0,0,0,0.7);
             color: white;
             padding: 2px 6px;
-            border-radius: 10px;
+            border-radius: 0;
             font-size: 0.75rem;
             white-space: nowrap;
         }
@@ -170,7 +170,7 @@ export function init() {
             width: var(--card-w);
             height: var(--card-h);
             border: 1px solid rgba(0,0,0,0.16);
-            border-radius: 6px;
+            border-radius: 0;
             background: rgba(255,255,255,0.95);
             box-shadow: 0 2px 6px rgba(0,0,0,0.1);
         }
@@ -188,7 +188,7 @@ export function init() {
                 repeating-linear-gradient(45deg, rgba(255,255,255,0.08) 0 8px, rgba(255,255,255,0) 8px 16px),
                 linear-gradient(135deg, #1f6fe0 0%, #1a5ec4 100%);
             border: 2px solid #154c99;
-            border-radius: 6px;
+            border-radius: 0;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -201,7 +201,7 @@ export function init() {
             width: 76px;
             height: 108px;
             border: 2px dashed rgba(255,255,255,0.3);
-            border-radius: 6px;
+            border-radius: 0;
             pointer-events: none;
         }
         .solitaire-card.face-down {
@@ -280,7 +280,7 @@ export function init() {
         .target-card-hover { outline: 3px solid #ffd700; box-shadow: 0 0 0 6px rgba(255,215,0,0.25), 0 0 20px rgba(255,215,0,0.35); }
         .solitaire-controls { display:flex; flex-direction:column; gap:10px; }
         .game-stats { display:flex; gap:8px; }
-        .stat-pill { background:#f8f9fa; border:2px solid #dee2e6; border-radius:10px; padding:8px 12px; display:flex; flex-direction:column; align-items:center; min-width:90px; }
+        .stat-pill { background:#f8f9fa; border:2px solid #dee2e6; border-radius: 0; padding:8px 12px; display:flex; flex-direction:column; align-items:center; min-width:90px; }
         .pill-label { font-size:.7rem; color:#6c757d; text-transform:uppercase; letter-spacing:.5px; }
         .stat-pill span:last-child { font-size:1.1rem; font-weight:800; color:#111; }
         .sol-status { min-height:20px; color:#495057; font-weight:600; }
@@ -289,7 +289,7 @@ export function init() {
             color: white;
             border: 2px solid #0056b3;
             padding: 4px 8px;
-            border-radius: 4px;
+            border-radius: 0;
             font-size: 0.7rem;
             cursor: pointer;
             margin: 0 2px;
@@ -301,10 +301,10 @@ export function init() {
         }
         #solitaire-status {
             margin-top: 2px;
-            color: #333;
+            color: #111;
             font-size: 0.7rem;
         }
-        .solitaire-leaderboard { background:#f8f9fa; border:2px solid #dee2e6; border-radius:10px; padding:10px; flex:1; display:flex; flex-direction:column; min-height:0; }
+        .solitaire-leaderboard { background:#f8f9fa; border:2px solid #dee2e6; border-radius: 0; padding:10px; flex:1; display:flex; flex-direction:column; min-height:0; }
         .solitaire-leaderboard h3 { margin:0 0 8px 0; font-size:.9rem; text-align:center; color:#495057; }
         .scores-list { flex:1; overflow:auto; min-height:0; }
         /* Intentionally keep side-by-side layout across sizes per request */
@@ -314,7 +314,7 @@ export function init() {
             font-weight: bold;
             margin-right: 10px;
         }
-        .back-button-tetris { position: fixed; top: 15px; left: 15px; background: #f8f9fa; color: #333; border: 1px solid #dee2e6; padding: 6px 10px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; transition: background-color .15s ease, border-color .15s ease, color .15s ease; z-index: 10000; display: flex; align-items: center; gap: 6px; font-weight: 600; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
+        .back-button-tetris { position: fixed; top: 15px; left: 15px; background: #f8f9fa; color: #111; border: 1px solid #dee2e6; padding: 6px 10px; border-radius: 0; font-size: 0.75rem; cursor: pointer; transition: background-color .15s ease, border-color .15s ease, color .15s ease; z-index: 10000; display: flex; align-items: center; gap: 6px; font-weight: 600; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
         .back-button-tetris:hover { background:#e9ecef; border-color:#adb5bd; }
         .back-button-tetris i { width:14px; height:14px; }
         @media (max-width: 768px) {

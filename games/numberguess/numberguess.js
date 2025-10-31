@@ -187,9 +187,9 @@ function getGameSpecificStyles() {
             margin-bottom: 30px;
         }
         .numberguess-header h1 {
-            font-size: 3rem;
+            font-size: 2.5rem;
             font-weight: 800;
-            color: #333;
+            color: #111;
             margin: 0 0 20px 0;
         }
         .numberguess-stats {
@@ -201,7 +201,7 @@ function getGameSpecificStyles() {
         .stat-box {
             background: #f8f9fa;
             border: 2px solid #dee2e6;
-            border-radius: 8px;
+            border-radius: 0;
             padding: 15px 30px;
             text-align: center;
             min-width: 120px;
@@ -244,7 +244,7 @@ function getGameSpecificStyles() {
             padding: 12px 16px;
             font-size: 1.1rem;
             border: 2px solid #dee2e6;
-            border-radius: 8px;
+            border-radius: 0;
             text-align: center;
         }
         #guess-input:focus {
@@ -253,7 +253,7 @@ function getGameSpecificStyles() {
         }
         .btn-primary, .btn-secondary {
             padding: 12px 24px;
-            border-radius: 8px;
+            border-radius: 0;
             font-size: 1rem;
             cursor: pointer;
             font-weight: 600;
@@ -295,7 +295,7 @@ function getGameSpecificStyles() {
             padding: 15px;
             background: #f8f9fa;
             border: 2px solid #dee2e6;
-            border-radius: 8px;
+            border-radius: 0;
             width: 100%;
             max-width: 500px;
         }
@@ -306,13 +306,13 @@ function getGameSpecificStyles() {
             overflow-y: auto;
             background: #f8f9fa;
             border: 2px solid #dee2e6;
-            border-radius: 8px;
+            border-radius: 0;
             padding: 15px;
         }
         .history-entry {
             padding: 8px;
             margin: 5px 0;
-            border-radius: 6px;
+            border-radius: 0;
             font-weight: 600;
         }
         .history-entry.correct {

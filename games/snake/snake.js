@@ -19,9 +19,9 @@ export function init() {
 	style.id = 'snake-styles';
 	style.textContent = `
 		.snake-root { position: relative; width: 100%; max-width: min(640px, 95vw); aspect-ratio: 1 / 1; margin: 0 auto; display: grid; place-items: center; }
-		#snake-canvas { width: 100%; height: 100%; background: #111; border: 2px solid #333; border-radius: 8px; image-rendering: pixelated; }
-		.snake-hud { position: absolute; top: 10px; left: 10px; display: flex; gap: 10px; align-items: center; background: rgba(0,0,0,0.4); color: #fff; padding: 6px 10px; border-radius: 6px; }
-		.snake-hud button { background: #0d6efd; color: #fff; border: 1px solid #0b5ed7; border-radius: 4px; padding: 4px 8px; cursor: pointer; }
+		#snake-canvas { width: 100%; height: 100%; background: #111; border: 2px solid #333; border-radius: 0; image-rendering: pixelated; }
+		.snake-hud { position: absolute; top: 10px; left: 10px; display: flex; gap: 10px; align-items: center; background: rgba(0,0,0,0.4); color: #fff; padding: 6px 10px; border-radius: 0; }
+		.snake-hud button { background: #0d6efd; color: #fff; border: 1px solid #0b5ed7; border-radius: 0; padding: 4px 8px; cursor: pointer; }
 		@media (max-width: 768px) {
 			.game-container #game-content {
 				height: 100vh;

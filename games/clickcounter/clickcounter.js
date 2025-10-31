@@ -231,9 +231,9 @@ function getGameSpecificStyles() {
             margin-bottom: 30px;
         }
         .clickcounter-header h1 {
-            font-size: 3rem;
+            font-size: 2.5rem;
             font-weight: 800;
-            color: #333;
+            color: #111;
             margin: 0 0 20px 0;
         }
         .clickcounter-stats {
@@ -245,7 +245,7 @@ function getGameSpecificStyles() {
         .stat-box {
             background: #f8f9fa;
             border: 2px solid #dee2e6;
-            border-radius: 8px;
+            border-radius: 0;
             padding: 15px 25px;
             text-align: center;
             min-width: 100px;
@@ -321,7 +321,7 @@ function getGameSpecificStyles() {
         }
         .btn-primary, .btn-secondary {
             padding: 12px 24px;
-            border-radius: 8px;
+            border-radius: 0;
             font-size: 1rem;
             cursor: pointer;
             font-weight: 600;
@@ -368,14 +368,14 @@ function getGameSpecificStyles() {
             overflow-y: auto;
             background: #f8f9fa;
             border: 2px solid #dee2e6;
-            border-radius: 8px;
+            border-radius: 0;
             padding: 15px;
         }
         .history-entry {
             padding: 10px;
             margin: 5px 0;
             background: #e9ecef;
-            border-radius: 6px;
+            border-radius: 0;
             font-weight: 600;
             text-align: center;
             color: #495057;

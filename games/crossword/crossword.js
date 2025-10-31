@@ -212,9 +212,9 @@ function getGameSpecificStyles() {
             align-items: center;
         }
         .crossword-header h1 {
-            font-size: 3rem;
+            font-size: 2.5rem;
             font-weight: 800;
-            color: #333;
+            color: #111;
             margin: 0 0 20px 0;
             text-align: center;
         }
@@ -227,7 +227,7 @@ function getGameSpecificStyles() {
         .stat-box {
             background: #f8f9fa;
             border: 2px solid #dee2e6;
-            border-radius: 8px;
+            border-radius: 0;
             padding: 15px 30px;
             text-align: center;
             min-width: 120px;
@@ -256,7 +256,7 @@ function getGameSpecificStyles() {
             gap: 1px;
             background: #333;
             border: 3px solid #555;
-            border-radius: 8px;
+            border-radius: 0;
             padding: 4px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             max-width: min(500px, calc(95vw - 40px));
@@ -277,19 +277,19 @@ function getGameSpecificStyles() {
             background: #fff;
             border: 1px solid #333;
             cursor: pointer;
-            color: #000;
+            color: #111;
         }
         .crossword-cell.active.selected {
             background: #cfe2ff;
             border: 2px solid #0d6efd;
         }
         .crossword-cell.active.filled {
-            color: #000;
+            color: #111;
         }
         .crossword-clues {
             background: #f8f9fa;
             border: 2px solid #dee2e6;
-            border-radius: 8px;
+            border-radius: 0;
             padding: 15px;
             max-width: min(400px, calc(95vw - 40px));
             max-height: 60vh;
@@ -299,7 +299,7 @@ function getGameSpecificStyles() {
             margin: 0 0 10px 0;
             font-size: 1rem;
             font-weight: 700;
-            color: #333;
+            color: #111;
         }
         .clue-item {
             padding: 8px 0;
@@ -314,7 +314,7 @@ function getGameSpecificStyles() {
             text-align: center;
         }
         .crossword-status {
-            color: #333;
+            color: #111;
             font-size: 1rem;
             font-weight: 600;
             margin-bottom: 15px;
@@ -327,7 +327,7 @@ function getGameSpecificStyles() {
         }
         .btn-secondary {
             padding: 10px 20px;
-            border-radius: 6px;
+            border-radius: 0;
             font-size: 0.9rem;
             cursor: pointer;
             font-weight: 600;

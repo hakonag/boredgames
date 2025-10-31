@@ -129,10 +129,10 @@ function getGameSpecificStyles() {
     return `
 .roulette-wrap { display:flex; gap:20px; align-items:center; justify-content:center; width:100%; max-width:min(1100px, 95vw); }
     .roulette-left { display:flex; flex-direction:column; align-items:center; gap:12px; }
-    .roulette-right { width:200px; background:#f8f9fa; border:2px solid #dee2e6; border-radius:12px; padding:12px; }
+    .roulette-right { width:200px; background:#f8f9fa; border:2px solid #dee2e6; border-radius: 0; padding:12px; }
     .roulette-right h3 { margin:0 0 8px 0; font-size:.9rem; color:#495057; text-align:center; }
     .roul-history { display:flex; flex-wrap:wrap; gap:6px; }
-    .roul-history .hist { width:36px; height:36px; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; }
+    .roul-history .hist { width:36px; height:36px; border-radius: 0; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; }
     .roul-history .hist.red { background:#dc3545; }
     .roul-history .hist.black { background:#212529; }
     .roul-history .hist.green { background:#198754; }
@@ -140,14 +140,14 @@ function getGameSpecificStyles() {
     .wheel-inner { position:absolute; inset:0; border-radius:50%; background:conic-gradient(#198754 0deg 9.73deg, #dc3545 9.73deg 19.46deg, #212529 19.46deg 29.19deg, #dc3545 29.19deg 38.92deg, #212529 38.92deg 48.65deg, #dc3545 48.65deg 58.38deg, #212529 58.38deg 68.11deg, #dc3545 68.11deg 77.84deg, #212529 77.84deg 87.57deg, #dc3545 87.57deg 97.3deg, #212529 97.3deg 107.03deg, #dc3545 107.03deg 116.76deg, #212529 116.76deg 126.49deg, #dc3545 126.49deg 136.22deg, #212529 136.22deg 145.95deg, #dc3545 145.95deg 155.68deg, #212529 155.68deg 165.41deg, #dc3545 165.41deg 175.14deg, #212529 175.14deg 184.87deg, #dc3545 184.87deg 194.6deg, #212529 194.6deg 204.33deg, #dc3545 204.33deg 214.06deg, #212529 214.06deg 223.79deg, #dc3545 223.79deg 233.52deg, #212529 233.52deg 243.25deg, #dc3545 243.25deg 252.98deg, #212529 252.98deg 262.71deg, #dc3545 262.71deg 272.44deg, #212529 272.44deg 282.17deg, #dc3545 282.17deg 291.9deg, #212529 291.9deg 301.63deg, #dc3545 301.63deg 311.36deg, #212529 311.36deg 321.09deg, #dc3545 321.09deg 330.82deg, #212529 330.82deg 340.55deg, #dc3545 340.55deg 350.28deg, #212529 350.28deg 360deg); }
     .wheel-pointer { position:absolute; top:-12px; left:50%; transform:translateX(-50%); width:0; height:0; border-left:10px solid transparent; border-right:10px solid transparent; border-bottom:12px solid #ffc107; }
     .roulette-controls { display:flex; flex-direction:column; gap:10px; width:320px; }
-    .balance { background:#f8f9fa; border:2px solid #dee2e6; border-radius:8px; padding:8px; text-align:center; font-weight:700; }
+    .balance { background:#f8f9fa; border:2px solid #dee2e6; border-radius: 0; padding:8px; text-align:center; font-weight:700; }
     .bets { display:flex; gap:8px; align-items:center; justify-content:center; }
-    .bet-btn { display:flex; align-items:center; gap:6px; padding:6px 10px; border-radius:6px; border:2px solid #dee2e6; cursor:pointer; background:#fff; font-weight:700; }
+    .bet-btn { display:flex; align-items:center; gap:6px; padding:6px 10px; border-radius: 0; border:2px solid #dee2e6; cursor:pointer; background:#fff; font-weight:700; }
     .bet-red { color:#dc3545; }
     .bet-black { color:#212529; }
-    #bet-amount { width:80px; padding:6px 8px; border:2px solid #dee2e6; border-radius:6px; }
+    #bet-amount { width:80px; padding:6px 8px; border:2px solid #dee2e6; border-radius: 0; }
     .num-bet { display:flex; gap:8px; justify-content:center; }
-    #bet-number { width:130px; padding:6px 8px; border:2px solid #dee2e6; border-radius:6px; }
+    #bet-number { width:130px; padding:6px 8px; border:2px solid #dee2e6; border-radius: 0; }
     .result-line { text-align:center; color:#495057; min-height:20px; font-weight:600; }
     @media (max-width: 768px) {
         

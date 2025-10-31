@@ -208,9 +208,9 @@ function getGameSpecificStyles() {
             margin-bottom: 30px;
         }
         .reactiontime-header h1 {
-            font-size: 3rem;
+            font-size: 2.5rem;
             font-weight: 800;
-            color: #333;
+            color: #111;
             margin: 0 0 20px 0;
         }
         .reactiontime-stats {
@@ -222,7 +222,7 @@ function getGameSpecificStyles() {
         .stat-box {
             background: #f8f9fa;
             border: 2px solid #dee2e6;
-            border-radius: 8px;
+            border-radius: 0;
             padding: 15px 25px;
             text-align: center;
             min-width: 100px;
@@ -258,7 +258,7 @@ function getGameSpecificStyles() {
             height: 400px;
             max-width: min(400px, calc(95vw - 40px));
             max-height: min(400px, calc(95vw - 40px));
-            border-radius: 20px;
+            border-radius: 0;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -279,7 +279,7 @@ function getGameSpecificStyles() {
             overflow-y: auto;
             background: #f8f9fa;
             border: 2px solid #dee2e6;
-            border-radius: 8px;
+            border-radius: 0;
             padding: 15px;
             display: flex;
             flex-wrap: wrap;
@@ -289,7 +289,7 @@ function getGameSpecificStyles() {
         .history-entry {
             padding: 8px 16px;
             background: #e9ecef;
-            border-radius: 6px;
+            border-radius: 0;
             font-weight: 600;
             color: #495057;
         }
@@ -300,7 +300,7 @@ function getGameSpecificStyles() {
         }
         .btn-secondary {
             padding: 12px 24px;
-            border-radius: 8px;
+            border-radius: 0;
             font-size: 1rem;
             cursor: pointer;
             font-weight: 600;
