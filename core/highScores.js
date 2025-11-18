@@ -57,12 +57,12 @@ export async function getHighScores(gameId = 'tetris') {
                     });
                     
                     uniqueScores.sort((a, b) => b.score - a.score);
-                    const top30 = uniqueScores.slice(0, 30);
+                    const top100 = uniqueScores.slice(0, 100);
                     
                     // Update localStorage with merged scores
-                    localStorage.setItem(storageKey, JSON.stringify(top30));
+                    localStorage.setItem(storageKey, JSON.stringify(top100));
                     
-                    return top30;
+                    return top100;
                 }
             } catch (error) {
                 console.log('Could not fetch remote scores, using local:', error);
@@ -71,13 +71,16 @@ export async function getHighScores(gameId = 'tetris') {
             console.log('JSONBin not configured. Using local scores only.');
         }
         
-        // Fallback to localStorage
-        return localScoresArray;
+        // Fallback to localStorage - return up to 100 scores
+        localScoresArray.sort((a, b) => b.score - a.score);
+        return localScoresArray.slice(0, 100);
     } catch (error) {
         console.error('Error getting high scores:', error);
         const storageKey = `${gameId}HighScores`;
         const localScores = localStorage.getItem(storageKey);
-        return localScores ? JSON.parse(localScores) : [];
+        const localScoresArray = localScores ? JSON.parse(localScores) : [];
+        localScoresArray.sort((a, b) => b.score - a.score);
+        return localScoresArray.slice(0, 100);
     }
 }
 
@@ -95,10 +98,10 @@ export async function saveHighScore(gameId, name, score) {
     // Add new score and sort
     currentScores.push(newScore);
     currentScores.sort((a, b) => b.score - a.score);
-    const top30 = currentScores.slice(0, 30);
+    const top100 = currentScores.slice(0, 100);
     
     // Save to localStorage
-    localStorage.setItem(storageKey, JSON.stringify(top30));
+    localStorage.setItem(storageKey, JSON.stringify(top100));
     
     // Try to save to JSONBin and wait for it to complete
     if (JSONBIN_API_KEY && SCORES_BIN_ID && SCORES_BIN_ID !== 'tetris-high-scores') {
@@ -109,7 +112,7 @@ export async function saveHighScore(gameId, name, score) {
                     'Content-Type': 'application/json',
                     'X-Master-Key': JSONBIN_API_KEY
                 },
-                body: JSON.stringify(top30)
+                body: JSON.stringify(top100)
             });
             
             if (!response.ok) {
@@ -127,7 +130,7 @@ export async function saveHighScore(gameId, name, score) {
         console.log('JSONBin not configured. Scores saved locally only.');
     }
     
-    return top30;
+    return top100;
 }
 
 export function displayHighScores(containerId, gameId, limit = 30) {

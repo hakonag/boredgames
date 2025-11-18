@@ -1,12 +1,42 @@
 // Tetris Game Module
 import { createBackButton } from '../../core/gameUtils.js';
-import { displayHighScores, showScoreModal } from '../../core/highScores.js';
+import { getHighScores, showScoreModal } from '../../core/highScores.js';
 
 let tetrisGame = null;
 
+// Global mute state management
+const GLOBAL_MUTE_KEY = 'tetrisGlobalMute';
+function getGlobalMuteState() {
+    const stored = localStorage.getItem(GLOBAL_MUTE_KEY);
+    return stored === 'true';
+}
+function setGlobalMuteState(isMuted) {
+    localStorage.setItem(GLOBAL_MUTE_KEY, String(isMuted));
+}
+
+// Global theme state management
+const GLOBAL_THEME_KEY = 'tetrisGlobalTheme';
+function getGlobalTheme() {
+    const stored = localStorage.getItem(GLOBAL_THEME_KEY);
+    return stored || 'light';
+}
+function setGlobalTheme(theme) {
+    localStorage.setItem(GLOBAL_THEME_KEY, theme);
+    document.documentElement.setAttribute('data-theme', theme);
+}
+
 export function init() {
+    // Initialize theme
+    const currentTheme = getGlobalTheme();
+    document.documentElement.setAttribute('data-theme', currentTheme);
+    
     const gameContent = document.getElementById('game-content');
     gameContent.innerHTML = createBackButton() + `
+        <div class="theme-toggle-container">
+            <button onclick="window.toggleTetrisTheme()" id="theme-toggle-btn" class="theme-toggle-btn">
+                <i data-lucide="${currentTheme === 'dark' ? 'sun-medium' : 'moon'}" id="theme-icon"></i>
+            </button>
+        </div>
         <div class="tetris-game">
             <div id="tetris-fps" class="fps-indicator">60 fps</div>
             <div class="tetris-side-panel">
@@ -112,6 +142,15 @@ export function init() {
                 </div>
                 <div class="tetris-leaderboard-panel">
                     <h3>Toppresultater</h3>
+                    <div class="leaderboard-pagination-controls">
+                        <button onclick="window.tetrisLeaderboardPrev()" id="leaderboard-prev-btn" class="pagination-btn" style="display:none;">
+                            <i data-lucide="chevron-left"></i>
+                        </button>
+                        <span id="leaderboard-page-info" class="page-info"></span>
+                        <button onclick="window.tetrisLeaderboardNext()" id="leaderboard-next-btn" class="pagination-btn" style="display:none;">
+                            <i data-lucide="chevron-right"></i>
+                        </button>
+                    </div>
                     <div class="high-scores">
                         <div id="tetris-high-scores"></div>
                     </div>
@@ -144,9 +183,14 @@ export function init() {
             overflow: hidden !important;
             position: fixed !important;
             width: 100% !important;
+            background: #ffffff !important;
+            transition: background 0.3s ease;
         }
         html {
             overflow: hidden !important;
+        }
+        [data-theme="dark"] body {
+            background: #000000 !important;
         }
         .game-container {
             position: fixed;
@@ -165,6 +209,90 @@ export function init() {
             justify-content: center;
             box-sizing: border-box;
             background: #ffffff;
+            transition: background 0.3s ease;
+        }
+        /* Dark mode background with starry night */
+        [data-theme="dark"] .game-container {
+            background: #000000;
+            position: relative;
+        }
+        [data-theme="dark"] .game-container::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(2px 2px at 20% 30%, #fff, transparent),
+                radial-gradient(2px 2px at 60% 70%, #fff, transparent),
+                radial-gradient(1px 1px at 50% 50%, #fff, transparent),
+                radial-gradient(1px 1px at 80% 10%, #fff, transparent),
+                radial-gradient(2px 2px at 90% 40%, #fff, transparent),
+                radial-gradient(1px 1px at 33% 60%, #fff, transparent),
+                radial-gradient(1px 1px at 15% 80%, #fff, transparent),
+                radial-gradient(2px 2px at 55% 15%, #fff, transparent),
+                radial-gradient(1px 1px at 25% 50%, #fff, transparent),
+                radial-gradient(1px 1px at 75% 25%, #fff, transparent),
+                radial-gradient(2px 2px at 40% 90%, #fff, transparent),
+                radial-gradient(1px 1px at 10% 20%, #fff, transparent),
+                radial-gradient(1px 1px at 70% 60%, #fff, transparent),
+                radial-gradient(2px 2px at 85% 80%, #fff, transparent),
+                radial-gradient(1px 1px at 45% 10%, #fff, transparent);
+            background-size: 200% 200%;
+            background-position: 0% 0%, 100% 0%, 50% 50%, 0% 100%, 100% 100%, 50% 0%, 0% 50%, 100% 50%, 25% 25%, 75% 75%, 50% 100%, 0% 0%, 100% 100%, 50% 50%, 25% 75%;
+            animation: twinkle 20s linear infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
+        }
+        [data-theme="dark"] .game-container > * {
+            position: relative;
+            z-index: 1;
+        }
+        /* Theme toggle button */
+        .theme-toggle-container {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 10001;
+        }
+        .theme-toggle-btn {
+            background: #f8f9fa;
+            color: #111;
+            border: 2px solid #dee2e6;
+            padding: 8px;
+            border-radius: 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .theme-toggle-btn:hover {
+            background: #e9ecef;
+            border-color: #111;
+            transform: scale(1.05);
+        }
+        [data-theme="dark"] .theme-toggle-btn {
+            background: #1a1a1a;
+            color: #fff;
+            border-color: #444;
+        }
+        [data-theme="dark"] .theme-toggle-btn:hover {
+            background: #2a2a2a;
+            border-color: #666;
+        }
+        .theme-toggle-btn i {
+            width: 20px;
+            height: 20px;
+            stroke-width: 2;
         }
         .game-container #game-content {
             position: relative;
@@ -270,6 +398,41 @@ export function init() {
             display: flex;
             flex-direction: column;
         }
+        [data-theme="dark"] .tetris-controls-panel {
+            background: #1a1a1a;
+            border-color: #444;
+        }
+        [data-theme="dark"] .tetris-controls-panel h3 {
+            color: #fff;
+        }
+        [data-theme="dark"] .control-item {
+            background: #2a2a2a;
+            border-color: #444;
+        }
+        [data-theme="dark"] .control-label {
+            color: #ddd;
+        }
+        [data-theme="dark"] .preview-box {
+            background: #1a1a1a;
+            border-color: #444;
+        }
+        [data-theme="dark"] .preview-box h4 {
+            color: #fff;
+        }
+        [data-theme="dark"] .back-button-shared {
+            background: #1a1a1a !important;
+            color: #fff !important;
+            border-color: #444 !important;
+        }
+        [data-theme="dark"] .back-button-shared:hover {
+            background: #2a2a2a !important;
+            border-color: #666 !important;
+        }
+        [data-theme="dark"] .fps-indicator {
+            background: #1a1a1a;
+            color: #aaa;
+            border-color: #444;
+        }
         .tetris-leaderboard-panel {
             padding: 12px;
             background: #f8f9fa;
@@ -282,6 +445,58 @@ export function init() {
             flex-direction: column;
             min-height: 0;
             max-height: 100%;
+        }
+        [data-theme="dark"] .tetris-leaderboard-panel {
+            background: #1a1a1a;
+            border-color: #444;
+        }
+        .leaderboard-pagination-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 8px;
+            padding: 4px 0;
+        }
+        .pagination-btn {
+            background: #e9ecef;
+            color: #495057;
+            border: 1px solid #adb5bd;
+            padding: 4px 8px;
+            border-radius: 0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            transition: all 0.2s ease;
+        }
+        .pagination-btn:hover {
+            background: #dee2e6;
+            border-color: #495057;
+        }
+        [data-theme="dark"] .pagination-btn {
+            background: #2a2a2a;
+            color: #fff;
+            border-color: #555;
+        }
+        [data-theme="dark"] .pagination-btn:hover {
+            background: #3a3a3a;
+            border-color: #777;
+        }
+        .pagination-btn i {
+            width: 14px;
+            height: 14px;
+        }
+        .page-info {
+            font-size: 0.7rem;
+            color: #6c757d;
+            flex: 1;
+            text-align: center;
+        }
+        [data-theme="dark"] .page-info {
+            color: #aaa;
         }
         .preview-box {
             background: #f8f9fa;
@@ -346,12 +561,19 @@ export function init() {
         .tetris-info {
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 8px;
             margin-top: 10px;
-            padding: 8px;
+            padding: 12px;
             background: #f8f9fa;
             border-radius: 0;
-            border: 1px solid #dee2e6;
+            border: 3px solid #007bff;
+            box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
+            font-weight: 600;
+        }
+        [data-theme="dark"] .tetris-info {
+            background: #1a1a1a;
+            border-color: #4a9eff;
+            box-shadow: 0 4px 8px rgba(74, 158, 255, 0.3);
         }
         .info-item {
             display: flex;
@@ -361,14 +583,21 @@ export function init() {
         }
         .info-label {
             color: #6c757d;
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+        [data-theme="dark"] .info-label {
+            color: #aaa;
         }
         .info-value {
             color: #212529;
-            font-size: 0.9rem;
+            font-size: 1.1rem;
             font-weight: bold;
+        }
+        [data-theme="dark"] .info-value {
+            color: #fff;
         }
         .tetris-controls-panel h3, .tetris-leaderboard-panel h3 {
             margin: 0 0 12px 0;
@@ -378,6 +607,9 @@ export function init() {
             text-transform: uppercase;
             letter-spacing: 0.5px;
             font-weight: 600;
+        }
+        [data-theme="dark"] .tetris-leaderboard-panel h3 {
+            color: #fff;
         }
         .control-group {
             display: flex;
@@ -538,41 +770,64 @@ export function init() {
         }
         .score-entry {
             display: block;
-            padding: 4px 0;
-            font-size: 0.7rem;
+            padding: 8px 4px;
+            font-size: 0.85rem;
             border-bottom: 1px solid #dee2e6;
-            line-height: 1.2;
+            line-height: 1.4;
+        }
+        [data-theme="dark"] .score-entry {
+            border-bottom-color: #444;
         }
         .score-entry:last-child {
             border-bottom: none;
         }
         .score-entry:first-child {
-            font-weight: 600;
+            font-weight: 700;
+            background: rgba(0, 123, 255, 0.05);
+            padding: 10px 4px;
+        }
+        [data-theme="dark"] .score-entry:first-child {
+            background: rgba(74, 158, 255, 0.1);
         }
         .score-name {
             color: #495057;
-            font-size: 0.7rem;
+            font-size: 0.9rem;
             display: block;
-            margin-bottom: 2px;
+            margin-bottom: 4px;
             word-break: break-word;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+            font-weight: 500;
+        }
+        [data-theme="dark"] .score-name {
+            color: #ddd;
         }
         .score-entry:first-child .score-name {
             color: #212529;
-            font-weight: 600;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+        [data-theme="dark"] .score-entry:first-child .score-name {
+            color: #fff;
         }
         .score-value {
             color: #495057;
-            font-weight: 500;
-            font-size: 0.7rem;
+            font-weight: 600;
+            font-size: 0.95rem;
             display: block;
             margin-left: 8px;
         }
+        [data-theme="dark"] .score-value {
+            color: #bbb;
+        }
         .score-entry:first-child .score-value {
-            color: #212529;
-            font-weight: 600;
+            color: #007bff;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        [data-theme="dark"] .score-entry:first-child .score-value {
+            color: #4a9eff;
         }
         .score-modal {
             position: fixed;
@@ -762,12 +1017,89 @@ export function init() {
         if (tetrisGame) tetrisGame.toggleFullscreen();
     };
     
-    // Add mute toggle function
+    // Add mute toggle function (global)
     window.toggleMute = () => {
         if (tetrisGame) {
             tetrisGame.toggleMute();
         }
     };
+    
+    // Theme toggle function
+    window.toggleTetrisTheme = () => {
+        const currentTheme = getGlobalTheme();
+        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+        setGlobalTheme(newTheme);
+        
+        const themeIcon = document.getElementById('theme-icon');
+        if (themeIcon) {
+            themeIcon.setAttribute('data-lucide', newTheme === 'dark' ? 'sun-medium' : 'moon');
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+    };
+    
+    // Leaderboard pagination functions
+    let currentLeaderboardPage = 0;
+    const scoresPerPage = 10;
+    const maxScores = 100;
+    
+    window.tetrisLeaderboardPrev = () => {
+        if (currentLeaderboardPage > 0) {
+            currentLeaderboardPage--;
+            displayTetrisLeaderboard(currentLeaderboardPage);
+        }
+    };
+    
+    window.tetrisLeaderboardNext = () => {
+        const maxPage = Math.ceil(Math.min(maxScores, window.tetrisAllScores?.length || 0) / scoresPerPage) - 1;
+        if (currentLeaderboardPage < maxPage) {
+            currentLeaderboardPage++;
+            displayTetrisLeaderboard(currentLeaderboardPage);
+        }
+    };
+    
+    async function displayTetrisLeaderboard(page = 0) {
+        const scoresContainer = document.getElementById('tetris-high-scores');
+        const prevBtn = document.getElementById('leaderboard-prev-btn');
+        const nextBtn = document.getElementById('leaderboard-next-btn');
+        const pageInfo = document.getElementById('leaderboard-page-info');
+        
+        if (!scoresContainer) return;
+        
+        try {
+            const allScores = await getHighScores('tetris');
+            window.tetrisAllScores = allScores;
+            
+            const totalScores = Math.min(maxScores, allScores.length);
+            const maxPage = Math.ceil(totalScores / scoresPerPage) - 1;
+            const startIdx = page * scoresPerPage;
+            const endIdx = Math.min(startIdx + scoresPerPage, totalScores);
+            const displayScores = allScores.slice(startIdx, endIdx);
+            
+            if (displayScores.length === 0) {
+                scoresContainer.innerHTML = '<p style="color: #999; font-size: 0.85rem;">Ingen scores ennå</p>';
+                prevBtn.style.display = 'none';
+                nextBtn.style.display = 'none';
+                pageInfo.textContent = '';
+                return;
+            }
+            
+            scoresContainer.innerHTML = displayScores.map((entry, index) => `
+                <div class="score-entry">
+                    <div class="score-name">${startIdx + index + 1}. ${entry.name}</div>
+                    <div class="score-value">${entry.score.toLocaleString()}</div>
+                </div>
+            `).join('');
+            
+            // Update pagination controls
+            prevBtn.style.display = page > 0 ? 'flex' : 'none';
+            nextBtn.style.display = page < maxPage ? 'flex' : 'none';
+            pageInfo.textContent = totalScores > scoresPerPage ? `${startIdx + 1}-${endIdx} av ${totalScores}` : '';
+            
+        } catch (err) {
+            console.error('Error displaying scores:', err);
+            scoresContainer.innerHTML = '<p style="color: #999; font-size: 0.85rem;">Kunne ikke laste scores</p>';
+        }
+    }
     
     // Mode toggle function
     window.toggleTetrisMode = () => {
@@ -815,8 +1147,8 @@ export function init() {
     window.startTetris = startTetris;
     window.pauseTetris = pauseTetris;
     
-    // Load and display high scores (async) - handle promise properly
-    displayHighScores('tetris-high-scores', 'tetris', 30).catch(err => console.log('Error loading scores:', err));
+    // Load and display high scores with pagination
+    displayTetrisLeaderboard(0).catch(err => console.log('Error loading scores:', err));
 }
 
 export function cleanup() {
@@ -867,9 +1199,11 @@ class TetrisGame {
         // Calculate initial fall interval based on starting level
         // Formula: max(100, 1000 - (level - 1) * 100)
         this.fallInterval = Math.max(100, 1000 - (this.startLevel - 1) * 100);
-        this.isMuted = false;
+        // Use global mute state
+        this.isMuted = getGlobalMuteState();
         this.backgroundMusic = null;
         this.setupAudio();
+        this.initializeLevelPalettes();
         this.setupCanvasScaling();
         this.createGridCache();
         
@@ -883,7 +1217,8 @@ class TetrisGame {
             [[0,0,1],[1,1,1]]  // J
         ];
         
-        this.pieceColors = [
+        // Base piece colors (will be modified by level palette)
+        this.basePieceColors = [
             'hsl(180, 70%, 50%)', // I - cyan
             'hsl(60, 70%, 50%)',  // O - yellow
             'hsl(270, 70%, 50%)', // T - purple
@@ -892,16 +1227,74 @@ class TetrisGame {
             'hsl(30, 70%, 50%)',  // L - orange
             'hsl(240, 70%, 50%)'  // J - blue
         ];
+        this.pieceColors = [...this.basePieceColors];
         
         this.setupControls();
         // Delay draw slightly to ensure canvas is ready
         setTimeout(() => {
+            this.updateLevelPalette();
             this.draw();
             this.drawPreviews();
             // Update level display with starting level
             const levelEl = document.getElementById('tetris-level');
             if (levelEl) levelEl.textContent = this.level;
+            // Update mute button to reflect global state
+            this.updateMuteButton();
         }, 10);
+    }
+    
+    initializeLevelPalettes() {
+        // Create 30 unique color palettes for levels 1-30, then cycle
+        this.levelPalettes = [];
+        for (let i = 0; i < 30; i++) {
+            const hueShift = (i * 12) % 360; // Rotate through hue spectrum
+            const saturation = 60 + (i % 3) * 10; // Vary saturation 60-80%
+            const lightness = 45 + (i % 4) * 5; // Vary lightness 45-60%
+            
+            const palette = [
+                `hsl(${(hueShift + 180) % 360}, ${saturation}%, ${lightness}%)`, // I
+                `hsl(${(hueShift + 60) % 360}, ${saturation}%, ${lightness}%)`,  // O
+                `hsl(${(hueShift + 270) % 360}, ${saturation}%, ${lightness}%)`, // T
+                `hsl(${(hueShift + 120) % 360}, ${saturation}%, ${lightness}%)`, // S
+                `hsl(${hueShift % 360}, ${saturation}%, ${lightness}%)`,         // Z
+                `hsl(${(hueShift + 30) % 360}, ${saturation}%, ${lightness}%)`, // L
+                `hsl(${(hueShift + 240) % 360}, ${saturation}%, ${lightness}%)`  // J
+            ];
+            this.levelPalettes.push(palette);
+        }
+    }
+    
+    updateLevelPalette() {
+        // Get palette index (level 1 = index 0, level 31 = index 0, etc.)
+        const paletteIndex = (this.level - 1) % 30;
+        this.pieceColors = [...this.levelPalettes[paletteIndex]];
+        
+        // Update current piece color if it exists
+        if (this.currentPiece) {
+            const pieceIndex = this.currentPiece.pieceIndex;
+            if (pieceIndex >= 0 && pieceIndex < this.pieceColors.length) {
+                this.currentPiece.color = this.pieceColors[pieceIndex];
+            }
+        }
+        
+        // Update next piece color
+        if (this.nextPiece) {
+            const pieceIndex = this.nextPiece.pieceIndex;
+            if (pieceIndex >= 0 && pieceIndex < this.pieceColors.length) {
+                this.nextPiece.color = this.pieceColors[pieceIndex];
+            }
+        }
+        
+        // Update held piece color
+        if (this.heldPiece) {
+            const pieceIndex = this.heldPiece.pieceIndex;
+            if (pieceIndex >= 0 && pieceIndex < this.pieceColors.length) {
+                this.heldPiece.color = this.pieceColors[pieceIndex];
+            }
+        }
+        
+        // Note: Placed pieces in grid keep their colors until cleared
+        // This creates a nice visual transition effect as the level changes
     }
     
     setupControls() {
@@ -1019,6 +1412,8 @@ class TetrisGame {
         
         // Start background music if not muted
         this.playBackgroundMusic();
+        // Update mute button to reflect global state
+        this.updateMuteButton();
     }
     
     pause() {
@@ -1188,11 +1583,17 @@ class TetrisGame {
         }
         
         if (linesCleared > 0) {
+            const oldLevel = this.level;
             this.lines += linesCleared;
             this.score += linesCleared * 100 * this.level;
             // Level increases every 10 lines, but always at least the starting level
             this.level = Math.max(this.startLevel, Math.floor(this.lines / 10) + 1);
             this.fallInterval = Math.max(100, 1000 - (this.level - 1) * 100);
+            
+            // Update color palette if level changed
+            if (this.level !== oldLevel) {
+                this.updateLevelPalette();
+            }
             
             const scoreEl = document.getElementById('tetris-score');
             const linesEl = document.getElementById('tetris-lines');
@@ -1442,7 +1843,8 @@ class TetrisGame {
         this.heldPiece = null;
         this.canHold = true;
         this.isPaused = false;
-        this.isMuted = false;
+        // Restore global mute state
+        this.isMuted = getGlobalMuteState();
         const scoreEl = document.getElementById('tetris-score');
         const linesEl = document.getElementById('tetris-lines');
         const levelEl = document.getElementById('tetris-level');
@@ -1455,6 +1857,7 @@ class TetrisGame {
             lucide.createIcons();
         }
         clearInterval(this.gameLoop);
+        this.updateLevelPalette();
         this.draw();
         this.drawPreviews();
         this.updateMuteButton();
@@ -1529,6 +1932,8 @@ class TetrisGame {
     
     toggleMute() {
         this.isMuted = !this.isMuted;
+        // Save to global state
+        setGlobalMuteState(this.isMuted);
         
         // Control background music based on mute state
         if (this.backgroundMusic) {
