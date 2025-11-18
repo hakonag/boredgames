@@ -143,11 +143,11 @@ export function init() {
                 <div class="tetris-leaderboard-panel">
                     <h3>Toppresultater</h3>
                     <div class="leaderboard-pagination-controls">
-                        <button onclick="window.tetrisLeaderboardPrev()" id="leaderboard-prev-btn" class="pagination-btn" style="display:none;">
+                        <button onclick="window.tetrisLeaderboardPrev()" id="leaderboard-prev-btn" class="pagination-btn">
                             <i data-lucide="chevron-left"></i>
                         </button>
                         <span id="leaderboard-page-info" class="page-info"></span>
-                        <button onclick="window.tetrisLeaderboardNext()" id="leaderboard-next-btn" class="pagination-btn" style="display:none;">
+                        <button onclick="window.tetrisLeaderboardNext()" id="leaderboard-next-btn" class="pagination-btn">
                             <i data-lucide="chevron-right"></i>
                         </button>
                     </div>
@@ -214,7 +214,6 @@ export function init() {
         /* Dark mode background with starry night */
         [data-theme="dark"] .game-container {
             background: #000000;
-            position: relative;
         }
         [data-theme="dark"] .game-container::before {
             content: '';
@@ -284,6 +283,7 @@ export function init() {
             background: #1a1a1a;
             color: #fff;
             border-color: #444;
+            border-width: 2px;
         }
         [data-theme="dark"] .theme-toggle-btn:hover {
             background: #2a2a2a;
@@ -401,6 +401,7 @@ export function init() {
         [data-theme="dark"] .tetris-controls-panel {
             background: #1a1a1a;
             border-color: #444;
+            border-width: 2px;
         }
         [data-theme="dark"] .tetris-controls-panel h3 {
             color: #fff;
@@ -408,6 +409,7 @@ export function init() {
         [data-theme="dark"] .control-item {
             background: #2a2a2a;
             border-color: #444;
+            border-width: 1px;
         }
         [data-theme="dark"] .control-label {
             color: #ddd;
@@ -415,6 +417,7 @@ export function init() {
         [data-theme="dark"] .preview-box {
             background: #1a1a1a;
             border-color: #444;
+            border-width: 2px;
         }
         [data-theme="dark"] .preview-box h4 {
             color: #fff;
@@ -423,6 +426,7 @@ export function init() {
             background: #1a1a1a !important;
             color: #fff !important;
             border-color: #444 !important;
+            border-width: 2px !important;
         }
         [data-theme="dark"] .back-button-shared:hover {
             background: #2a2a2a !important;
@@ -432,6 +436,7 @@ export function init() {
             background: #1a1a1a;
             color: #aaa;
             border-color: #444;
+            border-width: 2px;
         }
         .tetris-leaderboard-panel {
             padding: 12px;
@@ -445,18 +450,25 @@ export function init() {
             flex-direction: column;
             min-height: 0;
             max-height: 100%;
+            gap: 8px;
         }
         [data-theme="dark"] .tetris-leaderboard-panel {
             background: #1a1a1a;
             border-color: #444;
+            border-width: 2px;
         }
         .leaderboard-pagination-controls {
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
             gap: 8px;
-            margin-bottom: 8px;
-            padding: 4px 0;
+            margin-bottom: 0;
+            padding: 6px 4px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        [data-theme="dark"] .leaderboard-pagination-controls {
+            border-bottom-color: #444;
+            border-bottom-width: 1px;
         }
         .pagination-btn {
             background: #e9ecef;
@@ -471,32 +483,35 @@ export function init() {
             width: 24px;
             height: 24px;
             transition: all 0.2s ease;
+            opacity: 1;
         }
-        .pagination-btn:hover {
+        .pagination-btn:hover:not(:disabled) {
             background: #dee2e6;
             border-color: #495057;
+        }
+        .pagination-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
         }
         [data-theme="dark"] .pagination-btn {
             background: #2a2a2a;
             color: #fff;
             border-color: #555;
+            border-width: 1px;
         }
-        [data-theme="dark"] .pagination-btn:hover {
+        [data-theme="dark"] .pagination-btn:hover:not(:disabled) {
             background: #3a3a3a;
             border-color: #777;
+        }
+        [data-theme="dark"] .pagination-btn:disabled {
+            opacity: 0.3;
         }
         .pagination-btn i {
             width: 14px;
             height: 14px;
         }
         .page-info {
-            font-size: 0.7rem;
-            color: #6c757d;
-            flex: 1;
-            text-align: center;
-        }
-        [data-theme="dark"] .page-info {
-            color: #aaa;
+            display: none;
         }
         .preview-box {
             background: #f8f9fa;
@@ -573,6 +588,7 @@ export function init() {
         [data-theme="dark"] .tetris-info {
             background: #1a1a1a;
             border-color: #4a9eff;
+            border-width: 3px;
             box-shadow: 0 4px 8px rgba(74, 158, 255, 0.3);
         }
         .info-item {
@@ -670,6 +686,8 @@ export function init() {
             flex: 1;
             display: flex;
             flex-direction: column;
+            min-height: 0;
+            overflow: hidden;
         }
         .tetris-leaderboard-panel .high-scores h3 {
             display: none;
@@ -680,6 +698,9 @@ export function init() {
             overflow-x: hidden;
             min-height: 0;
             max-height: 100%;
+            padding-right: 2px; /* Add small padding for scrollbar */
+            display: flex;
+            flex-direction: column;
         }
         .btn-primary {
             background: #007bff;
@@ -769,31 +790,102 @@ export function init() {
             text-align: center;
         }
         .score-entry {
-            display: block;
-            padding: 8px 4px;
+            display: flex;
+            flex-direction: column;
+            padding: 6px 6px;
             font-size: 0.85rem;
             border-bottom: 1px solid #dee2e6;
-            line-height: 1.4;
+            line-height: 1.3;
+            gap: 2px;
+            flex-shrink: 0;
         }
         [data-theme="dark"] .score-entry {
             border-bottom-color: #444;
+            border-bottom-width: 1px;
         }
         .score-entry:last-child {
             border-bottom: none;
         }
-        .score-entry:first-child {
-            font-weight: 700;
-            background: rgba(0, 123, 255, 0.05);
-            padding: 10px 4px;
+        /* Gold medal styling for 1st place */
+        .score-entry-gold {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.15) 0%, rgba(255, 223, 0, 0.1) 100%);
+            border-left: 3px solid #ffd700;
+            box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+            font-weight: 600;
         }
-        [data-theme="dark"] .score-entry:first-child {
-            background: rgba(74, 158, 255, 0.1);
+        [data-theme="dark"] .score-entry-gold {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.2) 0%, rgba(255, 223, 0, 0.15) 100%);
+            box-shadow: 0 0 12px rgba(255, 215, 0, 0.4);
+        }
+        .score-entry-gold .score-name {
+            color: #b8860b;
+            font-weight: 600;
+        }
+        [data-theme="dark"] .score-entry-gold .score-name {
+            color: #ffd700;
+        }
+        .score-entry-gold .score-value {
+            color: #daa520;
+            font-weight: 700;
+        }
+        [data-theme="dark"] .score-entry-gold .score-value {
+            color: #ffd700;
+        }
+        /* Silver medal styling for 2nd place */
+        .score-entry-silver {
+            background: linear-gradient(135deg, rgba(192, 192, 192, 0.15) 0%, rgba(211, 211, 211, 0.1) 100%);
+            border-left: 3px solid #c0c0c0;
+            box-shadow: 0 0 6px rgba(192, 192, 192, 0.25);
+            font-weight: 600;
+        }
+        [data-theme="dark"] .score-entry-silver {
+            background: linear-gradient(135deg, rgba(192, 192, 192, 0.2) 0%, rgba(211, 211, 211, 0.15) 100%);
+            box-shadow: 0 0 10px rgba(192, 192, 192, 0.35);
+        }
+        .score-entry-silver .score-name {
+            color: #808080;
+            font-weight: 600;
+        }
+        [data-theme="dark"] .score-entry-silver .score-name {
+            color: #c0c0c0;
+        }
+        .score-entry-silver .score-value {
+            color: #a9a9a9;
+            font-weight: 700;
+        }
+        [data-theme="dark"] .score-entry-silver .score-value {
+            color: #c0c0c0;
+        }
+        /* Bronze medal styling for 3rd place */
+        .score-entry-bronze {
+            background: linear-gradient(135deg, rgba(205, 127, 50, 0.15) 0%, rgba(184, 115, 51, 0.1) 100%);
+            border-left: 3px solid #cd7f32;
+            box-shadow: 0 0 6px rgba(205, 127, 50, 0.25);
+            font-weight: 600;
+        }
+        [data-theme="dark"] .score-entry-bronze {
+            background: linear-gradient(135deg, rgba(205, 127, 50, 0.2) 0%, rgba(184, 115, 51, 0.15) 100%);
+            box-shadow: 0 0 10px rgba(205, 127, 50, 0.35);
+        }
+        .score-entry-bronze .score-name {
+            color: #8b4513;
+            font-weight: 600;
+        }
+        [data-theme="dark"] .score-entry-bronze .score-name {
+            color: #cd7f32;
+        }
+        .score-entry-bronze .score-value {
+            color: #a0522d;
+            font-weight: 700;
+        }
+        [data-theme="dark"] .score-entry-bronze .score-value {
+            color: #cd7f32;
         }
         .score-name {
             color: #495057;
             font-size: 0.9rem;
             display: block;
-            margin-bottom: 4px;
+            margin-bottom: 0;
             word-break: break-word;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -803,31 +895,16 @@ export function init() {
         [data-theme="dark"] .score-name {
             color: #ddd;
         }
-        .score-entry:first-child .score-name {
-            color: #212529;
-            font-weight: 700;
-            font-size: 1rem;
-        }
-        [data-theme="dark"] .score-entry:first-child .score-name {
-            color: #fff;
-        }
         .score-value {
             color: #495057;
             font-weight: 600;
             font-size: 0.95rem;
             display: block;
-            margin-left: 8px;
+            margin-left: 0;
+            text-align: right;
         }
         [data-theme="dark"] .score-value {
             color: #bbb;
-        }
-        .score-entry:first-child .score-value {
-            color: #007bff;
-            font-weight: 700;
-            font-size: 1.1rem;
-        }
-        [data-theme="dark"] .score-entry:first-child .score-value {
-            color: #4a9eff;
         }
         .score-modal {
             position: fixed;
@@ -1072,28 +1149,48 @@ export function init() {
             const totalScores = Math.min(maxScores, allScores.length);
             const maxPage = Math.ceil(totalScores / scoresPerPage) - 1;
             const startIdx = page * scoresPerPage;
+            // Calculate end index: start + scoresPerPage, but not more than total
             const endIdx = Math.min(startIdx + scoresPerPage, totalScores);
+            // Slice to get the scores for this page (endIdx is exclusive)
             const displayScores = allScores.slice(startIdx, endIdx);
+            
+            // Debug: ensure we're getting the right number of scores
+            if (displayScores.length !== Math.min(scoresPerPage, totalScores - startIdx)) {
+                console.warn(`Expected ${Math.min(scoresPerPage, totalScores - startIdx)} scores, got ${displayScores.length}`);
+            }
             
             if (displayScores.length === 0) {
                 scoresContainer.innerHTML = '<p style="color: #999; font-size: 0.85rem;">Ingen scores ennå</p>';
-                prevBtn.style.display = 'none';
-                nextBtn.style.display = 'none';
+                prevBtn.style.display = 'flex';
+                nextBtn.style.display = 'flex';
+                prevBtn.disabled = true;
+                nextBtn.disabled = true;
                 pageInfo.textContent = '';
                 return;
             }
             
-            scoresContainer.innerHTML = displayScores.map((entry, index) => `
-                <div class="score-entry">
-                    <div class="score-name">${startIdx + index + 1}. ${entry.name}</div>
-                    <div class="score-value">${entry.score.toLocaleString()}</div>
+            scoresContainer.innerHTML = displayScores.map((entry, index) => {
+                const rank = startIdx + index + 1;
+                let medalClass = '';
+                if (rank === 1) medalClass = 'score-entry-gold';
+                else if (rank === 2) medalClass = 'score-entry-silver';
+                else if (rank === 3) medalClass = 'score-entry-bronze';
+                return `
+                <div class="score-entry ${medalClass}">
+                    <div class="score-name">${rank}. ${entry.name}</div>
+                    <div class="score-value">${entry.score.toLocaleString().replace(/\s/g, '&nbsp;')}</div>
                 </div>
-            `).join('');
+            `;
+            }).join('');
             
-            // Update pagination controls
-            prevBtn.style.display = page > 0 ? 'flex' : 'none';
-            nextBtn.style.display = page < maxPage ? 'flex' : 'none';
-            pageInfo.textContent = totalScores > scoresPerPage ? `${startIdx + 1}-${endIdx} av ${totalScores}` : '';
+            // Update pagination controls - always show buttons
+            prevBtn.style.display = 'flex';
+            nextBtn.style.display = 'flex';
+            // Disable buttons when at boundaries
+            prevBtn.disabled = page === 0;
+            nextBtn.disabled = page >= maxPage;
+            // Hide page info (removed per user request)
+            pageInfo.textContent = '';
             
         } catch (err) {
             console.error('Error displaying scores:', err);
